@@ -1,0 +1,50 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "@/lib/router";
+import { useAuthStore } from "@/lib/auth-store";
+import { toast } from "sonner";
+
+export function AdminGuard({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      const redirect =
+        typeof window !== "undefined" ? window.location.hash : "#/admin";
+      router.navigate("login", { redirect });
+      toast.info("Sign in as an admin to continue");
+      return;
+    }
+    if (user.role !== "admin") {
+      router.navigate("home");
+      toast.error("Admins only");
+      return;
+    }
+    if (user.email) {
+      fetch("/api/admin/bootstrap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email, name: user.name }),
+      }).catch(() => {
+        /* bootstrap is best-effort */
+      });
+    }
+  }, [isAuthenticated, user, router]);
+
+  if (!isAuthenticated || !user || user.role !== "admin") {
+    return (
+      <div
+        className="min-h-[60vh] flex items-center justify-center text-sm text-muted-foreground"
+        role="status"
+        aria-live="polite"
+      >
+        Checking admin access…
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}

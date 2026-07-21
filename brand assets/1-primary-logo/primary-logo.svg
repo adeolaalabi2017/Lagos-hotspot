@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1900 820" width="1900" height="820">
+<defs>
+<style>
+  .word { font-family: Arial, Helvetica, sans-serif; font-weight: 800; fill: #0B1220; }
+  .sub  { font-family: Arial, Helvetica, sans-serif; font-weight: 600; fill: #0B1220; letter-spacing: 22px; }
+</style>
+</defs>
+
+<!-- L -->
+<text x="130" y="560" class="word" font-size="430">L</text>
+
+<!-- pyramid as A -->
+<polygon points="465,235.0 465.0,235.0 427.5,316.25 465,316.25" fill="#FDB813"/>
+<polygon points="465,235.0 465.0,235.0 502.5,316.25 465,316.25" fill="#FDB813"/>
+<polygon points="465,235.0 465.0,235.0 502.5,316.25 465,316.25" fill="#000000" opacity="0.16"/>
+<polygon points="465,320.15 427.5,320.15 390.0,397.5 465,397.5" fill="#F26522"/>
+<polygon points="465,320.15 502.5,320.15 540.0,397.5 465,397.5" fill="#F26522"/>
+<polygon points="465,320.15 502.5,320.15 540.0,397.5 465,397.5" fill="#000000" opacity="0.16"/>
+<polygon points="465,401.4 390.0,401.4 352.5,478.75 465,478.75" fill="#E31C5F"/>
+<polygon points="465,401.4 540.0,401.4 577.5,478.75 465,478.75" fill="#E31C5F"/>
+<polygon points="465,401.4 540.0,401.4 577.5,478.75 465,478.75" fill="#000000" opacity="0.16"/>
+<polygon points="465,482.65 352.5,482.65 315.0,560.0 465,560.0" fill="#7B2FE0"/>
+<polygon points="465,482.65 577.5,482.65 615.0,560.0 465,560.0" fill="#7B2FE0"/>
+<polygon points="465,482.65 577.5,482.65 615.0,560.0 465,560.0" fill="#000000" opacity="0.16"/>
+
+<!-- gos -->
+<text x="605" y="560" class="word" font-size="430">gos</text>
+
+<!-- HotSpot subline -->
+<text x="180" y="700" class="sub" font-size="70">HotSpot</text>
+
+<!-- underline flourishes -->
+<line x1="150" y1="668" x2="440" y2="668" stroke="#0B1220" stroke-width="4"/>
+<line x1="1000" y1="668" x2="1290" y2="668" stroke="#0B1220" stroke-width="4"/>
+</svg>

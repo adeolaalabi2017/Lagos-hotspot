@@ -1,0 +1,228 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatar    String?
+  phone     String?
+  bio       String?
+  role      String   @default("user")
+  passwordHash String?
+  suspendedAt       DateTime?
+  suspendedReason   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  listings         Listing[]
+  reviews          Review[]
+  bookmarks        Bookmark[]
+  bookings         Booking[]
+  messages         Message[]
+  threads          ConversationThread[]
+  threadMessages   ConversationMessage[]
+  adminActions     AdminAction[]
+  adminImports     AdminImport[]
+}
+
+model Listing {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String
+  price       String?
+  image       String?
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  location    String?
+  city        String?
+  country     String?
+  phone       String?
+  whatsappNumber  String?
+  instagramHandle String?
+  isFeatured  Boolean  @default(false)
+  isOpen      Boolean  @default(true)
+  isVerified  Boolean  @default(false)
+  isTrending  Boolean  @default(false)
+  tags        String?
+  amenities   String?
+  lat         Float?
+  lng         Float?
+  rejectReason String?
+  status      String   @default("active")
+  authorId    String?
+  author      User?    @relation(fields: [authorId], references: [id])
+  reviews     Review[]
+  bookings    Booking[]
+  bookmarks   Bookmark[]
+  threads     ConversationThread[]
+  media       Media[]
+  reports     Report[]
+  hours       ListingHour[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ListingHour {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  dayOfWeek Int
+  opensAt   String?
+  closesAt  String?
+  isClosed  Boolean  @default(false)
+
+  @@unique([listingId, dayOfWeek])
+  @@index([listingId])
+}
+
+model Media {
+  id         String   @id @default(cuid())
+  url        String
+  kind       String   @default("gallery")
+  hotspotId  String?
+  hotspot    Listing? @relation(fields: [hotspotId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Float
+  comment    String?
+  status     String   @default("pending")
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  reports    Report[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Report {
+  id         String   @id @default(cuid())
+  category   String
+  reason     String?
+  status     String   @default("open")
+  outcome    String?
+  reporterId String?
+  hotspotId  String?
+  hotspot    Listing? @relation(fields: [hotspotId], references: [id], onDelete: Cascade)
+  reviewId   String?
+  review     Review?  @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String
+  targetType String
+  targetId   String?
+  reason     String?
+  metadata   String?
+  createdAt  DateTime @default(now())
+}
+
+model AdminImport {
+  id            String   @id @default(cuid())
+  actorId       String
+  actor         User     @relation(fields: [actorId], references: [id])
+  fileName      String
+  rowCount      Int
+  successCount  Int
+  failureCount  Int
+  createdAt     DateTime @default(now())
+}
+
+model Booking {
+  id           String   @id @default(cuid())
+  date         String
+  time         String?
+  status       String   @default("pending")
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  listingId    String
+  listing      Listing  @relation(fields: [listingId], references: [id])
+  partySize    Int?
+  name         String?
+  phone        String?
+  notes        String?
+  decidedAt    DateTime?
+  decidedById  String?
+  decisionNote String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([listingId])
+  @@index([listingId, date, time])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id])
+  receiverId String?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model ConversationThread {
+  id            String              @id @default(cuid())
+  userId        String
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId     String
+  listing       Listing             @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  lastMessageAt DateTime            @default(now())
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  messages      ConversationMessage[]
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@index([listingId])
+}
+
+model ConversationMessage {
+  id        String            @id @default(cuid())
+  threadId  String
+  thread    ConversationThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User              @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body      String
+  readAt    DateTime?
+  createdAt DateTime          @default(now())
+
+  @@index([threadId, createdAt])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, listingId])
+  @@index([userId])
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String @unique
+  icon  String
+  count Int    @default(0)
+  color String
+}
