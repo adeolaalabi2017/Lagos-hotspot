@@ -1,4 +1,4 @@
-﻿// Mock data for EkoSpot — Lagos Hotspot Discovery Platform
+﻿// Mock data for Lagos Hotspot — Lagos Hotspot Discovery Platform
 
 export interface Category {
   id: string;
@@ -267,14 +267,14 @@ export const helpArticles: HelpArticle[] = [
   {
     id: "1",
     title: "How to Find the Best Hotspots in Your Area",
-    excerpt: "Learn how to use EkoSpot's search and filter features to discover amazing places near you",
+    excerpt: "Learn how to use Lagos Hotspot's search and filter features to discover amazing places near you",
     category: "Getting Started",
     icon: "Search",
     slug: "find-best-hotspots",
     content: [
-      "EkoSpot makes it easy to discover the hottest spots in Lagos. Start by using the search bar at the top of the homepage — you can search by name, area, or category. For example, typing 'suya' will show you all the best suya spots across Lagos, while 'Victoria Island' will filter results to that area.",
+      "Lagos Hotspot makes it easy to discover the hottest spots in Lagos. Start by using the search bar at the top of the homepage — you can search by name, area, or category. For example, typing 'suya' will show you all the best suya spots across Lagos, while 'Victoria Island' will filter results to that area.",
       "Use our filter system to narrow down results by category (Food & Dining, Nightlife, Beaches, etc.), price level (Budget-friendly to Luxury), and vibe score. The vibe score is a great indicator of how popular and trending a spot is right now — spots with a score above 80 are currently very hot!",
-      "You can also browse by area. Lagos is divided into popular neighborhoods on EkoSpot, including Victoria Island, Ikoyi, Lekki, Yaba, Surulere, and more. Each area page shows the top-rated and trending spots in that neighborhood.",
+      "You can also browse by area. Lagos is divided into popular neighborhoods on Lagos Hotspot, including Victoria Island, Ikoyi, Lekki, Yaba, Surulere, and more. Each area page shows the top-rated and trending spots in that neighborhood.",
       "Don't forget to check the 'Open Now' filter if you're looking for something at this very moment. We update opening hours regularly, and many spots have different hours on weekends vs weekdays. Pro tip: save spots you want to visit later so you can quickly access them from your dashboard!"
     ],
   },
@@ -286,10 +286,10 @@ export const helpArticles: HelpArticle[] = [
     icon: "Star",
     slug: "writing-helpful-reviews",
     content: [
-      "Great reviews help the entire EkoSpot community make better decisions. When writing a review, be specific about your experience — instead of saying 'the food was good,' mention what you ordered and what made it special. For example: 'The jollof rice at Yellow Chilli had the perfect smoky flavor, and the asun was generously portioned.'",
+      "Great reviews help the entire Lagos Hotspot community make better decisions. When writing a review, be specific about your experience — instead of saying 'the food was good,' mention what you ordered and what made it special. For example: 'The jollof rice at Yellow Chilli had the perfect smoky flavor, and the asun was generously portioned.'",
       "Include practical details that others will find useful: How was the parking? Did you need a reservation? What's the best time to visit? Is it good for dates, family outings, or business meetings? These details make your review far more valuable than a simple star rating.",
       "Be honest and fair. If you had a negative experience, describe what happened without being overly harsh. Business owners read these reviews too, and constructive feedback helps them improve. Remember that one bad day doesn't necessarily mean a bad spot — consider the overall picture.",
-      "Photos make a huge difference! If possible, include photos of the food, ambiance, or view. EkoSpot reviews with photos get 3x more engagement and are far more helpful to people deciding whether to visit a spot."
+      "Photos make a huge difference! If possible, include photos of the food, ambiance, or view. Lagos Hotspot reviews with photos get 3x more engagement and are far more helpful to people deciding whether to visit a spot."
     ],
   },
   {
@@ -300,7 +300,7 @@ export const helpArticles: HelpArticle[] = [
     icon: "Flame",
     slug: "understanding-vibe-scores",
     content: [
-      "The Vibe Score is EkoSpot's unique way of measuring how 'hot' a spot is right now. Scores range from 0 to 100, with higher scores indicating a spot that's currently trending, popular, and highly recommended by the community.",
+      "The Vibe Score is Lagos Hotspot's unique way of measuring how 'hot' a spot is right now. Scores range from 0 to 100, with higher scores indicating a spot that's currently trending, popular, and highly recommended by the community.",
       "Vibe Scores are calculated from multiple factors: review ratings and recency (40%), current popularity and visit frequency (25%), social media buzz and mentions (20%), and listing completeness (15%). This means a spot can't simply buy a high score — it must be earned through genuine popularity and community engagement.",
       "A score above 80 means the spot is currently very hot and trending — expect it to be busy, especially on weekends. Scores between 60-79 indicate a popular, well-regarded spot. Scores below 60 might mean the spot is new, hasn't been reviewed much yet, or is currently less popular.",
       "Vibe Scores are updated weekly, so they reflect the current state of a spot rather than historical performance. This means seasonal spots like beach clubs might have higher scores in dry season and lower scores during the rains. Always check the score before heading out!"
@@ -309,15 +309,15 @@ export const helpArticles: HelpArticle[] = [
   {
     id: "4",
     title: "Submitting a New Hotspot",
-    excerpt: "How to add a new hotspot to EkoSpot and help grow the Lagos community",
+    excerpt: "How to add a new hotspot to Lagos Hotspot and help grow the Lagos community",
     category: "Getting Started",
     icon: "Plus",
     slug: "submitting-new-hotspot",
     content: [
-      "Know a great spot that's not on EkoSpot yet? You can submit it through your dashboard! Click 'Add Spot' from the dashboard sidebar, and you'll be taken to the submission form. Fill in as much detail as possible — name, area, category, address, and a brief description.",
+      "Know a great spot that's not on Lagos Hotspot yet? You can submit it through your dashboard! Click 'Add Spot' from the dashboard sidebar, and you'll be taken to the submission form. Fill in as much detail as possible — name, area, category, address, and a brief description.",
       "The more information you provide, the faster we can verify and publish the listing. Include the spot's WhatsApp number, Instagram handle, and typical price range if you know them. Photos are especially helpful — you can upload up to 5 photos of the spot.",
       "Our team reviews all submissions within 24-48 hours. We verify that the spot exists, check the information provided, and may reach out to the business for additional details. Once approved, the listing goes live and you'll get a notification.",
-      "As a thank-you for contributing to the community, users who submit spots that get approved earn a contribution badge on their profile. Top contributors are featured on our community page and get early access to new EkoSpot features!"
+      "As a thank-you for contributing to the community, users who submit spots that get approved earn a contribution badge on their profile. Top contributors are featured on our community page and get early access to new Lagos Hotspot features!"
     ],
   },
   {
@@ -328,10 +328,10 @@ export const helpArticles: HelpArticle[] = [
     icon: "Heart",
     slug: "managing-saved-spots",
     content: [
-      "Found a spot you want to try? Hit the heart icon to save it! You can save any hotspot on EkoSpot by clicking the heart button on the listing card or detail page. Saved spots are accessible from your dashboard under 'Saved Spots'.",
+      "Found a spot you want to try? Hit the heart icon to save it! You can save any hotspot on Lagos Hotspot by clicking the heart button on the listing card or detail page. Saved spots are accessible from your dashboard under 'Saved Spots'.",
       "Explorer plan users can save up to 10 spots, while Scout and Ambassador users enjoy unlimited saves. Your saved spots are organized by category and area, making it easy to find the right spot for any occasion — whether it's date night, a business lunch, or a weekend beach trip.",
-      "You can share your saved spots collection with friends via a shareable link. This is great for planning group outings — create a collection of spots for a birthday dinner, a weekend itinerary, or a Lagos visitor's guide. Friends can view your collection without needing an EkoSpot account.",
-      "EkoSpot also sends you notifications when your saved spots have special events, new reviews, or changes to operating hours. This way, you'll always be in the loop about your favorite places in Lagos!"
+      "You can share your saved spots collection with friends via a shareable link. This is great for planning group outings — create a collection of spots for a birthday dinner, a weekend itinerary, or a Lagos visitor's guide. Friends can view your collection without needing an Lagos Hotspot account.",
+      "Lagos Hotspot also sends you notifications when your saved spots have special events, new reviews, or changes to operating hours. This way, you'll always be in the loop about your favorite places in Lagos!"
     ],
   },
   {
@@ -342,10 +342,10 @@ export const helpArticles: HelpArticle[] = [
     icon: "MessageCircle",
     slug: "contacting-via-whatsapp",
     content: [
-      "Most Lagos businesses use WhatsApp as their primary communication channel, and EkoSpot makes it easy to reach them directly. Every hotspot listing includes a WhatsApp button — just click it to open a WhatsApp chat with the business.",
-      "When reaching out via WhatsApp, be specific about what you need: 'Hi, I'd like to make a reservation for 4 people this Saturday at 7 PM' works much better than a simple 'Hello.' Mention that you found them on EkoSpot — many businesses offer special deals to EkoSpot users!",
+      "Most Lagos businesses use WhatsApp as their primary communication channel, and Lagos Hotspot makes it easy to reach them directly. Every hotspot listing includes a WhatsApp button — just click it to open a WhatsApp chat with the business.",
+      "When reaching out via WhatsApp, be specific about what you need: 'Hi, I'd like to make a reservation for 4 people this Saturday at 7 PM' works much better than a simple 'Hello.' Mention that you found them on Lagos Hotspot — many businesses offer special deals to Lagos Hotspot users!",
       "For reservations at popular spots like Yellow Chilli, Nok by Alara, or beach clubs on Elegushi, we recommend booking at least 2-3 days in advance. Weekend slots fill up quickly, especially during the festive season (December in Lagos is next level!).",
-      "If a hotspot doesn't respond on WhatsApp within a few hours, try their phone number (also listed on their EkoSpot page) or check their Instagram for updates. Some smaller spots may have limited WhatsApp hours but respond faster on Instagram DMs."
+      "If a hotspot doesn't respond on WhatsApp within a few hours, try their phone number (also listed on their Lagos Hotspot page) or check their Instagram for updates. Some smaller spots may have limited WhatsApp hours but respond faster on Instagram DMs."
     ],
   },
 ];
@@ -353,13 +353,13 @@ export const helpArticles: HelpArticle[] = [
 // ─── FAQ Items ───────────────────────────────────────────
 export const faqItems: FAQItem[] = [
   {
-    question: "What is EkoSpot?",
-    answer: "EkoSpot is Lagos' premier hotspot discovery platform. We help you find the best restaurants, clubs, beaches, cultural centers, and more across Lagos State. Think of us as your personal guide to the pulse of Lagos.",
+    question: "What is Lagos Hotspot?",
+    answer: "Lagos Hotspot is Lagos' premier hotspot discovery platform. We help you find the best restaurants, clubs, beaches, cultural centers, and more across Lagos State. Think of us as your personal guide to the pulse of Lagos.",
     category: "General",
   },
   {
-    question: "Is EkoSpot free to use?",
-    answer: "Yes! Browsing and discovering hotspots on EkoSpot is completely free. You can search, filter, and read reviews without creating an account. Sign up to save spots, write reviews, and get personalized recommendations.",
+    question: "Is Lagos Hotspot free to use?",
+    answer: "Yes! Browsing and discovering hotspots on Lagos Hotspot is completely free. You can search, filter, and read reviews without creating an account. Sign up to save spots, write reviews, and get personalized recommendations.",
     category: "General",
   },
   {
@@ -369,7 +369,7 @@ export const faqItems: FAQItem[] = [
   },
   {
     question: "Can I submit a new hotspot?",
-    answer: "Absolutely! If you know a great spot in Lagos that's not on EkoSpot yet, you can submit it through your dashboard. Our team will review the submission and add it to the platform within 24-48 hours.",
+    answer: "Absolutely! If you know a great spot in Lagos that's not on Lagos Hotspot yet, you can submit it through your dashboard. Our team will review the submission and add it to the platform within 24-48 hours.",
     category: "Features",
   },
   {
@@ -378,12 +378,12 @@ export const faqItems: FAQItem[] = [
     category: "Features",
   },
   {
-    question: "Are the reviews on EkoSpot verified?",
+    question: "Are the reviews on Lagos Hotspot verified?",
     answer: "We mark reviews as 'verified' when they come from users who have demonstrably visited the hotspot. This helps ensure the authenticity and reliability of reviews on our platform.",
     category: "Reviews",
   },
   {
-    question: "What areas in Lagos does EkoSpot cover?",
+    question: "What areas in Lagos does Lagos Hotspot cover?",
     answer: "We cover all major areas in Lagos State including Victoria Island, Ikoyi, Lekki, Yaba, Surulere, Ikeja, Lagos Island, Ajah, Apapa, and more. We're constantly expanding our coverage.",
     category: "General",
   },
@@ -508,10 +508,10 @@ export const messages: Message[] = [
   },
   {
     id: "3",
-    sender: "EkoSpot Team",
+    sender: "Lagos Hotspot Team",
     avatar: "ES",
     time: "3 days ago",
-    text: "Welcome to EkoSpot! Start exploring Lagos' hottest spots and save your favorites.",
+    text: "Welcome to Lagos Hotspot! Start exploring Lagos' hottest spots and save your favorites.",
     unread: 0,
   },
 ];

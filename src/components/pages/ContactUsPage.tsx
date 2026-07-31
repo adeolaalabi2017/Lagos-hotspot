@@ -33,7 +33,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email Address",
-    detail: "hello@ekospot.com",
+    detail: "hello@lagos-hotspot.com",
     sub: "We reply within 24 hours",
   },
 ];
@@ -66,7 +66,7 @@ export default function ContactUsPage() {
   return (
     <div>
       {/* Hero Section */}
-      <PageHero title="Contact Us" subtitle="We'd love to hear from you. Get in touch with the EkoSpot team." />
+      <PageHero title="Contact Us" subtitle="We'd love to hear from you. Get in touch with the Lagos Hotspot team." />
 
       {/* Contact Info Cards */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8">

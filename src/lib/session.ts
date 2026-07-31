@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-export const SESSION_COOKIE_NAME = "ekospot_session";
+export const SESSION_COOKIE_NAME = "lagos-hotspot_session";
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 export interface SessionPayload {

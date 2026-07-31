@@ -40,7 +40,7 @@ const values = [
   {
     icon: Flame,
     title: "Authenticity",
-    description: "Every hotspot on EkoSpot is verified. We champion genuine experiences over paid promotions.",
+    description: "Every hotspot on Lagos Hotspot is verified. We champion genuine experiences over paid promotions.",
   },
   {
     icon: Compass,
@@ -55,7 +55,7 @@ export default function AboutUsPage() {
   return (
     <div>
       {/* Hero Section */}
-      <PageHero title="About EkoSpot" subtitle="Your guide to the hottest spots in Lagos" />
+      <PageHero title="About Lagos Hotspot" subtitle="Your guide to the hottest spots in Lagos" />
 
       {/* Our Story */}
       <section className="py-16">
@@ -66,19 +66,19 @@ export default function AboutUsPage() {
                 Our Story
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                EkoSpot was born in Lagos — a city of 20 million people, thousands of incredible
+                Lagos Hotspot was born in Lagos — a city of 20 million people, thousands of incredible
                 restaurants, clubs, beaches, galleries, and hangout spots, yet no single trusted
                 platform to discover them all. We kept asking: &ldquo;Where&apos;s the vibe tonight?&rdquo;
                 and getting scattered answers from group chats and Instagram stories.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                Founded in 2024, EkoSpot set out to change that. We built a platform where real
+                Founded in 2024, Lagos Hotspot set out to change that. We built a platform where real
                 Lagosians share honest reviews, where the hottest spots rise to the top based on
                 genuine vibes — not paid ads — and where discovering the city becomes an adventure,
                 not a guessing game.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Today, EkoSpot is the most trusted guide to Lagos&apos; vibrant scene. From the
+                Today, Lagos Hotspot is the most trusted guide to Lagos&apos; vibrant scene. From the
                 suya spots of Yaba to the rooftop lounges of Victoria Island, we help you find
                 your next favorite place in the city that never sleeps.
               </p>
@@ -86,7 +86,7 @@ export default function AboutUsPage() {
             <div className="rounded-2xl overflow-hidden shadow-lg">
               <img
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&h=400&fit=crop"
-                alt="EkoSpot Team in Lagos"
+                alt="Lagos Hotspot Team in Lagos"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -173,7 +173,7 @@ export default function AboutUsPage() {
               Meet Our Team
             </h2>
             <p className="mt-3 text-muted-foreground max-w-xl mx-auto">
-              The passionate Lagosians behind EkoSpot who work tirelessly to
+              The passionate Lagosians behind Lagos Hotspot who work tirelessly to
               help you discover the best the city has to offer.
             </p>
           </div>
@@ -225,7 +225,7 @@ export default function AboutUsPage() {
             Ready to Explore Lagos?
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto mb-8">
-            Join thousands of Lagosians who trust EkoSpot to discover the city&apos;s
+            Join thousands of Lagosians who trust Lagos Hotspot to discover the city&apos;s
             best restaurants, nightlife, beaches, and hidden gems.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

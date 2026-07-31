@@ -97,9 +97,9 @@ export default function RegisterPage() {
             <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
               <Flame className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">EkoSpot</span>
+            <span className="text-xl font-bold text-foreground">Lagos Hotspot</span>
           </button>
-          <h1 className="text-2xl font-bold text-foreground">Join EkoSpot</h1>
+          <h1 className="text-2xl font-bold text-foreground">Join Lagos Hotspot</h1>
           <p className="text-muted-foreground text-sm">
             Start discovering the hottest spots in Lagos today.
           </p>

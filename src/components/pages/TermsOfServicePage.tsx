@@ -25,77 +25,77 @@ const sections = [
     title: "Introduction",
     icon: FileText,
     content:
-      "Welcome to EkoSpot! These Terms of Service (\"Terms\") govern your access to and use of the EkoSpot platform, including our website, mobile applications, and all related services. EkoSpot is Lagos' premier hotspot discovery platform, connecting people with the best restaurants, nightlife, beaches, cultural centers, and more across Lagos State. By accessing or using our platform, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must discontinue use of the platform immediately.",
+      "Welcome to Lagos Hotspot! These Terms of Service (\"Terms\") govern your access to and use of the Lagos Hotspot platform, including our website, mobile applications, and all related services. Lagos Hotspot is Lagos' premier hotspot discovery platform, connecting people with the best restaurants, nightlife, beaches, cultural centers, and more across Lagos State. By accessing or using our platform, you agree to be bound by these Terms. If you do not agree with any part of these Terms, you must discontinue use of the platform immediately.",
   },
   {
     id: "acceptance-of-terms",
     title: "Acceptance of Terms",
     icon: CheckCircle,
     content:
-      "By creating an account on EkoSpot, browsing hotspot listings, or using any of our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy. These Terms apply to all users, including explorers, scouts, ambassadors, and visitors. If you are using the platform on behalf of a business, you represent and warrant that you have the authority to bind that business to these Terms. We reserve the right to update these Terms at any time, and continued use of the platform constitutes acceptance of any changes.",
+      "By creating an account on Lagos Hotspot, browsing hotspot listings, or using any of our services, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service and our Privacy Policy. These Terms apply to all users, including explorers, scouts, ambassadors, and visitors. If you are using the platform on behalf of a business, you represent and warrant that you have the authority to bind that business to these Terms. We reserve the right to update these Terms at any time, and continued use of the platform constitutes acceptance of any changes.",
   },
   {
     id: "user-obligations",
     title: "User Obligations",
     icon: MapPin,
     content:
-      "As a user of EkoSpot, you are responsible for maintaining accurate and up-to-date account information. You must not submit false or misleading hotspot listings, reviews, or information. All reviews must be based on genuine experiences. Users are required to respect the intellectual property of hotspot owners and other users. You must not use the platform for any unlawful purpose, including but not limited to fraud, harassment, or spam. Failure to meet these obligations may result in account suspension or termination.",
+      "As a user of Lagos Hotspot, you are responsible for maintaining accurate and up-to-date account information. You must not submit false or misleading hotspot listings, reviews, or information. All reviews must be based on genuine experiences. Users are required to respect the intellectual property of hotspot owners and other users. You must not use the platform for any unlawful purpose, including but not limited to fraud, harassment, or spam. Failure to meet these obligations may result in account suspension or termination.",
   },
   {
     id: "business-listings",
     title: "Business Listings",
     icon: Star,
     content:
-      "Business owners who list their establishments on EkoSpot (Ambassador plan) are responsible for maintaining accurate and up-to-date business information, including business name, contact information, hours of operation, and price ranges. All business descriptions and images must accurately represent the establishment. Business owners must respond to customer inquiries within a reasonable timeframe. EkoSpot reserves the right to remove listings that are found to contain false or misleading information.",
+      "Business owners who list their establishments on Lagos Hotspot (Ambassador plan) are responsible for maintaining accurate and up-to-date business information, including business name, contact information, hours of operation, and price ranges. All business descriptions and images must accurately represent the establishment. Business owners must respond to customer inquiries within a reasonable timeframe. Lagos Hotspot reserves the right to remove listings that are found to contain false or misleading information.",
   },
   {
     id: "trust-verification",
     title: "Vibe Scores & Verification",
     icon: Shield,
     content:
-      "EkoSpot's Vibe Score system is designed to provide an objective assessment of hotspot popularity and quality based on verified data including customer reviews, visit frequency, social media buzz, and listing completeness. Vibe Scores are calculated algorithmically and cannot be purchased or manipulated. Business owners may apply for verified status by submitting required documentation. Verification status is subject to periodic review and may be revoked if the business no longer meets our standards. EkoSpot makes no guarantees regarding the accuracy of Vibe Scores and encourages users to exercise their own judgment.",
+      "Lagos Hotspot's Vibe Score system is designed to provide an objective assessment of hotspot popularity and quality based on verified data including customer reviews, visit frequency, social media buzz, and listing completeness. Vibe Scores are calculated algorithmically and cannot be purchased or manipulated. Business owners may apply for verified status by submitting required documentation. Verification status is subject to periodic review and may be revoked if the business no longer meets our standards. Lagos Hotspot makes no guarantees regarding the accuracy of Vibe Scores and encourages users to exercise their own judgment.",
   },
   {
     id: "dispute-resolution",
     title: "Dispute Resolution",
     icon: Scale,
     content:
-      "In the event of a dispute between a user and a business listed on EkoSpot, we provide a structured resolution process. Users may report issues through the hotspot listing page or contact our support team. Business owners have 72 hours to respond to reported issues. Our resolution team will review all evidence provided by both parties and issue a determination within 5 business days. Any disputes that cannot be resolved through our platform shall be subject to the exclusive jurisdiction of the courts of Lagos State, Nigeria.",
+      "In the event of a dispute between a user and a business listed on Lagos Hotspot, we provide a structured resolution process. Users may report issues through the hotspot listing page or contact our support team. Business owners have 72 hours to respond to reported issues. Our resolution team will review all evidence provided by both parties and issue a determination within 5 business days. Any disputes that cannot be resolved through our platform shall be subject to the exclusive jurisdiction of the courts of Lagos State, Nigeria.",
   },
   {
     id: "payment-terms",
     title: "Payment Terms (Paystack)",
     icon: CreditCard,
     content:
-      "All financial transactions on EkoSpot are processed securely through Paystack, our PCI-DSS compliant payment partner. We accept Visa, Mastercard, and Verve cards, bank transfers from all major Nigerian banks, and USSD payment codes. All transactions are denominated in Nigerian Naira (₦). Subscription fees (Scout: ₦2,999/month, Ambassador: ₦9,999/month) are billed automatically on the subscription anniversary date. Upgrades take effect immediately with prorated billing, while downgrades apply at the end of the current billing period. EkoSpot is not a bank and does not hold customer funds — all payments are processed directly through Paystack.",
+      "All financial transactions on Lagos Hotspot are processed securely through Paystack, our PCI-DSS compliant payment partner. We accept Visa, Mastercard, and Verve cards, bank transfers from all major Nigerian banks, and USSD payment codes. All transactions are denominated in Nigerian Naira (₦). Subscription fees (Scout: ₦2,999/month, Ambassador: ₦9,999/month) are billed automatically on the subscription anniversary date. Upgrades take effect immediately with prorated billing, while downgrades apply at the end of the current billing period. Lagos Hotspot is not a bank and does not hold customer funds — all payments are processed directly through Paystack.",
   },
   {
     id: "account-termination",
     title: "Account Termination",
     icon: Ban,
     content:
-      "EkoSpot reserves the right to suspend or terminate accounts that violate these Terms of Service, engage in fraudulent activity, or receive a significant number of verified complaints. We will provide notice of termination via email where possible, except in cases involving fraud or illegal activity where immediate termination may be necessary. Users may also terminate their own accounts at any time through their Dashboard settings or by contacting our support team. Upon account termination, your personal data will be handled in accordance with our Privacy Policy and the Nigeria Data Protection Regulation (NDPR).",
+      "Lagos Hotspot reserves the right to suspend or terminate accounts that violate these Terms of Service, engage in fraudulent activity, or receive a significant number of verified complaints. We will provide notice of termination via email where possible, except in cases involving fraud or illegal activity where immediate termination may be necessary. Users may also terminate their own accounts at any time through their Dashboard settings or by contacting our support team. Upon account termination, your personal data will be handled in accordance with our Privacy Policy and the Nigeria Data Protection Regulation (NDPR).",
   },
   {
     id: "limitation-of-liability",
     title: "Limitation of Liability",
     icon: AlertTriangle,
     content:
-      "EkoSpot serves as a platform for discovering hotspots and is not a party to any transactions between users and businesses. We do not guarantee the quality, safety, or availability of services listed on the platform, nor do we guarantee the accuracy of all information provided by businesses. To the maximum extent permitted by Nigerian law, EkoSpot shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the platform. Our total liability for any claim arising from these Terms shall not exceed the amount you have paid to EkoSpot in the twelve (12) months preceding the claim.",
+      "Lagos Hotspot serves as a platform for discovering hotspots and is not a party to any transactions between users and businesses. We do not guarantee the quality, safety, or availability of services listed on the platform, nor do we guarantee the accuracy of all information provided by businesses. To the maximum extent permitted by Nigerian law, Lagos Hotspot shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the platform. Our total liability for any claim arising from these Terms shall not exceed the amount you have paid to Lagos Hotspot in the twelve (12) months preceding the claim.",
   },
   {
     id: "changes-to-terms",
     title: "Changes to Terms",
     icon: RefreshCw,
     content:
-      "EkoSpot reserves the right to modify these Terms of Service at any time. When we make material changes, we will notify users via email and through a prominent notice on the platform at least 14 days before the changes take effect. Continued use of the platform after the effective date of any changes constitutes your acceptance of the revised Terms. We encourage you to review these Terms periodically to stay informed of any updates. If you do not agree with the revised Terms, you must stop using the platform and may request account deletion.",
+      "Lagos Hotspot reserves the right to modify these Terms of Service at any time. When we make material changes, we will notify users via email and through a prominent notice on the platform at least 14 days before the changes take effect. Continued use of the platform after the effective date of any changes constitutes your acceptance of the revised Terms. We encourage you to review these Terms periodically to stay informed of any updates. If you do not agree with the revised Terms, you must stop using the platform and may request account deletion.",
   },
   {
     id: "contact",
     title: "Contact",
     icon: HelpCircle,
     content:
-      "If you have any questions or concerns about these Terms of Service, please contact us at legal@ekospot.com or through our Help Center. You can also reach us by mail at: 234 Admiralty Way, Victoria Island, Lagos, Nigeria. For payment-related inquiries, please contact Paystack support at support@paystack.com. Our legal team is available Monday through Friday, 9 AM to 5 PM (WAT), and will respond to all inquiries within 5 business days.",
+      "If you have any questions or concerns about these Terms of Service, please contact us at legal@lagos-hotspot.com or through our Help Center. You can also reach us by mail at: 234 Admiralty Way, Victoria Island, Lagos, Nigeria. For payment-related inquiries, please contact Paystack support at support@paystack.com. Our legal team is available Monday through Friday, 9 AM to 5 PM (WAT), and will respond to all inquiries within 5 business days.",
   },
 ];
 
@@ -119,7 +119,7 @@ export default function TermsOfServicePage() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Flame className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="text-lg font-bold text-foreground">EkoSpot</span>
+          <span className="text-lg font-bold text-foreground">Lagos Hotspot</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
           Terms of Service

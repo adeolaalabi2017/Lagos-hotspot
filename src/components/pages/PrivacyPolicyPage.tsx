@@ -12,7 +12,7 @@ const sections = [
     title: "Introduction",
     icon: FileText,
     content:
-      "Welcome to EkoSpot! This Privacy Policy describes how we collect, use, and protect your personal information when you use our platform. By accessing or using EkoSpot, you agree to the terms outlined in this policy. We are committed to ensuring that your privacy is protected and that your personal data is handled responsibly in accordance with the Nigeria Data Protection Regulation (NDPR) and applicable Nigerian data protection laws.",
+      "Welcome to Lagos Hotspot! This Privacy Policy describes how we collect, use, and protect your personal information when you use our platform. By accessing or using Lagos Hotspot, you agree to the terms outlined in this policy. We are committed to ensuring that your privacy is protected and that your personal data is handled responsibly in accordance with the Nigeria Data Protection Regulation (NDPR) and applicable Nigerian data protection laws.",
   },
   {
     id: "information-we-collect",
@@ -26,7 +26,7 @@ const sections = [
     title: "How We Use Information",
     icon: FileText,
     content:
-      "We use the information we collect to provide, maintain, and improve our hotspot discovery services, process transactions and send related information including confirmations and invoices via Paystack, send technical notices, updates, security alerts, and administrative messages, respond to your comments, questions, and requests, and provide customer support, communicate with you about hotspots, events, and offers from EkoSpot, calculate and display vibe scores, and monitor and analyze trends, usage, and activities on the platform.",
+      "We use the information we collect to provide, maintain, and improve our hotspot discovery services, process transactions and send related information including confirmations and invoices via Paystack, send technical notices, updates, security alerts, and administrative messages, respond to your comments, questions, and requests, and provide customer support, communicate with you about hotspots, events, and offers from Lagos Hotspot, calculate and display vibe scores, and monitor and analyze trends, usage, and activities on the platform.",
   },
   {
     id: "information-sharing",
@@ -47,7 +47,7 @@ const sections = [
     title: "NDPR Compliance",
     icon: Scale,
     content:
-      "EkoSpot is fully compliant with the Nigeria Data Protection Regulation (NDPR) issued by the National Information Technology Development Agency (NITDA). We have appointed a Data Protection Officer (DPO) and conduct regular data protection impact assessments. We ensure that all data processing activities are carried out in accordance with the principles of lawfulness, fairness, and transparency. You have the right to access, rectify, and erase your personal data, as well as the right to data portability under the NDPR.",
+      "Lagos Hotspot is fully compliant with the Nigeria Data Protection Regulation (NDPR) issued by the National Information Technology Development Agency (NITDA). We have appointed a Data Protection Officer (DPO) and conduct regular data protection impact assessments. We ensure that all data processing activities are carried out in accordance with the principles of lawfulness, fairness, and transparency. You have the right to access, rectify, and erase your personal data, as well as the right to data portability under the NDPR.",
   },
   {
     id: "cookies",
@@ -75,7 +75,7 @@ const sections = [
     title: "Contact Us",
     icon: HelpCircle,
     content:
-      "If you have any questions about this Privacy Policy or our NDPR compliance, please contact our Data Protection Officer at privacy@ekospot.com or through our Help Center. You can also write to us at: 234 Admiralty Way, Victoria Island, Lagos, Nigeria. We will respond to your inquiry within 30 days of receipt, as required by the NDPR.",
+      "If you have any questions about this Privacy Policy or our NDPR compliance, please contact our Data Protection Officer at privacy@lagos-hotspot.com or through our Help Center. You can also write to us at: 234 Admiralty Way, Victoria Island, Lagos, Nigeria. We will respond to your inquiry within 30 days of receipt, as required by the NDPR.",
   },
 ];
 
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
             <Flame className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="text-lg font-bold text-foreground">EkoSpot</span>
+          <span className="text-lg font-bold text-foreground">Lagos Hotspot</span>
         </div>
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
           Privacy Policy

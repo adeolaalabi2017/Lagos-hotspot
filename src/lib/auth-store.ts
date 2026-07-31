@@ -124,7 +124,7 @@ function initials(name: string): string {
 }
 
 function tierFromEmail(email: string): UserTier {
-  if (email.startsWith("ambassador") || email.endsWith("@ambassador.ekospot")) {
+  if (email.startsWith("ambassador") || email.endsWith("@ambassador.lagos-hotspot")) {
     return "ambassador";
   }
   return "explorer";
@@ -156,7 +156,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       async bootstrap() {
         try {
-          const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+          const base =
+            typeof document !== "undefined" && document.baseURI
+              ? document.baseURI
+              : "";
+          const res = await fetch(`${base}api/auth/me`, {
+            credentials: "same-origin",
+          });
           if (!res.ok) {
             set({ isAuthenticated: false, user: null });
             return;
@@ -225,7 +231,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: "ekospot-auth",
+      name: "lagos-hotspot-auth",
       version: 3,
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
       migrate: (persistedState, version) => {

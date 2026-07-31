@@ -95,10 +95,12 @@ export default function DashboardMessages() {
     if (qIdx === -1) return;
     const params = new URLSearchParams(hash.slice(qIdx + 1));
     const tid = params.get("threadId");
-    if (tid) {
+    if (!tid) return;
+    const apply = () => {
       setSelectedThreadId(tid);
       setShowChatMobile(true);
-    }
+    };
+    void Promise.resolve().then(apply);
   }, []);
 
   const loadThreads = useCallback(
@@ -126,9 +128,16 @@ export default function DashboardMessages() {
   );
 
   useEffect(() => {
-    void loadThreads(true);
+    let cancelled = false;
+    async function run() {
+      await loadThreads(true);
+    }
+    void run();
     const handle = setInterval(() => void loadThreads(false), POLL_INTERVAL_MS);
-    return () => clearInterval(handle);
+    return () => {
+      cancelled = true;
+      clearInterval(handle);
+    };
   }, [loadThreads]);
 
   const loadMessages = useCallback(async (threadId: string) => {
@@ -152,19 +161,26 @@ export default function DashboardMessages() {
   }, []);
 
   useEffect(() => {
-    if (!selectedThreadId) return;
-    void loadMessages(selectedThreadId);
-    // Mark as read on open
-    void fetch(
-      `/api/messaging/threads/${encodeURIComponent(selectedThreadId)}/read`,
-      { method: "POST", credentials: "same-origin" }
-    ).catch(() => {});
-    // Optimistically clear unread badge
-    setThreads((prev) =>
-      prev.map((t) =>
-        t.id === selectedThreadId ? { ...t, unreadCount: 0 } : t
-      )
-    );
+    const tid = selectedThreadId;
+    if (!tid) return;
+    let cancelled = false;
+    async function run() {
+      await loadMessages(tid!);
+      if (cancelled) return;
+      await fetch(
+        `/api/messaging/threads/${encodeURIComponent(tid!)}/read`,
+        { method: "POST", credentials: "same-origin" }
+      ).catch(() => {});
+      setThreads((prev) =>
+        prev.map((t) =>
+          t.id === tid! ? { ...t, unreadCount: 0 } : t
+        )
+      );
+    }
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [selectedThreadId, loadMessages]);
 
   useEffect(() => {

@@ -83,7 +83,7 @@ export default function DashboardSidebar({ activeRoute, collapsed = false, onTog
             <Flame className="h-5 w-5 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <span className="text-lg font-bold text-foreground">EkoSpot</span>
+            <span className="text-lg font-bold text-foreground">Lagos Hotspot</span>
           )}
         </button>
       </div>

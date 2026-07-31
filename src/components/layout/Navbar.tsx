@@ -112,7 +112,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
           >
             <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
               <img
-                src="/images/ekospot-Ikoyi-link-bridge.webp"
+                src="/images/lagos-hotspot-Ikoyi-link-bridge.webp"
                 alt="Lagos hotspot"
                 className="w-full h-full object-cover"
               />
@@ -192,7 +192,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
                 size="sm"
                 className="hidden sm:flex"
                 onClick={() => {
-                  toast.info("Sign in to submit a new hotspot to EkoSpot");
+                  toast.info("Sign in to submit a new hotspot to Lagos Hotspot");
                   navigate("login");
                 }}
               >
@@ -287,7 +287,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
               <SheetContent side="right" className="w-80 p-0">
                 <SheetTitle className="sr-only">Navigation menu</SheetTitle>
                 <SheetDescription className="sr-only">
-                  Browse EkoSpot pages and your dashboard.
+                  Browse Lagos Hotspot pages and your dashboard.
                 </SheetDescription>
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between p-4 border-b">
@@ -447,7 +447,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
                       <Button
                         className="w-full"
                         onClick={() => {
-                          toast.info("Sign in to submit a new hotspot to EkoSpot");
+                          toast.info("Sign in to submit a new hotspot to Lagos Hotspot");
                           navigate("login");
                           setMobileOpen(false);
                         }}

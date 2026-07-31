@@ -51,7 +51,7 @@ export default function DashboardLayout({ children, activeRoute }: DashboardLayo
             </Sheet>
             <div className="flex items-center gap-1.5">
               <Flame className="h-5 w-5 text-primary" />
-              <span className="text-lg font-bold text-foreground">EkoSpot</span>
+              <span className="text-lg font-bold text-foreground">Lagos Hotspot</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

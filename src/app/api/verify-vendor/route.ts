@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         {
           role: "assistant",
           content:
-            "You are a spot reputation analyst for EkoSpot, a Lagos hotspot discovery platform. Analyze web search results about a Lagos spot and provide a short reputation snapshot. Be objective. Format your response as a structured summary with: 1) A buzz score (0-100), 2) Key highlights (positive signals), 3) Watch-outs (negative signals), 4) Best for (the kind of outing the spot suits). Keep it concise but informative. Do not invent facts that are not supported by the search results.",
+            "You are a spot reputation analyst for Lagos Hotspot, a Lagos hotspot discovery platform. Analyze web search results about a Lagos spot and provide a short reputation snapshot. Be objective. Format your response as a structured summary with: 1) A buzz score (0-100), 2) Key highlights (positive signals), 3) Watch-outs (negative signals), 4) Best for (the kind of outing the spot suits). Keep it concise but informative. Do not invent facts that are not supported by the search results.",
         },
         {
           role: "user",

@@ -43,14 +43,14 @@ const popularTopics = [
   {
     icon: Search,
     title: "Getting Started",
-    description: "Learn how to find hotspots, search, and navigate EkoSpot",
+    description: "Learn how to find hotspots, search, and navigate Lagos Hotspot",
     color: "bg-green-100 text-green-700",
     category: "Getting Started",
   },
   {
     icon: Star,
     title: "Community",
-    description: "Writing reviews, earning badges, and contributing to EkoSpot",
+    description: "Writing reviews, earning badges, and contributing to Lagos Hotspot",
     color: "bg-amber-100 text-amber-700",
     category: "Community",
   },
@@ -88,7 +88,7 @@ export default function HelpCenterPage() {
   return (
     <div>
       {/* Hero Section */}
-      <PageHero title="EkoSpot Help Center" subtitle="Find answers and get support for your EkoSpot account.">
+      <PageHero title="Lagos Hotspot Help Center" subtitle="Find answers and get support for your Lagos Hotspot account.">
         <div className="mt-8 relative max-w-xl mx-auto">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -277,7 +277,7 @@ export default function HelpCenterPage() {
                 </div>
                 <h3 className="font-semibold text-sm">Email Support</h3>
                 <p className="text-xs text-muted-foreground mt-1">
-                  hello@ekospot.com
+                  hello@lagos-hotspot.com
                 </p>
               </CardContent>
             </Card>

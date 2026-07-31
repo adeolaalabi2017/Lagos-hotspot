@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
             <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
               <Flame className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold text-foreground">EkoSpot</span>
+            <span className="text-xl font-bold text-foreground">Lagos Hotspot</span>
           </button>
           <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="h-7 w-7 text-primary" />

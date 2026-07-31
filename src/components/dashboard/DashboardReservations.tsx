@@ -120,7 +120,15 @@ export default function DashboardReservations() {
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    void load(tab);
+    let cancelled = false;
+    async function run() {
+      if (cancelled) return;
+      await load(tab);
+    }
+    void run();
+    return () => {
+      cancelled = true;
+    };
   }, [tab, isAuthenticated, load]);
 
   async function decide(

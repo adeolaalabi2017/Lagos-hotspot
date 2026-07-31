@@ -6,6 +6,7 @@ import { useAuthStore } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { ConvexClientProvider } from "@/components/convex-provider";
 import HomePage from "@/components/home/HomePage";
 import GridListingsPage from "@/components/listings/GridListingsPage";
 import SingleListingPage from "@/components/listings/SingleListingPage";
@@ -223,8 +224,10 @@ function AppContent() {
 
 export default function Home() {
   return (
-    <RouterProvider>
-      <AppContent />
-    </RouterProvider>
+    <ConvexClientProvider>
+      <RouterProvider>
+        <AppContent />
+      </RouterProvider>
+    </ConvexClientProvider>
   );
 }

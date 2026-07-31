@@ -21,22 +21,22 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "EkoSpot — Discover the Pulse of Lagos",
+  title: "Lagos Hotspot — Discover the Pulse of Lagos",
   description: "Find the hottest spots in Lagos State — restaurants, nightlife, beaches, culture, and more. Your guide to living your best Lagos life.",
-  keywords: ["EkoSpot", "Lagos hotspots", "Lagos restaurants", "Lagos nightlife", "Lagos beaches", "discover Lagos", "Lagos guide"],
-  authors: [{ name: "EkoSpot Team" }],
+  keywords: ["Lagos Hotspot", "Lagos hotspots", "Lagos restaurants", "Lagos nightlife", "Lagos beaches", "discover Lagos", "Lagos guide"],
+  authors: [{ name: "Lagos Hotspot Team" }],
   icons: {
-    icon: "/images/ekospot-Ikoyi-link-bridge.webp",
+    icon: "/images/lagos-hotspot-Ikoyi-link-bridge.webp",
   },
   openGraph: {
-    title: "EkoSpot — Discover the Pulse of Lagos",
+    title: "Lagos Hotspot — Discover the Pulse of Lagos",
     description: "Find the hottest spots in Lagos State — restaurants, nightlife, beaches, culture, and more.",
-    siteName: "EkoSpot",
+    siteName: "Lagos Hotspot",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "EkoSpot — Discover the Pulse of Lagos",
+    title: "Lagos Hotspot — Discover the Pulse of Lagos",
     description: "Find the hottest spots in Lagos State — restaurants, nightlife, beaches, culture, and more.",
   },
 };

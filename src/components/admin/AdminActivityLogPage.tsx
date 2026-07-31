@@ -74,7 +74,10 @@ export function AdminActivityLogPage() {
   }, [action, targetType, headers]);
 
   useEffect(() => {
-    if (user?.role === "admin") load();
+    if (user?.role === "admin") {
+      const id = requestAnimationFrame(() => void load());
+      return () => cancelAnimationFrame(id);
+    }
   }, [user?.role, load]);
 
   return (

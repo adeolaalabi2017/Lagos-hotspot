@@ -1,11 +1,11 @@
 ---
 Task ID: 1
 Agent: Main Agent
-Task: Complete remix of NaijaVerify to EkoSpot - Lagos Hotspot Discovery Webapp
+Task: Complete remix of NaijaVerify to Lagos Hotspot - Lagos Hotspot Discovery Webapp
 
 Work Log:
 - Analyzed existing NaijaVerify codebase (35+ component files, hash router, mock data)
-- Planned full app redesign: EkoSpot - Lagos hotspot discovery platform
+- Planned full app redesign: Lagos Hotspot - Lagos hotspot discovery platform
 - New color palette: warm coral/terracotta primary (Lagos sunset vibes)
 - New data model: Hotspot with vibe scores, price levels, WhatsApp, trending
 - Wrote 8 categories: Food & Dining, Nightlife, Beaches & Resorts, Culture & Arts, Cafes & Hangouts, Shopping, Events & Entertainment, Wellness & Spa
@@ -13,11 +13,11 @@ Work Log:
 - Created 6 neighborhoods: Victoria Island, Ikoyi, Lekki, Yaba, Surulere, Ikeja
 - Rewrote router.tsx with new route names and legacy route mapping
 - Rewrote auth-store.ts with new UserTier (explorer/scout/ambassador)
-- Rewrote bookmark-store.ts with EkoSpot branding
+- Rewrote bookmark-store.ts with Lagos Hotspot branding
 - Rewrote globals.css with warm coral/terracotta color palette
-- Rewrote layout.tsx with EkoSpot metadata
-- Wrote Navbar.tsx with EkoSpot branding, Flame icon, "Explore" nav
-- Wrote Footer.tsx with EkoSpot branding, social links, Lagos categories
+- Rewrote layout.tsx with Lagos Hotspot metadata
+- Wrote Navbar.tsx with Lagos Hotspot branding, Flame icon, "Explore" nav
+- Wrote Footer.tsx with Lagos Hotspot branding, social links, Lagos categories
 - Wrote HomePage.tsx with: hero section, search bar, categories grid, trending spots, featured spots, neighborhoods, how it works, reviews, pricing, blog preview, CTA
 - Delegated 3 parallel subagent tasks:
   - Task 3-a: Explore page + Single Hotspot page (completed)
@@ -31,7 +31,7 @@ Work Log:
 - Lint passes clean
 
 Stage Summary:
-- Complete app transformation from NaijaVerify (vendor trust platform) to EkoSpot (Lagos hotspot discovery)
+- Complete app transformation from NaijaVerify (vendor trust platform) to Lagos Hotspot (Lagos hotspot discovery)
 - New warm coral/terracotta color palette replacing green theme
 - All 20+ pages fully rebranded and functional
 - Lagos-specific content: Nigerian names, Lagos areas, Naira pricing, WhatsApp CTAs
@@ -41,7 +41,7 @@ Stage Summary:
 ---
 Task ID: pricing-fix
 Agent: Pricing Features Agent
-Task: Implement 8 missing pricing plan features for EkoSpot
+Task: Implement 8 missing pricing plan features for Lagos Hotspot
 
 Work Log:
 - Feature 1: Save Limit Enforcement (Explorer = 10 spots max)

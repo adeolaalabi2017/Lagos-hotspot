@@ -7,13 +7,23 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    const next = window.innerWidth < MOBILE_BREAKPOINT
+    let scheduled = false
+    const scheduleUpdate = () => {
+      if (scheduled) return
+      scheduled = true
+      requestAnimationFrame(() => {
+        scheduled = false
+        const current = window.innerWidth < MOBILE_BREAKPOINT
+        if (isMobile !== current) {
+          setIsMobile(current)
+        }
+      })
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+    mql.addEventListener("change", scheduleUpdate)
+    scheduleUpdate()
+    return () => mql.removeEventListener("change", scheduleUpdate)
+  }, [isMobile])
 
   return !!isMobile
 }

@@ -46,7 +46,7 @@ export default function HelpArticlePage() {
 
   return (
     <div>
-      <PageHero title="Help Center" subtitle="EkoSpot support and resources" />
+      <PageHero title="Help Center" subtitle="Lagos Hotspot support and resources" />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Back link */}

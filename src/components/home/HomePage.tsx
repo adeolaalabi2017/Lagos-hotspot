@@ -154,7 +154,7 @@ export default function HomePage() {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage:
-              "url('/images/ekospot-Ikoyi-link-bridge.webp')",
+              "url('/images/lagos-hotspot-Ikoyi-link-bridge.webp')",
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
@@ -407,7 +407,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mb-14">
             <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-              How EkoSpot Works
+              How Lagos Hotspot Works
             </h2>
             <p className="text-muted-foreground mt-3 text-pretty">
               Three honest steps. No &quot;AI concierge&quot;, no upsell — just

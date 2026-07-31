@@ -51,7 +51,7 @@ const featureComparison = [
 
 const pricingFaq = [
   {
-    question: "Is EkoSpot free to use?",
+    question: "Is Lagos Hotspot free to use?",
     answer: "Yes! The Explorer plan is completely free. You can browse hotspots, read reviews, and save up to 10 spots without paying anything. Upgrade to Scout or Ambassador for premium features.",
   },
   {
@@ -68,7 +68,7 @@ const pricingFaq = [
   },
   {
     question: "What's the difference between Scout and Ambassador?",
-    answer: "Scout is for individuals who want premium discovery features like unlimited saves, recommendations, and trending alerts. Ambassador is for business owners who want to list their business, access analytics, and get featured placement on EkoSpot.",
+    answer: "Scout is for individuals who want premium discovery features like unlimited saves, recommendations, and trending alerts. Ambassador is for business owners who want to list their business, access analytics, and get featured placement on Lagos Hotspot.",
   },
   {
     question: "Do you offer yearly discounts?",
@@ -98,7 +98,7 @@ export default function PricingPage() {
   return (
     <div>
       {/* Hero Section */}
-      <PageHero title="EkoSpot Pricing" subtitle="Simple, transparent pricing for discovering and listing Lagos hotspots.">
+      <PageHero title="Lagos Hotspot Pricing" subtitle="Simple, transparent pricing for discovering and listing Lagos hotspots.">
         {/* Monthly/Yearly Toggle */}
         <div className="flex items-center justify-center gap-3">
           <Label

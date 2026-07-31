@@ -63,7 +63,7 @@ function PageHero({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <section className="relative bg-gradient-to-br from-primary/90 via-primary/80 to-primary/60 text-white overflow-hidden">
       <div
-        className="absolute inset-0 bg-[url('/images/ekospot-Ikoyi-link-bridge.webp')] bg-cover bg-center opacity-25 motion-safe:transition-opacity"
+        className="absolute inset-0 bg-[url('/images/lagos-hotspot-Ikoyi-link-bridge.webp')] bg-cover bg-center opacity-25 motion-safe:transition-opacity"
         role="img"
         aria-label="Lekki-Ikoyi Link Bridge, Lagos"
       />

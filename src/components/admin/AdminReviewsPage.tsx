@@ -67,7 +67,10 @@ export function AdminReviewsPage() {
   }, [filter, headers]);
 
   useEffect(() => {
-    if (user?.role === "admin") load();
+    if (user?.role === "admin") {
+      const id = requestAnimationFrame(() => void load());
+      return () => cancelAnimationFrame(id);
+    }
   }, [user?.role, load]);
 
   async function patch(id: string, action: "approved" | "hide") {

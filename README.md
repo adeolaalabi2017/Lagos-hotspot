@@ -1,4 +1,4 @@
-# EkoSpot
+# Lagos Hotspot
 
 Lagos hotspot discovery platform — restaurants, clubs, beaches, and cultural spaces in one place.
 
@@ -23,8 +23,8 @@ Lagos hotspot discovery platform — restaurants, clubs, beaches, and cultural s
 
 ```bash
 # 1. Clone
-git clone https://github.com/your-org/ekospot.git
-cd ekospot
+git clone https://github.com/your-org/lagos-hotspot.git
+cd lagos-hotspot
 
 # 2. Install dependencies
 npm install
@@ -124,7 +124,7 @@ Set `AUTH_SECRET` and `DATABASE_URL` in the service's environment variable panel
 npm run build
 
 # Run
-DATABASE_URL="postgresql://user:pass@host:5432/ekospot" \
+DATABASE_URL="postgresql://user:***@host:5432/lagos-hotspot" \
 AUTH_SECRET="$(node -e "console.log(require('crypto').randomBytes(48).toString('hex'))")" \
 NODE_ENV=production \
 npm run start

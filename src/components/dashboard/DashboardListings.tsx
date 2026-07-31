@@ -172,7 +172,7 @@ export default function DashboardListings() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">My Spots</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage the hotspots you&apos;ve submitted to EkoSpot.
+            Manage the hotspots you&apos;ve submitted to Lagos Hotspot.
           </p>
         </div>
         <Button onClick={() => navigate("dashboard-add-spot")}>

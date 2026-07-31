@@ -49,7 +49,7 @@ export default function FAQPage() {
   return (
     <div>
       {/* Hero */}
-      <PageHero title="Frequently Asked Questions" subtitle="Find answers to common questions about EkoSpot." variant="light" />
+      <PageHero title="Frequently Asked Questions" subtitle="Find answers to common questions about Lagos Hotspot." variant="light" />
 
       {/* FAQ Accordion */}
       <section className="py-16 lg:py-20">

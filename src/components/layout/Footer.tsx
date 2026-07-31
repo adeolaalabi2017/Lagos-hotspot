@@ -16,8 +16,8 @@ const footerLinks = [
 ];
 
 const social = [
-  { Icon: Instagram, label: "Instagram", href: "https://instagram.com/ekospot" },
-  { Icon: Twitter, label: "Twitter", href: "https://twitter.com/ekospot" },
+  { Icon: Instagram, label: "Instagram", href: "https://instagram.com/lagos-hotspot" },
+  { Icon: Twitter, label: "Twitter", href: "https://twitter.com/lagos-hotspot" },
 ];
 
 export default function Footer() {
@@ -35,7 +35,7 @@ export default function Footer() {
             >
               <div className="w-7 h-7 rounded-md overflow-hidden flex items-center justify-center">
                 <img
-                  src="/images/ekospot-Ikoyi-link-bridge.webp"
+                  src="/images/lagos-hotspot-Ikoyi-link-bridge.webp"
                   alt="Lagos hotspot"
                   className="w-full h-full object-cover"
                 />
@@ -48,11 +48,11 @@ export default function Footer() {
             </p>
             <div className="flex items-center gap-3 mt-4 text-sm text-muted-foreground">
               <a
-                href="mailto:hello@ekospot.com"
+                href="mailto:hello@lagos-hotspot.com"
                 className="inline-flex items-center gap-1.5 hover:text-foreground motion-safe:transition-colors"
               >
                 <Mail className="h-3.5 w-3.5" />
-                hello@ekospot.com
+                hello@lagos-hotspot.com
               </a>
               <span aria-hidden>·</span>
               <span className="inline-flex items-center gap-1.5">
@@ -97,7 +97,7 @@ export default function Footer() {
       <div className="border-t border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} EkoSpot. All rights reserved.
+            © {new Date().getFullYear()} Lagos Hotspot. All rights reserved.
           </p>
           <p className="text-xs text-muted-foreground">
             Made with 🔥 in Lagos.

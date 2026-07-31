@@ -56,7 +56,7 @@ export default function DashboardProfile() {
 
   const [formData, setFormData] = useState({
     name: user?.name || "Tunde Bakare",
-    email: user?.email || "tunde@ekospot.com",
+    email: user?.email || "tunde@lagos-hotspot.com",
     bio: "Lagos explorer, foodie, and nightlife enthusiast. Always on the hunt for the next great spot in the city!",
     location: "Victoria Island",
   });
@@ -303,7 +303,7 @@ export default function DashboardProfile() {
           {isAmbassador ? (
             <div className="space-y-5">
               <p className="text-xs text-muted-foreground">
-                Customize how your spot appears to visitors on EkoSpot.
+                Customize how your spot appears to visitors on Lagos Hotspot.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

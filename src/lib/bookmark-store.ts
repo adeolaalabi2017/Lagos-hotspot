@@ -212,7 +212,7 @@ export const useBookmarkStore = create<BookmarkState>()(
       },
     }),
     {
-      name: "ekospot-bookmarks",
+      name: "lagos-hotspot-bookmarks",
       version: 2,
       partialize: (state) => ({
         bookmarkedIds: state.bookmarkedIds,
