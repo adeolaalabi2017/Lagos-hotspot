@@ -93,14 +93,14 @@ export function AdminHotspotsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [headers]);
 
   useEffect(() => {
     if (user?.role === "admin") {
       const id = requestAnimationFrame(() => void load());
       return () => cancelAnimationFrame(id);
     }
-  }, [user?.role, load]);
+  }, [user?.role, load, headers]);
 
   const filtered = useMemo(() => {
     let list = rows;

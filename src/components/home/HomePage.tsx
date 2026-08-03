@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
+import { useQuery } from "convex/react";
 import { useRouter } from "@/lib/router";
 import { toast } from "sonner";
 import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { api } from "@/lib/convex-api";
 import {
   categories,
   reviews,
@@ -100,42 +102,18 @@ export default function HomePage() {
       }, 400);
     }, 2500);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reducedMotion]);
 
-  const [trendingSpots, setTrendingSpots] = useState<PublicHotspot[]>([]);
-  const [featuredSpots, setFeaturedSpots] = useState<PublicHotspot[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const [trendingRes, featuredRes] = await Promise.all([
-          fetch("/api/listings?trending=true&sort=rating"),
-          fetch("/api/listings?featured=true&sort=rating"),
-        ]);
-        if (cancelled) return;
-        if (trendingRes.ok) {
-          const data = (await trendingRes.json()) as {
-            hotspots: PublicHotspot[];
-          };
-          setTrendingSpots(data.hotspots.slice(0, 4));
-        }
-        if (featuredRes.ok) {
-          const data = (await featuredRes.json()) as {
-            hotspots: PublicHotspot[];
-          };
-          setFeaturedSpots(data.hotspots.slice(0, 3));
-        }
-      } catch (err) {
-        if (!cancelled) console.error("Failed to load homepage sections", err);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const trendingSpots = useQuery((api as any).hotspots.feed, {
+    trendingOnly: true,
+    sort: "trending",
+    limit: 4,
+  }) as PublicHotspot[] | undefined;
+  const featuredSpots = useQuery((api as any).hotspots.feed, {
+    featuredOnly: true,
+    sort: "rating",
+    limit: 3,
+  }) as PublicHotspot[] | undefined;
 
   const handleSearch = () => {
     const params: Record<string, string> = {};
@@ -295,7 +273,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trendingSpots.map((spot) => (
+            {(trendingSpots ?? []).map((spot) => (
               <HotspotCard key={spot.id} spot={spot} navigate={navigate} />
             ))}
           </div>
@@ -333,7 +311,7 @@ export default function HomePage() {
 
           <Carousel className="w-full">
             <CarouselContent className="gap-6">
-              {featuredSpots.map((spot) => (
+              {(featuredSpots ?? []).map((spot) => (
                 <CarouselItem key={spot.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
                   <FeaturedCard spot={spot} navigate={navigate} />
                 </CarouselItem>

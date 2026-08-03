@@ -170,7 +170,18 @@ input[type="search"]::-webkit-search-cancel-button {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+
+  :hover,
+  :focus,
+  :active {
+    transition-duration: 200ms !important;
   }
 }

@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "@/lib/router";
 import { useAuthStore } from "@/lib/auth-store";
+import { useMutation } from "convex/react";
+import { api } from "@/lib/convex-api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,6 +45,8 @@ export function ReserveButton({
 }: ReserveButtonProps) {
   const { navigate } = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const createBooking = useMutation((api as any).hotspots.createBooking);
 
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState(() => todayISO());
@@ -67,42 +71,16 @@ export function ReserveButton({
     e?.preventDefault();
     setSubmitting(true);
     try {
-      const res = await fetch("/api/bookings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          listingId: hotspotId,
-          date,
-          time,
-          partySize,
-          name,
-          phone,
-          notes,
-        }),
+      await createBooking({
+        listingId: hotspotId,
+        userId: user?.id ?? "",
+        date,
+        time,
+        partySize,
+        name,
+        phone,
+        notes,
       });
-      if (res.status === 401) {
-        navigate("login");
-        return;
-      }
-      if (res.status === 403) {
-        toast.error("Your account is suspended and cannot make bookings.");
-        return;
-      }
-      if (res.status === 409) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? "You already requested this booking.");
-        return;
-      }
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? "Could not reserve");
-        return;
-      }
       toast.success("Reservation requested — we'll let the host know.");
       setOpen(false);
       navigate("dashboard-reservations");

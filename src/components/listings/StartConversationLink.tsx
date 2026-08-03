@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "@/lib/router";
 import { useAuthStore } from "@/lib/auth-store";
+import { useMutation } from "convex/react";
+import { api } from "@/lib/convex-api";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +34,8 @@ export function StartConversationLink({
 }: StartConversationLinkProps) {
   const { navigate } = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const startConversationMutation = useMutation((api as any).hotspots.startConversation);
   const [open, setOpen] = useState(false);
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -45,28 +49,11 @@ export function StartConversationLink({
     }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/messaging/start", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ listingId: hotspotId, body: text }),
+      const data = await startConversationMutation({
+        listingId: hotspotId,
+        userId: user?.id ?? "",
+        body: text,
       });
-      if (res.status === 401) {
-        navigate("login");
-        return;
-      }
-      if (res.status === 403) {
-        toast.error("Your account is suspended and cannot start conversations.");
-        return;
-      }
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? "Could not start conversation");
-        return;
-      }
-      const data = (await res.json()) as { threadId: string };
       toast.success("Conversation started");
       setOpen(false);
       setBody("");

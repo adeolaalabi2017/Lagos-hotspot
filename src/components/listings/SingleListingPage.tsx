@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
+import { useQuery } from "convex/react";
 import { useRouter } from "@/lib/router";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
+import { api } from "@/lib/convex-api";
 import { priceLevelLabel, priceLevelSymbol } from "@/data/mock-data";
 import { isOpenNow, type OpenState } from "@/lib/hours";
 import type { PublicHotspot } from "@/lib/public-listing";
@@ -139,6 +141,29 @@ export default function SingleListingPage() {
   const isBookmarked = checkBookmarked(hotspotId);
   const [activeTab, setActiveTab] = useState("about");
 
+  const hotspot = useQuery((api as any).hotspots.detail, { id: hotspotId }) as
+    | PublicHotspot
+    | null
+    | undefined;
+  const hotspotReviews = useQuery((api as any).hotspots.reviewsByListing, {
+    id: hotspotId,
+  }) as
+    | {
+        id: string;
+        rating: number;
+        comment: string | null;
+        createdAt: string;
+        author: { id: string; name: string | null; avatar: string | null };
+      }[]
+    | undefined;
+  const similarHotspots = useQuery((api as any).hotspots.similar, {
+    id: hotspotId,
+    category: hotspot?.category ?? "",
+    limit: 3,
+  }) as PublicHotspot[] | undefined;
+  const reviews = hotspotReviews ?? [];
+  const similarList = similarHotspots ?? [];
+
   const handleSave = () => {
     if (!isBookmarked && !canSaveMore(maxSaves)) {
       toast.error("You've reached your 10-spot save limit. Upgrade to Scout for unlimited saves!");
@@ -147,76 +172,8 @@ export default function SingleListingPage() {
     toggleBookmark(hotspotId);
   };
 
-  const [hotspot, setHotspot] = useState<PublicHotspot | null>(null);
-  const [hotspotState, setHotspotState] = useState<"loading" | "ok" | "notfound">(
-    "loading"
-  );
-  const [hotspotReviews, setHotspotReviews] = useState<
-    {
-      id: string;
-      rating: number;
-      comment: string | null;
-      createdAt: string;
-      author: { id: string; name: string | null; avatar: string | null };
-    }[]
-  >([]);
-  const [similarHotspots, setSimilarHotspots] = useState<PublicHotspot[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setHotspotState("loading");
-      try {
-        const detailRes = await fetch(`/api/listings/${hotspotId}`);
-        if (cancelled) return;
-        if (detailRes.status === 404) {
-          setHotspotState("notfound");
-          setHotspot(null);
-          return;
-        }
-        if (!detailRes.ok) {
-          setHotspotState("notfound");
-          return;
-        }
-        const data = (await detailRes.json()) as { hotspot: PublicHotspot };
-        if (cancelled) return;
-        setHotspot(data.hotspot);
-        setHotspotState("ok");
-
-        const [reviewsRes, similarRes] = await Promise.all([
-          fetch(`/api/listings/${hotspotId}/reviews`),
-          fetch(
-            `/api/listings?category=${encodeURIComponent(data.hotspot.category)}`
-          ),
-        ]);
-        if (cancelled) return;
-        if (reviewsRes.ok) {
-          const rd = (await reviewsRes.json()) as {
-            reviews: typeof hotspotReviews;
-          };
-          setHotspotReviews(rd.reviews);
-        }
-        if (similarRes.ok) {
-          const sd = (await similarRes.json()) as { hotspots: PublicHotspot[] };
-          setSimilarHotspots(
-            sd.hotspots.filter((h) => h.id !== data.hotspot.id).slice(0, 3)
-          );
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error(err);
-          setHotspotState("notfound");
-        }
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [hotspotId]);
-
   // Loading state
-  if (hotspotState === "loading") {
+  if (hotspot === undefined) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">
         <div className="text-center">
@@ -227,7 +184,6 @@ export default function SingleListingPage() {
     );
   }
 
-  // Not found state
   if (!hotspot) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -521,9 +477,9 @@ export default function SingleListingPage() {
                         <span className="text-lg font-bold">{hotspot.rating}</span>
                       </div>
                     </div>
-                    {hotspotReviews.length > 0 ? (
+                    {reviews.length > 0 ? (
                       <div className="space-y-3">
-                        {hotspotReviews.map((review) => (
+                        {reviews.map((review) => (
                           <ReviewCard key={review.id} review={review} />
                         ))}
                       </div>
@@ -533,25 +489,7 @@ export default function SingleListingPage() {
                       </p>
                     )}
                     <div className="mt-4 pt-4 border-t">
-                      <WriteReviewForm
-                        hotspotId={hotspot.id}
-                        onSubmitted={async () => {
-                          try {
-                            const r = await fetch(
-                              `/api/listings/${hotspot.id}/reviews`,
-                              { credentials: "same-origin" }
-                            );
-                            if (r.ok) {
-                              const data = (await r.json()) as {
-                                reviews: typeof hotspotReviews;
-                              };
-                              setHotspotReviews(data.reviews);
-                            }
-                          } catch (err) {
-                            console.error(err);
-                          }
-                        }}
-                      />
+                      <WriteReviewForm hotspotId={hotspot.id} />
                     </div>
                   </CardContent>
                 </Card>
@@ -678,12 +616,12 @@ export default function SingleListingPage() {
             </Card>
 
             {/* Similar Spots */}
-            {similarHotspots.length > 0 && (
+            {similarList.length > 0 && (
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <h3 className="font-semibold text-foreground mb-4">Similar Spots</h3>
                   <div className="space-y-3">
-                    {similarHotspots.map((similar) => (
+                    {similarList.map((similar) => (
                       <button
                         type="button"
                         key={similar.id}

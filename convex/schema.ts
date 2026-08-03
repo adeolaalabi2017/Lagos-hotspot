@@ -46,7 +46,7 @@ export default defineSchema({
     .index("by_category", ["category"])
     .index("by_status", ["status"]),
   listingHours: defineTable({
-    listingId: v.id("listings"),
+    listingId: v.string(),
     dayOfWeek: v.number(),
     opensAt: v.optional(v.string()),
     closesAt: v.optional(v.string()),
@@ -56,24 +56,22 @@ export default defineSchema({
   media: defineTable({
     url: v.string(),
     kind: v.string(),
-    hotspotId: v.optional(v.id("listings")),
+    hotspotId: v.optional(v.string()),
   })
     .index("by_hotspot", ["hotspotId"]),
   reviews: defineTable({
-    listingId: v.id("listings"),
-    userId: v.string(),
+    listingId: v.string(),
     rating: v.number(),
     comment: v.optional(v.string()),
     status: v.string(),
     authorId: v.string(),
-    author: v.object({
+    author: v.optional(v.object({
       id: v.string(),
       name: v.optional(v.string()),
       avatar: v.optional(v.string()),
-    }),
+    })),
   })
     .index("by_listing", ["listingId"])
-    .index("by_user", ["userId"])
     .index("by_author", ["authorId"]),
   reports: defineTable({
     category: v.string(),
@@ -81,8 +79,8 @@ export default defineSchema({
     status: v.string(),
     outcome: v.optional(v.string()),
     reporterId: v.optional(v.string()),
-    hotspotId: v.optional(v.id("listings")),
-    reviewId: v.optional(v.id("reviews")),
+    hotspotId: v.optional(v.string()),
+    reviewId: v.optional(v.string()),
   })
     .index("by_hotspot", ["hotspotId"])
     .index("by_review", ["reviewId"]),
@@ -103,7 +101,7 @@ export default defineSchema({
     failureCount: v.number(),
   }),
   bookings: defineTable({
-    listingId: v.id("listings"),
+    listingId: v.string(),
     userId: v.string(),
     date: v.string(),
     time: v.optional(v.string()),
@@ -112,7 +110,7 @@ export default defineSchema({
     phone: v.optional(v.string()),
     notes: v.optional(v.string()),
     status: v.string(),
-    decidedAt: v.optional(v.number()),
+    decidedAt: v.optional(v.string()),
     decidedById: v.optional(v.string()),
     decisionNote: v.optional(v.string()),
   })
@@ -120,13 +118,13 @@ export default defineSchema({
     .index("by_user", ["userId"]),
   conversationThreads: defineTable({
     userId: v.string(),
-    listingId: v.id("listings"),
-    lastMessageAt: v.number(),
+    listingId: v.string(),
+    lastMessageAt: v.string(),
   })
     .index("by_user", ["userId"])
     .index("by_listing", ["listingId"]),
   conversationMessages: defineTable({
-    threadId: v.id("conversationThreads"),
+    threadId: v.string(),
     senderId: v.string(),
     body: v.string(),
     readAt: v.optional(v.number()),
@@ -140,7 +138,7 @@ export default defineSchema({
     .index("by_receiver", ["receiverId"]),
   bookmarks: defineTable({
     userId: v.string(),
-    listingId: v.id("listings"),
+    listingId: v.string(),
   })
     .index("by_user", ["userId"])
     .index("by_user_and_listing", ["userId", "listingId"]),

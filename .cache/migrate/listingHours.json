@@ -1,18 +1,1 @@
-[
-  {
-    "id": "cmrifbr1c000bgke8d5uuc14x",
-    "listingId": "cmrifbm270001gke8b4jt6z53",
-    "dayOfWeek": 0,
-    "opensAt": "10:00",
-    "closesAt": "20:00",
-    "isClosed": false
-  },
-  {
-    "id": "cmrifbr1c000cgke8p8n9smho",
-    "listingId": "cmrifbm270001gke8b4jt6z53",
-    "dayOfWeek": 1,
-    "opensAt": "09:00",
-    "closesAt": "22:00",
-    "isClosed": false
-  }
-]
+[{"listingId":"cmrifbm270001gke8b4jt6z53","dayOfWeek":0,"opensAt":"10:00","closesAt":"20:00","isClosed":false},{"listingId":"cmrifbm270001gke8b4jt6z53","dayOfWeek":1,"opensAt":"09:00","closesAt":"22:00","isClosed":false}]

@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter, Route } from "@/lib/router";
+import React, { useState } from "react";
+import { useQuery } from "convex/react";
+import { useRouter } from "@/lib/router";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
 import { categories, neighborhoods } from "@/data/mock-data";
 import type { PublicHotspot } from "@/lib/public-listing";
+import { api } from "@/lib/convex-api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,14 +39,6 @@ import {
   List,
   ChevronDown,
   Clock,
-  UtensilsCrossed,
-  Wine,
-  Umbrella,
-  Palette,
-  Coffee,
-  ShoppingBag,
-  Music,
-  Flower2,
   RefreshCcw,
 } from "lucide-react";
 
@@ -113,16 +107,11 @@ function VibeBadge({ score }: { score: number }) {
 
 // ─── Hotspot Card ────────────────────────────────────────
 function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: "grid" | "list" }) {
-  const { navigate } = useRouter();
   const { user } = useAuthStore();
   const userTier = user?.tier || "explorer";
   const maxSaves = TIER_FEATURES[userTier].maxSavedSpots;
   const { canSaveMore, toggleBookmark, isBookmarked: checkBookmarked } = useBookmarkStore();
   const isBookmarked = checkBookmarked(hotspot.id);
-
-  const handleClick = () => {
-    navigate("hotspot" as Route, { id: hotspot.id });
-  };
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -135,17 +124,9 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
 
   if (viewMode === "list") {
     return (
-      <Card
-        className="overflow-hidden hover:shadow-lg motion-safe:transition-all duration-300 group p-0"
-        onClick={handleClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleClick();
-          }
-        }}
-        tabIndex={0}
-        role="link"
+      <a
+        href={`#/hotspot?id=${encodeURIComponent(hotspot.id)}`}
+        className="block overflow-hidden hover:shadow-lg motion-safe:transition-all duration-300 group p-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         aria-label={`View ${hotspot.title} in ${hotspot.area}`}
       >
         <div className="flex flex-col sm:flex-row">
@@ -228,23 +209,15 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
             </div>
           </CardContent>
         </div>
-      </Card>
+      </a>
     );
   }
 
   // Grid card
   return (
-    <Card
-      className="overflow-hidden hover:shadow-lg motion-safe:transition-all duration-300 group p-0"
-      onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      tabIndex={0}
-      role="link"
+    <a
+      href={`#/hotspot?id=${encodeURIComponent(hotspot.id)}`}
+      className="block overflow-hidden hover:shadow-lg motion-safe:transition-all duration-300 group p-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       aria-label={`View ${hotspot.title} in ${hotspot.area}`}
     >
       <div className="relative overflow-hidden">
@@ -327,7 +300,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
           ))}
         </div>
       </CardContent>
-    </Card>
+    </a>
   );
 }
 
@@ -578,9 +551,17 @@ export default function GridListingsPage() {
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [hotspots, setHotspots] = useState<PublicHotspot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const hotspots = useQuery((api as any).hotspots.feed, {
+    q: searchQuery || undefined,
+    area: selectedArea !== "all" ? selectedArea : undefined,
+    category: selectedCategory !== "all" ? selectedCategory : undefined,
+    price: selectedPrice !== "all" ? selectedPrice : undefined,
+    openNow: openNowOnly || undefined,
+    sort: selectedSort || undefined,
+  }) as PublicHotspot[] | undefined;
+  const loading = hotspots === undefined;
+  const error = null as string | null;
 
   // Build URL params from local state. We do NOT include "all" / empty values
   // so the URL stays readable.
@@ -612,41 +593,7 @@ export default function GridListingsPage() {
     }, debounceMs);
   }
 
-  // Listings come straight from the server — no client filter pass.
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const qs = new URLSearchParams(buildParams()).toString();
-        const res = await fetch(`/api/listings${qs ? `?${qs}` : ""}`);
-        if (!res.ok) throw new Error("Request failed");
-        const data = (await res.json()) as { hotspots: PublicHotspot[] };
-        if (!cancelled) setHotspots(data.hotspots);
-      } catch (err) {
-        if (!cancelled) {
-          console.error(err);
-          setError("Could not load hotspots");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-    // Re-fetch when the URL ever changes (also covers initial mount).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    params.q,
-    params.category,
-    params.area,
-    params.price,
-    params.openNow,
-    params.sort,
-  ]);
+  // Listings come straight from Convex — no client filter pass.
 
   // Setter helpers — each writes local state and queues the URL update.
   const setFilters = (patch: Record<string, string | null | undefined>) => {
@@ -706,6 +653,7 @@ export default function GridListingsPage() {
   }
 
   const areaText = selectedArea !== "all" ? selectedArea : "Lagos";
+  const visibleHotspots = hotspots ?? [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -809,8 +757,8 @@ export default function GridListingsPage() {
         <div className="flex items-center justify-between mb-4">
           <p className="text-sm text-muted-foreground">
             Showing{" "}
-            <span className="font-semibold text-foreground">{hotspots.length}</span>{" "}
-            hotspot{hotspots.length !== 1 ? "s" : ""} in{" "}
+            <span className="font-semibold text-foreground">{visibleHotspots.length}</span>{" "}
+            hotspot{visibleHotspots.length !== 1 ? "s" : ""} in{" "}
             <span className="font-semibold text-foreground">{areaText}</span>
           </p>
           <div className="hidden sm:flex items-center gap-1 border rounded-md p-0.5">
@@ -834,16 +782,16 @@ export default function GridListingsPage() {
         </div>
 
         {/* Results grid / list */}
-        {hotspots.length > 0 ? (
+        {visibleHotspots.length > 0 ? (
           viewMode === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {hotspots.map((hotspot) => (
+              {visibleHotspots.map((hotspot) => (
                 <HotspotCard key={hotspot.id} hotspot={hotspot} viewMode="grid" />
               ))}
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {hotspots.map((hotspot) => (
+              {visibleHotspots.map((hotspot) => (
                 <HotspotCard key={hotspot.id} hotspot={hotspot} viewMode="list" />
               ))}
             </div>

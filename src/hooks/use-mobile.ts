@@ -7,7 +7,6 @@ export function useIsMobile() {
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const next = window.innerWidth < MOBILE_BREAKPOINT
     let scheduled = false
     const scheduleUpdate = () => {
       if (scheduled) return

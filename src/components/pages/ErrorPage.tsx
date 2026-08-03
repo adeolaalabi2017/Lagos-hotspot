@@ -6,7 +6,7 @@ import { Home, Compass, Flame, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function ErrorPage() {
-  const { navigate, goBack } = useRouter();
+  const { navigate } = useRouter();
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">

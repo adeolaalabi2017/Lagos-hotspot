@@ -155,15 +155,24 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       user: null,
       async bootstrap() {
+        if (typeof window === "undefined") {
+          set({ isAuthenticated: false, user: null });
+          return;
+        }
         try {
           const base =
             typeof document !== "undefined" && document.baseURI
               ? document.baseURI
-              : "";
+              : "/";
           const res = await fetch(`${base}api/auth/me`, {
             credentials: "same-origin",
           });
           if (!res.ok) {
+            set({ isAuthenticated: false, user: null });
+            return;
+          }
+          const contentType = res.headers.get("content-type") || "";
+          if (!contentType.includes("application/json")) {
             set({ isAuthenticated: false, user: null });
             return;
           }

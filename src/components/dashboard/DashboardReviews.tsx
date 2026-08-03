@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "@/lib/router";
 import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
 import { reviews } from "@/data/mock-data";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -52,7 +52,6 @@ function ReviewCardWithReply({
   onSendReply: (id: string) => void;
   replyingTo: string | null;
   onToggleReply: (id: string) => void;
-  replies: Record<string, ReviewReply>;
 }) {
   const [localReplies, setLocalReplies] = useState<Record<string, ReviewReply>>({});
   const isReplying = replyingTo === review.id;
@@ -184,7 +183,6 @@ export default function DashboardReviews() {
 
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
-  const [replies, setReplies] = useState<Record<string, { text: string; timestamp: string }>>({});
 
   const averageRating =
     reviews.length > 0
@@ -299,7 +297,6 @@ export default function DashboardReviews() {
             onSendReply={handleSendReply}
             replyingTo={replyingTo}
             onToggleReply={handleToggleReply}
-            replies={replies}
           />
         ))}
 

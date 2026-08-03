@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { useMutation } from "convex/react";
 import { useRouter } from "@/lib/router";
 import { useAuthStore } from "@/lib/auth-store";
+import { api } from "@/lib/convex-api";
 import { categories } from "@/data/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,7 +22,6 @@ import {
   Upload,
   ImagePlus,
   Send,
-  MapPin,
   Tag,
   Info,
   Phone,
@@ -63,6 +64,7 @@ export default function DashboardAddListing() {
     features: "",
   });
   const [submitting, setSubmitting] = useState(false);
+  const submitListing = useMutation((api as any).hotspots.submitListing);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -75,20 +77,12 @@ export default function DashboardAddListing() {
     }
     setSubmitting(true);
     try {
-      const response = await fetch("/api/listings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          authorId: user?.id,
-          authorEmail: user?.email,
-          authorName: user?.name,
-        }),
+      await submitListing({
+        ...formData,
+        authorId: user?.id,
+        authorEmail: user?.email,
+        authorName: user?.name,
       });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to submit spot");
-      }
       toast.success("Spot submitted for review! We'll review it within 24-48 hours.");
       navigate("dashboard-my-spots");
     } catch (err) {

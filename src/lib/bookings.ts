@@ -39,8 +39,6 @@ export function validateBookingDateTime(
   ) {
     return { ok: false, error: "Invalid date" };
   }
-  let hours = 0;
-  let minutes = 0;
   let time: Date | null = null;
   if (timeStr) {
     if (!TIME_RE.test(timeStr)) {
@@ -57,8 +55,6 @@ export function validateBookingDateTime(
     ) {
       return { ok: false, error: "Invalid time" };
     }
-    hours = hh;
-    minutes = mm;
     time = new Date(Date.UTC(y, m - 1, d, hh, mm));
   }
   const dateOnly = new Date(Date.UTC(y, m - 1, d));

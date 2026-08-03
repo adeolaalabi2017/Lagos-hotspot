@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "@/lib/router";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Send,
-  MessageCircle,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Send, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +32,6 @@ const contactInfo = [
 ];
 
 export default function ContactUsPage() {
-  const { navigate } = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");

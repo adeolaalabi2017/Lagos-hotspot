@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "@/lib/router";
 import { useAuthStore } from "@/lib/auth-store";
+import { useMutation } from "convex/react";
+import { api } from "@/lib/convex-api";
 import { Star } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,10 +21,12 @@ export function WriteReviewForm({
 }: WriteReviewFormProps) {
   const { navigate } = useRouter();
   const user = useAuthStore((s) => s.user);
+  const currentUser = user!;
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const submitReview = useMutation((api as any).hotspots.submitReview);
 
   if (!user) {
     return (
@@ -59,25 +63,14 @@ export function WriteReviewForm({
     }
     setSubmitting(true);
     try {
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          listingId: hotspotId,
-          rating,
-          comment: comment.trim() || null,
-        }),
+      await submitReview({
+        listingId: hotspotId,
+        rating,
+        comment: comment.trim() || undefined,
+        authorId: currentUser.id,
+        authorName: currentUser.name,
+        authorAvatar: currentUser.avatar,
       });
-      if (res.status === 403) {
-        toast.error("Your account is suspended. Reviews are paused.");
-        return;
-      }
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(data.error ?? "Could not submit your review");
-        return;
-      }
       toast.success("Review submitted. It's pending moderator approval.");
       setRating(0);
       setComment("");

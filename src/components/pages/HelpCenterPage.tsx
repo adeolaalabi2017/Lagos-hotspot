@@ -6,7 +6,6 @@ import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
 import { helpArticles } from "@/data/mock-data";
 import {
   Search,
-  MapPin,
   Star,
   Flame,
   Plus,
@@ -22,12 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import PageHero from "@/components/layout/PageHero";
 
 const iconMap: Record<string, React.ElementType> = {

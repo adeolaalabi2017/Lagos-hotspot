@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "@/lib/router";
-import { pricingPlans, faqItems } from "@/data/mock-data";
+import { pricingPlans } from "@/data/mock-data";
 import { Check, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

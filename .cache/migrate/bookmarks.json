@@ -1,16 +1,1 @@
-[
-  {
-    "id": "cmrixmqbj0006gkwsd2mvzbcs",
-    "userId": "cmrixmp0x0000gkws2yr8qdkp",
-    "listingId": "cmriei9gw0008gkjwb5axhzkk",
-    "createdAt": "2026-07-13T08:00:12.222Z",
-    "updatedAt": "2026-07-13T08:00:12.222Z"
-  },
-  {
-    "id": "cmrixn57l0008gkws2zgr6ju5",
-    "userId": "cmrixmp0x0000gkws2yr8qdkp",
-    "listingId": "cmrifbm270001gke8b4jt6z53",
-    "createdAt": "2026-07-13T08:00:31.521Z",
-    "updatedAt": "2026-07-13T08:00:31.521Z"
-  }
-]
+[{"userId":"cmrixmp0x0000gkws2yr8qdkp","listingId":"cmriei9gw0008gkjwb5axhzkk"},{"userId":"cmrixmp0x0000gkws2yr8qdkp","listingId":"cmrifbm270001gke8b4jt6z53"}]

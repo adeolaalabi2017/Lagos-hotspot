@@ -10,7 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as hotspots from "../hotspots.js";
-import type * as seed from "../seed.js";
+import type * as listings from "../listings.js";
 
 import type {
   ApiFromModules,
@@ -21,7 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   hotspots: typeof hotspots;
-  seed: typeof seed;
+  listings: typeof listings;
 }>;
 
 /**

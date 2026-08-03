@@ -2,20 +2,11 @@
 
 import React from "react";
 import { useRouter } from "@/lib/router";
-import { useAuthStore, TIER_FEATURES, TIER_LABELS } from "@/lib/auth-store";
+import { useAuthStore } from "@/lib/auth-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  BarChart3,
-  Eye,
-  Users,
-  MessageCircle,
-  Star,
-  Lock,
-  TrendingUp,
-  ArrowUpRight,
-} from "lucide-react";
+import { Eye, Users, MessageCircle, Star, Lock, TrendingUp, ArrowUpRight } from "lucide-react";
 
 // ─── Mock analytics data ─────────────────────────────────
 const overviewStats = [
@@ -52,9 +43,7 @@ const reviewSummary = [
 export default function DashboardAnalytics() {
   const { navigate } = useRouter();
   const { user } = useAuthStore();
-  const userTier = user?.tier || "explorer";
-  const tierFeatures = TIER_FEATURES[userTier];
-  const isAmbassador = tierFeatures.analytics;
+  const isAmbassador = user?.tier === "ambassador";
 
   const maxViews = Math.max(...weeklyViews.map((d) => d.views));
 

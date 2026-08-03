@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "@/lib/router";
-import { useAuthStore, TIER_FEATURES, TIER_LABELS, TIER_BG_COLORS } from "@/lib/auth-store";
+import { useAuthStore, TIER_LABELS, TIER_BG_COLORS } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import type { PublicHotspot } from "@/lib/public-listing";
 import { dashboardStats, recentActivities, messages } from "@/data/mock-data";
@@ -26,7 +26,6 @@ import {
   Sparkles,
   Lock,
   Zap,
-  Eye,
 } from "lucide-react";
 
 const iconMap: Record<string, React.ElementType> = {
@@ -83,7 +82,6 @@ export default function DashboardHome() {
   const { navigate } = useRouter();
   const { user } = useAuthStore();
   const userTier = user?.tier || "explorer";
-  const tierFeatures = TIER_FEATURES[userTier];
   const { bookmarkedIds } = useBookmarkStore();
 
   // Fetch recommended hotspots: prefer categories derived from saved spots, fall back to trending
@@ -376,7 +374,6 @@ export default function DashboardHome() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {dashboardStats.map((stat) => {
           const IconComp = iconMap[stat.icon] || Heart;
-          const isPositive = stat.change?.startsWith("+");
           return (
             <Card key={stat.label} className="hover:shadow-md transition-shadow">
               <CardContent className="p-5">

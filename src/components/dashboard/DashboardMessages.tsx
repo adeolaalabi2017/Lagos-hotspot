@@ -128,14 +128,12 @@ export default function DashboardMessages() {
   );
 
   useEffect(() => {
-    let cancelled = false;
     async function run() {
       await loadThreads(true);
     }
     void run();
     const handle = setInterval(() => void loadThreads(false), POLL_INTERVAL_MS);
     return () => {
-      cancelled = true;
       clearInterval(handle);
     };
   }, [loadThreads]);

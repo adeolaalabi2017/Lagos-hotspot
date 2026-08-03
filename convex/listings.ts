@@ -3,13 +3,17 @@ import { v } from "convex/values";
 
 function splitCsv(value: string | null | undefined): string[] {
   if (!value) return [];
-  return value.split(",").map((s) => s.trim()).filter(Boolean);
+  return value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 }
 
 function priceLevelFromString(price: string | null | undefined): 1 | 2 | 3 | 4 | null {
   if (!price) return null;
   const n = Number(price);
-  return n === 1 || n === 2 || n === 3 || n === 4 ? n : null;
+  if (n === 1 || n === 2 || n === 3 || n === 4) return n;
+  return null;
 }
 
 function formatDate(ms: number): string {
@@ -49,17 +53,23 @@ function toHotspot(row: any, hours: any[], media: any[]) {
     lat: row.lat ?? null,
     lng: row.lng ?? null,
     gallery: media.filter((m) => m.kind === "image" && m.url !== image).map((m) => m.url),
-    hours: hours.sort((a, b) => a.dayOfWeek - b.dayOfWeek).map((h) => ({
-      day: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][h.dayOfWeek] ?? `Day ${h.dayOfWeek}`,
-      time: h.isClosed ? "Closed" : h.opensAt && h.closesAt ? `${h.opensAt} – ${h.closesAt}` : "Hours unavailable",
-    })),
+    hours: hours
+      .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
+      .map((h) => ({
+        day: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][h.dayOfWeek] ?? `Day ${h.dayOfWeek}`,
+        time: h.isClosed
+          ? "Closed"
+          : h.opensAt && h.closesAt
+            ? `${h.opensAt} – ${h.closesAt}`
+            : "Hours unavailable",
+      })),
     createdAt: formatDate(row._creationTime),
     updatedAt: formatDate(row._creationTime),
   };
 }
 
 async function loadCollections(ctx: any) {
-  const listings = await ctx.db.query("listings").collect();
+  const listings: any[] = await ctx.db.query("listings").collect();
   const hours = await ctx.db.query("listingHours").collect();
   const media = await ctx.db.query("media").collect();
   const reviews = await ctx.db.query("reviews").collect();
@@ -93,7 +103,10 @@ function filterAndSort(listings: any[], args: any) {
     .filter((row) => (args.featuredOnly ? row.isFeatured : true))
     .filter((row) => {
       if (!q) return true;
-      const hay = [row.title, row.description, row.category, row.location, row.city, row.tags, row.amenities].filter(Boolean).join(" ").toLowerCase();
+      const hay = [row.title, row.description, row.category, row.location, row.city, row.tags, row.amenities]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
       return hay.includes(q);
     })
     .filter((row) => (args.area && args.area !== "all" ? (row.location ?? "") === args.area : true))
@@ -127,7 +140,9 @@ export const feed = query({
   handler: async (ctx, args) => {
     const { listings, hoursByListing, mediaByListing } = await loadCollections(ctx);
     const filtered = filterAndSort(listings, args);
-    return filtered.slice(0, args.limit ?? filtered.length).map((row) => toHotspot(row, hoursByListing.get(row._id) ?? [], mediaByListing.get(row._id) ?? []));
+    return filtered.slice(0, args.limit ?? filtered.length).map((row) =>
+      toHotspot(row, hoursByListing.get(row._id) ?? [], mediaByListing.get(row._id) ?? [])
+    );
   },
 });
 
@@ -136,8 +151,14 @@ export const detail = query({
   handler: async (ctx, args) => {
     const row = await ctx.db.get(args.id as any);
     if (!row) return null;
-    const hours = await ctx.db.query("listingHours").filter((q) => q.eq(q.field("listingId"), args.id)).collect();
-    const media = await ctx.db.query("media").filter((q) => q.eq(q.field("hotspotId"), args.id)).collect();
+    const hours = await ctx.db
+      .query("listingHours")
+      .filter((q) => q.eq(q.field("listingId"), args.id))
+      .collect();
+    const media = await ctx.db
+      .query("media")
+      .filter((q) => q.eq(q.field("hotspotId"), args.id))
+      .collect();
     return toHotspot(row, hours, media);
   },
 });
@@ -145,13 +166,21 @@ export const detail = query({
 export const reviewsByListing = query({
   args: { id: v.string() },
   handler: async (ctx, args) => {
-    const rows = await ctx.db.query("reviews").filter((q) => q.eq(q.field("listingId"), args.id)).order("desc").collect();
+    const rows = await ctx.db
+      .query("reviews")
+      .filter((q) => q.eq(q.field("listingId"), args.id))
+      .order("desc")
+      .collect();
     return rows.map((row: any) => ({
       id: row._id,
       rating: row.rating,
       comment: row.comment ?? null,
       createdAt: formatDate(row._creationTime),
-      author: row.author ?? { id: row.authorId, name: null, avatar: null },
+      author: row.author ?? {
+        id: row.authorId,
+        name: null,
+        avatar: null,
+      },
     }));
   },
 });
@@ -160,8 +189,10 @@ export const similar = query({
   args: { id: v.string(), category: v.string(), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const { listings, hoursByListing, mediaByListing } = await loadCollections(ctx);
-    const filtered = listings.filter((row: any) => row._id !== args.id && row.category === args.category);
-    return filtered.slice(0, args.limit ?? 3).map((row: any) => toHotspot(row, hoursByListing.get(row._id) ?? [], mediaByListing.get(row._id) ?? []));
+    const filtered = listings.filter((row) => row._id !== args.id && row.category === args.category);
+    return filtered.slice(0, args.limit ?? 3).map((row) =>
+      toHotspot(row, hoursByListing.get(row._id) ?? [], mediaByListing.get(row._id) ?? [])
+    );
   },
 });
 
@@ -202,6 +233,9 @@ export const submitListing = mutation({
       isTrending: false,
       tags: args.tags,
       amenities: args.features,
+      lat: undefined,
+      lng: undefined,
+      rejectReason: undefined,
       status: "pending",
       authorId: args.authorId,
       authorEmail: args.authorEmail,
@@ -227,7 +261,11 @@ export const submitReview = mutation({
       comment: args.comment,
       status: "pending",
       authorId: args.authorId,
-      author: { id: args.authorId, name: args.authorName, avatar: args.authorAvatar },
+      author: {
+        id: args.authorId,
+        name: args.authorName,
+        avatar: args.authorAvatar,
+      },
     });
     return { ok: true };
   },
@@ -261,7 +299,11 @@ export const createBooking = mutation({
 });
 
 export const startConversation = mutation({
-  args: { listingId: v.string(), userId: v.string(), body: v.string() },
+  args: {
+    listingId: v.string(),
+    userId: v.string(),
+    body: v.string(),
+  },
   handler: async (ctx, args) => {
     const threadId = await ctx.db.insert("conversationThreads", {
       userId: args.userId,

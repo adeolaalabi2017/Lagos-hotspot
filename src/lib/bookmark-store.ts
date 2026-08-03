@@ -30,7 +30,13 @@ function sanitizeIds(raw: unknown): string[] {
 
 async function isAuthed(): Promise<boolean> {
   try {
-    const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+    const base =
+      typeof document !== "undefined" && document.baseURI
+        ? document.baseURI
+        : "";
+    const res = await fetch(`${base}api/auth/me`, {
+      credentials: "same-origin",
+    });
     if (!res.ok) return false;
     const data = (await res.json().catch(() => null)) as {
       user?: unknown;

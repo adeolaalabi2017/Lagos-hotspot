@@ -14,14 +14,11 @@ import {
   Home,
   Compass,
   LayoutDashboard,
-  Search,
   Info,
   HelpCircle,
   Star,
   MapPin,
-  Flame,
   MessageSquare,
-  Map,
   Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

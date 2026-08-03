@@ -67,7 +67,7 @@ export default function DashboardProfile() {
   // Custom Branding state
   const [brandColor, setBrandColor] = useState("#E8613C");
   const [tagline, setTagline] = useState("The best dining experience in Victoria Island");
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoPreview] = useState<string | null>(null);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
