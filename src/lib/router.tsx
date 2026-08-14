@@ -22,6 +22,7 @@ export type Route =
   | "admin-users"
   | "admin-reports"
   | "admin-activity-log"
+  | "admin-settings"
   | "login"
   | "register"
   | "forgot-password"
@@ -66,7 +67,7 @@ const routeFromHash = (hash: string): { route: Route; params: Record<string, str
     "home", "explore", "hotspot", "dashboard",
     "dashboard-profile", "dashboard-saved", "dashboard-reviews",
     "dashboard-messages", "dashboard-my-spots", "dashboard-add-spot", "dashboard-analytics",
-    "admin", "admin-listings", "admin-import", "admin-reviews", "admin-users", "admin-reports", "admin-activity-log",
+    "admin", "admin-listings", "admin-import", "admin-reviews", "admin-users", "admin-reports", "admin-activity-log", "admin-settings",
     "login", "register", "forgot-password",
     "about-us", "blog", "blog-detail", "contact-us",
     "privacy-policy", "terms-of-service", "help-center", "help-article",
@@ -120,6 +121,7 @@ const routeTitles: Record<Route, string> = {
   "admin-users": "Admin: Users — Lagos Hotspot",
   "admin-reports": "Admin: Reports — Lagos Hotspot",
   "admin-activity-log": "Admin: Activity Log — Lagos Hotspot",
+  "admin-settings": "Admin: Brand Settings — Lagos Hotspot",
   login: "Sign In — Lagos Hotspot",
   register: "Sign Up — Lagos Hotspot",
   "forgot-password": "Forgot Password — Lagos Hotspot",

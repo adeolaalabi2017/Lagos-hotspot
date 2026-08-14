@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   keywords: ["Lagos Hotspot", "Lagos hotspots", "Lagos restaurants", "Lagos nightlife", "Lagos beaches", "discover Lagos", "Lagos guide"],
   authors: [{ name: "Lagos Hotspot Team" }],
   icons: {
-    icon: "/images/lagos-hotspot-Ikoyi-link-bridge.webp",
+    icon: "/images/lagos-hotspot-favicon.png",
   },
   openGraph: {
     title: "Lagos Hotspot — Discover the Pulse of Lagos",

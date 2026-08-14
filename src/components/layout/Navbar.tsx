@@ -38,14 +38,23 @@ import {
 } from "@/components/ui/sheet";
 
 import { toast } from "sonner";
+import { useBrandAssets } from "@/lib/use-brand-assets";
 
 interface NavbarProps {
   variant?: "transparent" | "solid" | "dashboard";
 }
 
+const BRAND_FALLBACKS = {
+  logo: "/images/lagos-hotspot-logo.png",
+  favicon: "/images/lagos-hotspot-favicon.png",
+  hero: "/images/lagos-hotspot-hero.png",
+};
+
 export default function Navbar({ variant = "solid" }: NavbarProps) {
   const { navigate, route } = useRouter();
   const { isAuthenticated, user, logout } = useAuthStore();
+  const brand = useBrandAssets();
+  const logoUrl = brand.logo?.url || BRAND_FALLBACKS.logo;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -108,7 +117,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
           >
             <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
               <img
-                src="/images/lagos-hotspot-Ikoyi-link-bridge.webp"
+                src={logoUrl}
                 alt="Lagos hotspot"
                 className="w-full h-full object-cover"
               />

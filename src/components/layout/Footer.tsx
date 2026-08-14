@@ -3,6 +3,13 @@
 import React from "react";
 import { useRouter } from "@/lib/router";
 import { Instagram, Twitter, MapPin, Mail } from "lucide-react";
+import { useBrandAssets } from "@/lib/use-brand-assets";
+
+const BRAND_FALLBACKS = {
+  logo: "/images/lagos-hotspot-logo.png",
+  favicon: "/images/lagos-hotspot-favicon.png",
+  hero: "/images/lagos-hotspot-hero.png",
+};
 
 const footerLinks = [
   { label: "Explore", route: "explore" as const },
@@ -21,6 +28,8 @@ const social = [
 
 export default function Footer() {
   const { navigate } = useRouter();
+  const brand = useBrandAssets();
+  const logoUrl = brand.logo?.url || BRAND_FALLBACKS.logo;
 
   return (
     <footer className="border-t border-border bg-background">
@@ -34,7 +43,7 @@ export default function Footer() {
             >
               <div className="w-7 h-7 rounded-md overflow-hidden flex items-center justify-center">
                 <img
-                  src="/images/lagos-hotspot-Ikoyi-link-bridge.webp"
+                  src={logoUrl}
                   alt="Lagos hotspot"
                   className="w-full h-full object-cover"
                 />

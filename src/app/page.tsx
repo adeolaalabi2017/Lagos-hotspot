@@ -39,6 +39,7 @@ import { AdminReviewsPage } from "@/components/admin/AdminReviewsPage";
 import { AdminUsersPage } from "@/components/admin/AdminUsersPage";
 import { AdminReportsPage } from "@/components/admin/AdminReportsPage";
 import { AdminActivityLogPage } from "@/components/admin/AdminActivityLogPage";
+import AdminSettings from "@/components/admin/AdminSettings";
 import { ErrorBoundary } from "@/components/error-boundary";
 
 const dashboardRoutes: Route[] = [
@@ -61,6 +62,7 @@ const adminRoutes: Route[] = [
   "admin-users",
   "admin-reports",
   "admin-activity-log",
+  "admin-settings",
 ];
 
 const authRoutes: Route[] = [
@@ -139,6 +141,8 @@ function AppContent() {
         return <AdminReportsPage />;
       case "admin-activity-log":
         return <AdminActivityLogPage />;
+      case "admin-settings":
+        return <AdminSettings />;
       default:
         return <AdminHotspotsPage />;
     }

@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as bookmarks from "../bookmarks.js";
+import type * as brand from "../brand.js";
 import type * as hotspots from "../hotspots.js";
 import type * as listings from "../listings.js";
 
@@ -22,6 +23,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   bookmarks: typeof bookmarks;
+  brand: typeof brand;
   hotspots: typeof hotspots;
   listings: typeof listings;
 }>;

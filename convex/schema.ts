@@ -148,6 +148,14 @@ export default defineSchema({
     count: v.number(),
     color: v.string(),
   }).index("by_name", ["name"]),
+  brandAssets: defineTable({
+    key: v.string(),
+    storageId: v.id("_storage"),
+    alt: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    updatedBy: v.string(),
+  }).index("by_key", ["key"]),
   sessions: defineTable({
     userId: v.id("users"),
     token: v.string(),

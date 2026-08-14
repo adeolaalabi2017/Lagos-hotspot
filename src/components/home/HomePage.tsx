@@ -81,7 +81,17 @@ const iconMap: Record<string, React.ElementType> = {
 const HERO_WORDS = ["Pulse", "Vibe", "Rhythm", "Energy", "Soul", "Beat"] as const;
 const LONGEST_HERO_WORD = HERO_WORDS.reduce((a, b) => (a.length >= b.length ? a : b));
 
+import { useBrandAssets } from "@/lib/use-brand-assets";
+
+const BRAND_FALLBACKS = {
+  logo: "/images/lagos-hotspot-logo.png",
+  favicon: "/images/lagos-hotspot-favicon.png",
+  hero: "/images/lagos-hotspot-hero.png",
+};
+
 export default function HomePage() {
+  const brand = useBrandAssets();
+  const heroUrl = brand.hero?.url || BRAND_FALLBACKS.hero;
   const { navigate } = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchArea, setSearchArea] = useState("");
@@ -130,8 +140,7 @@ export default function HomePage() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('/images/lagos-hotspot-Ikoyi-link-bridge.webp')",
+            backgroundImage: `url('${heroUrl}')`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
