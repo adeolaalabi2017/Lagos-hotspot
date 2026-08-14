@@ -15,15 +15,6 @@ export interface User {
   suspendedAt?: string | null;
 }
 
-interface SessionUser {
-  id: string;
-  email: string;
-  name: string | null;
-  avatar: string | null;
-  role: string;
-  suspendedAt: Date | string | null;
-}
-
 interface TierFeature {
   maxSavedSpots: number;
   earlyAccess: boolean;
@@ -107,97 +98,45 @@ interface AuthState {
   setRole: (role: UserRole) => void;
 }
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  return parts
-    .map((p) => p[0] ?? "")
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "?";
-}
-
-function tierFromEmail(email: string): UserTier {
-  if (email.startsWith("ambassador") || email.endsWith("@ambassador.lagos-hotspot")) {
-    return "ambassador";
-  }
-  return "explorer";
-}
-
-function toUIUser(row: SessionUser): User {
-  const name = row.name?.trim() ?? "";
-  return {
-    id: row.id,
-    name: name || row.email.split("@")[0],
-    email: row.email,
-    avatar:
-      row.avatar ??
-      (initials(row.name ?? "") || row.email.slice(0, 2).toUpperCase()),
-    tier: row.role === "admin" ? "ambassador" : tierFromEmail(row.email),
-    role: row.role === "admin" ? "admin" : "user",
-    suspendedAt: row.suspendedAt
-      ? typeof row.suspendedAt === "string"
-        ? row.suspendedAt
-        : row.suspendedAt.toISOString()
-      : null,
-  };
-}
-
-// Storage helpers that work in both browser and Cloudflare Workers runtime
-const memoryStorage = new Map<string, string>();
-
-function getItem(key: string): string | null {
-  try {
-    if (typeof localStorage !== "undefined") return localStorage.getItem(key);
-  } catch {}
-  return memoryStorage.get(key) ?? null;
-}
-
-function setItem(key: string, value: string): void {
-  try {
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem(key, value);
-      return;
-    }
-  } catch {}
-  memoryStorage.set(key, value);
-}
-
-function removeItem(key: string): void {
-  try {
-    if (typeof localStorage !== "undefined") localStorage.removeItem(key);
-  } catch {}
-  memoryStorage.delete(key);
-}
-
 const STORAGE_KEY = "lagos-hotspot-auth";
 
-function loadPersistedUser(): User | null {
+function saveToStorage(user: User | null): void {
   try {
-    const raw = getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as User;
+    if (typeof localStorage !== "undefined") {
+      if (user) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
   } catch {
-    return null;
+    /* ignore */
   }
 }
 
-function persistUser(user: User | null): void {
-  if (user) {
-    setItem(STORAGE_KEY, JSON.stringify(user));
-  } else {
-    removeItem(STORAGE_KEY);
+function loadFromStorage(): User | null {
+  try {
+    if (typeof localStorage !== "undefined") {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        return JSON.parse(raw) as User;
+      }
+    }
+  } catch {
+    /* ignore */
   }
+  return null;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
   setSessionUser: (user) => {
-    persistUser(user);
+    saveToStorage(user);
     set({ isAuthenticated: !!user, user });
   },
   logout: () => {
-    persistUser(null);
+    saveToStorage(null);
     set({ isAuthenticated: false, user: null });
   },
   updateTier: (tier) =>
@@ -210,9 +149,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     })),
 }));
 
-// Load persisted user on client-side mount
+// Load persisted user on client-side init
 if (typeof window !== "undefined") {
-  const user = loadPersistedUser();
+  const user = loadFromStorage();
   if (user) {
     useAuthStore.setState({ isAuthenticated: true, user });
   }
