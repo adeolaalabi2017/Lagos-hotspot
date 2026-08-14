@@ -73,7 +73,6 @@ const authRoutes: Route[] = [
 function AppContent() {
   const { route, navigate } = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  useAuthStore.getState().bootstrap();
 
   const isDashboard = dashboardRoutes.includes(route);
   const isAdmin = adminRoutes.includes(route);

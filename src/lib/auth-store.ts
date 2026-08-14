@@ -1,7 +1,6 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 
 export type UserTier = "explorer" | "scout" | "ambassador";
 export type UserRole = "user" | "admin";
@@ -102,17 +101,10 @@ export const TIER_BG_COLORS: Record<UserTier, string> = {
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
-  bootstrap: () => Promise<void>;
-  login: (email: string, password: string) => Promise<User>;
-  signup: (input: {
-    email: string;
-    password: string;
-    name: string;
-  }) => Promise<User>;
-  logout: () => Promise<void>;
-  updateTier: (tier: UserTier) => void;
-  setRole: (role: UserRole) => Promise<void>;
   setSessionUser: (user: User | null) => void;
+  logout: () => void;
+  updateTier: (tier: UserTier) => void;
+  setRole: (role: UserRole) => void;
 }
 
 function initials(name: string): string {
@@ -150,139 +142,78 @@ function toUIUser(row: SessionUser): User {
   };
 }
 
-const memoryStorage = {
-  _data: new Map<string, string>(),
-  getItem(name: string): string | null {
-    return this._data.get(name) ?? null;
-  },
-  setItem(name: string, value: string): void {
-    this._data.set(name, value);
-  },
-  removeItem(name: string): void {
-    this._data.delete(name);
-  },
-};
+// Storage helpers that work in both browser and Cloudflare Workers runtime
+const memoryStorage = new Map<string, string>();
 
-function isLocalStorageAvailable(): boolean {
+function getItem(key: string): string | null {
   try {
-    if (typeof localStorage === "undefined") return false;
-    const test = "__storage_test__";
-    localStorage.setItem(test, test);
-    localStorage.removeItem(test);
-    return true;
+    if (typeof localStorage !== "undefined") return localStorage.getItem(key);
+  } catch {}
+  return memoryStorage.get(key) ?? null;
+}
+
+function setItem(key: string, value: string): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(key, value);
+      return;
+    }
+  } catch {}
+  memoryStorage.set(key, value);
+}
+
+function removeItem(key: string): void {
+  try {
+    if (typeof localStorage !== "undefined") localStorage.removeItem(key);
+  } catch {}
+  memoryStorage.delete(key);
+}
+
+const STORAGE_KEY = "lagos-hotspot-auth";
+
+function loadPersistedUser(): User | null {
+  try {
+    const raw = getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as User;
   } catch {
-    return false;
+    return null;
   }
 }
 
-const authStorage = isLocalStorageAvailable() ? localStorage : memoryStorage;
+function persistUser(user: User | null): void {
+  if (user) {
+    setItem(STORAGE_KEY, JSON.stringify(user));
+  } else {
+    removeItem(STORAGE_KEY);
+  }
+}
 
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      isAuthenticated: false,
-      user: null,
-      async bootstrap() {
-        if (typeof window === "undefined") {
-          set({ isAuthenticated: false, user: null });
-          return;
-        }
-        try {
-          const base =
-            typeof document !== "undefined" && document.baseURI
-              ? document.baseURI
-              : "/";
-          const res = await fetch(`${base}api/auth/me`, {
-            credentials: "same-origin",
-          });
-          if (!res.ok) {
-            set({ isAuthenticated: false, user: null });
-            return;
-          }
-          const contentType = res.headers.get("content-type") || "";
-          if (!contentType.includes("application/json")) {
-            set({ isAuthenticated: false, user: null });
-            return;
-          }
-          const data = (await res.json()) as { user: SessionUser | null };
-          if (data.user) {
-            set({ isAuthenticated: true, user: toUIUser(data.user) });
-          } else {
-            set({ isAuthenticated: false, user: null });
-          }
-        } catch (err) {
-          console.error("auth bootstrap failed:", err);
-          set({ isAuthenticated: false, user: null });
-        }
-      },
-      async login(email: string, password: string) {
-        const res = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ email, password }),
-        });
-        if (!res.ok) {
-          const data = (await res.json().catch(() => ({}))) as { error?: string };
-          throw new Error(data.error ?? "Login failed");
-        }
-        const data = (await res.json()) as { user: SessionUser };
-        const uiUser = toUIUser(data.user);
-        set({ isAuthenticated: true, user: uiUser });
-        return uiUser;
-      },
-      async signup({ email, password, name }) {
-        const res = await fetch("/api/auth/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ email, password, name }),
-        });
-        if (!res.ok) {
-          const data = (await res.json().catch(() => ({}))) as { error?: string };
-          throw new Error(data.error ?? "Signup failed");
-        }
-        const data = (await res.json()) as { user: SessionUser };
-        const uiUser = toUIUser(data.user);
-        set({ isAuthenticated: true, user: uiUser });
-        return uiUser;
-      },
-      async logout() {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "same-origin",
-        });
-        set({ isAuthenticated: false, user: null });
-      },
-      updateTier: (tier) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, tier } : null,
-        })),
-      async setRole(role: UserRole) {
-        // Role mutation requires the server: it's only used by /admin to flip a user.
-        // Frontend optimistically updates then no-ops server side — actual server
-        // mutation lives in /api/admin/users/[id]. Suspend/reinstate also there.
-        set((state) => ({
-          user: state.user ? { ...state.user, role } : null,
-        }));
-      },
-      setSessionUser: (user) =>
-        set({
-          isAuthenticated: !!user,
-          user,
-        }),
-    }),
-    {
-      name: "lagos-hotspot-auth",
-      version: 3,
-      storage: createJSONStorage(() => authStorage),
-      partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
-      migrate: (persistedState, version) => {
-        if (!persistedState) return persistedState as never;
-        if (version >= 3) return persistedState as never;
-        // Reset older shapes; bootstrap will repopulate.
-        return { isAuthenticated: false, user: null } as never;
-      },
-    }
-  )
-);
+export const useAuthStore = create<AuthState>((set) => ({
+  isAuthenticated: false,
+  user: null,
+  setSessionUser: (user) => {
+    persistUser(user);
+    set({ isAuthenticated: !!user, user });
+  },
+  logout: () => {
+    persistUser(null);
+    set({ isAuthenticated: false, user: null });
+  },
+  updateTier: (tier) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, tier } : null,
+    })),
+  setRole: (role: UserRole) =>
+    set((state) => ({
+      user: state.user ? { ...state.user, role } : null,
+    })),
+}));
+
+// Load persisted user on client-side mount
+if (typeof window !== "undefined") {
+  const user = loadPersistedUser();
+  if (user) {
+    useAuthStore.setState({ isAuthenticated: true, user });
+  }
+}
