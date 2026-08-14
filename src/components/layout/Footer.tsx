@@ -40,7 +40,7 @@ export default function Footer() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <span className="text-base font-semibold text-foreground">Lagos hotspot</span>
+              <span className="text-base font-semibold text-foreground">Lagos Hotspot</span>
             </button>
             <p className="text-sm text-muted-foreground max-w-md text-pretty">
               Your honest, Lagosian-written guide to the city&apos;s best
