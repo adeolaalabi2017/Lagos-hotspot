@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "@/lib/router";
-import { useAuthStore, type UserTier, TIER_LABELS } from "@/lib/auth-store";
+import { useAuthStore, type User, type UserTier, TIER_LABELS } from "@/lib/auth-store";
 import { pricingPlans } from "@/data/mock-data";
 import { Eye, EyeOff, Flame, Check, Compass, Star, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useMutation } from "convex/react";
+import { api } from "@/lib/convex-api";
 
 const tierIcons: Record<UserTier, React.ReactNode> = {
   explorer: <Compass className="h-5 w-5" />,
@@ -32,9 +34,23 @@ const tierActiveBg: Record<UserTier, string> = {
   ambassador: "bg-amber-50",
 };
 
+function makeLocalUser(email: string, name: string): User {
+  const base = email.trim().toLowerCase();
+  return {
+    id: `local-${base}`,
+    email: base,
+    name: name.trim() || base.split("@")[0] || email.trim(),
+    avatar: (name.trim() || base).slice(0, 2).toUpperCase(),
+    tier: base.startsWith("ambassador") || base.endsWith("@ambassador.lagos-hotspot") ? "ambassador" : "explorer",
+    role: "user" as const,
+    suspendedAt: null,
+  };
+}
+
 export default function RegisterPage() {
   const { navigate } = useRouter();
-  const signup = useAuthStore((s) => s.signup);
+  const setSessionUser = useAuthStore((s) => s.setSessionUser);
+  const signupMutation = useMutation(api.auth.signup);
   const [selectedTier, setSelectedTier] = useState<UserTier>("explorer");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -76,7 +92,18 @@ export default function RegisterPage() {
     setServerError(null);
     setSubmitting(true);
     try {
-      await signup({ email: email.trim(), password, name: fullName.trim() });
+      const result = await signupMutation({ email: email.trim(), password, name: fullName.trim() });
+      const userId = result?.userId;
+      const user: User = {
+        id: String(userId ?? email.trim()),
+        email: email.trim(),
+        name: fullName.trim(),
+        avatar: "",
+        tier: "explorer",
+        role: "user",
+        suspendedAt: null,
+      };
+      setSessionUser(user);
       navigate("dashboard");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign up failed";
@@ -132,9 +159,7 @@ export default function RegisterPage() {
                         Popular
                       </span>
                     )}
-                    <div className={cn(
-                      isActive ? "text-foreground" : "text-muted-foreground"
-                    )}>
+                    <div className={cn(isActive ? "text-foreground" : "text-muted-foreground")}>
                       {tierIcons[tier]}
                     </div>
                     <span className={cn("text-xs font-semibold", isActive ? "text-foreground" : "text-muted-foreground")}>
@@ -156,7 +181,7 @@ export default function RegisterPage() {
 
           {/* Social Login */}
           <div>
-            <Button variant="outline" className="w-full h-11" onClick={() => toast.info("Coming soon!")}>
+            <Button variant="outline" className="w-full h-11" onClick={() => toast.info("Google sign-in is not configured yet")} type="button">
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"

@@ -112,6 +112,7 @@ interface AuthState {
   logout: () => Promise<void>;
   updateTier: (tier: UserTier) => void;
   setRole: (role: UserRole) => Promise<void>;
+  setSessionUser: (user: User | null) => void;
 }
 
 function initials(name: string): string {
@@ -238,6 +239,11 @@ export const useAuthStore = create<AuthState>()(
           user: state.user ? { ...state.user, role } : null,
         }));
       },
+      setSessionUser: (user) =>
+        set({
+          isAuthenticated: !!user,
+          user,
+        }),
     }),
     {
       name: "lagos-hotspot-auth",

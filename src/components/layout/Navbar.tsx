@@ -119,7 +119,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
                 isTransparent ? "text-white" : "text-foreground"
               }`}
             >
-              Lagos hotspot
+              Lagos Hotspot
             </span>
           </button>
 
@@ -130,6 +130,8 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
                 <DropdownMenu key={link.label}>
                   <DropdownMenuTrigger asChild>
                     <button
+                      aria-haspopup="true"
+                      aria-expanded={undefined}
                       className={`flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors hover:bg-accent ${
                         isTransparent
                           ? "text-white/90 hover:text-white hover:bg-white/10"
@@ -288,7 +290,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
                 </SheetDescription>
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between p-4 border-b">
-                    <span className="text-lg font-bold">Lagos hotspot</span>
+                    <span className="text-lg font-bold">Lagos Hotspot</span>
                     <Button
                       variant="ghost"
                       size="icon"

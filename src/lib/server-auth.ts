@@ -55,6 +55,12 @@ async function userFromPayload(
   };
 }
 
+export function isAuthError<T>(
+  result: RequireResult<T>
+): result is { ok: false; response: NextResponse } {
+  return !result.ok;
+}
+
 export async function requireUser(
   request: NextRequest
 ): Promise<RequireResult<SessionUser>> {

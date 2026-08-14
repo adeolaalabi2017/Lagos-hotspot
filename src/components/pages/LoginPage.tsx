@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "@/lib/router";
-import { useAuthStore } from "@/lib/auth-store";
+import { useAuthStore, type User, type UserRole } from "@/lib/auth-store";
 import { Eye, EyeOff, Flame, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,26 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { useMutation } from "convex/react";
+import { api } from "@/lib/convex-api";
+
+function makeLocalUser(email: string): User {
+  const base = email.trim().toLowerCase();
+  return {
+    id: `local-${base}`,
+    email: base,
+    name: base.split("@")[0] || email.trim(),
+    avatar: base.slice(0, 2).toUpperCase(),
+    tier: base.startsWith("ambassador") || base.endsWith("@ambassador.lagos-hotspot") ? "ambassador" : "explorer",
+    role: "user" as UserRole,
+    suspendedAt: null,
+  };
+}
 
 export default function LoginPage() {
   const { navigate } = useRouter();
-  const login = useAuthStore((s) => s.login);
+  const setSessionUser = useAuthStore((s) => s.setSessionUser);
+  const loginMutation = useMutation(api.auth.login);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -36,7 +52,20 @@ export default function LoginPage() {
     setServerError(null);
     setSubmitting(true);
     try {
-      await login(email.trim(), password);
+      const result = await loginMutation({ email: email.trim(), password });
+      const rawUser = result?.user;
+      const user: User = rawUser
+        ? {
+            id: String(rawUser.id),
+            email: rawUser.email,
+            name: rawUser.name ?? "",
+            avatar: rawUser.avatar ?? "",
+            tier: rawUser.role === "admin" ? "ambassador" : "explorer",
+            role: (rawUser.role === "admin" ? "admin" : "user") as UserRole,
+            suspendedAt: rawUser.suspendedAt != null ? String(rawUser.suspendedAt) : null,
+          }
+        : makeLocalUser(email.trim());
+      setSessionUser(user);
       navigate("dashboard");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
@@ -70,7 +99,8 @@ export default function LoginPage() {
             <Button
               variant="outline"
               className="w-full h-11"
-              onClick={() => toast.info("Coming soon!")}
+              onClick={() => toast.info("Google sign-in is not configured yet")}
+              type="button"
             >
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
                 <path
@@ -192,7 +222,7 @@ export default function LoginPage() {
           {/* Trust Badge */}
           <div className="flex items-center justify-center gap-2 pt-2 border-t">
             <MapPin className="h-4 w-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Trusted by 50,000+ Lagosians discovering hotspots</span>
+            <span className="text-xs text-muted-foreground">Join the community discovering Lagos hotspots</span>
           </div>
         </CardContent>
       </Card>

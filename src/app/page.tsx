@@ -40,6 +40,7 @@ import { AdminReviewsPage } from "@/components/admin/AdminReviewsPage";
 import { AdminUsersPage } from "@/components/admin/AdminUsersPage";
 import { AdminReportsPage } from "@/components/admin/AdminReportsPage";
 import { AdminActivityLogPage } from "@/components/admin/AdminActivityLogPage";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 const dashboardRoutes: Route[] = [
   "dashboard",
@@ -94,8 +95,6 @@ function AppContent() {
   if (isDashboard && !isAuthenticated) {
     return null;
   }
-
-  // (admin page is rendered via renderAdminPage() below; admin routes skip the public chrome)
 
   // Determine navbar variant based on route
   const navbarVariant = route === "home" ? "transparent" : "solid";
@@ -191,43 +190,55 @@ function AppContent() {
   // Dashboard - sidebar layout
   if (isDashboard) {
     return (
-      <DashboardLayout activeRoute={route}>
-        {renderDashboardPage()}
-      </DashboardLayout>
+      <ErrorBoundary>
+        <DashboardLayout activeRoute={route}>
+          {renderDashboardPage()}
+        </DashboardLayout>
+      </ErrorBoundary>
     );
   }
 
   // Admin - own layout, no public chrome
   if (isAdmin) {
-    return <main id="main-content">{renderAdminPage()}</main>;
+    return (
+      <ErrorBoundary>
+        <main id="main-content">{renderAdminPage()}</main>
+      </ErrorBoundary>
+    );
   }
 
   // Auth pages - navbar but no footer, centered layout
   if (isAuth) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <Navbar variant="solid" />
-        <main id="main-content" className="flex-1">{renderPage()}</main>
-      </div>
+      <ErrorBoundary>
+        <div className="min-h-screen flex flex-col">
+          <Navbar variant="solid" />
+          <main id="main-content" className="flex-1">{renderPage()}</main>
+        </div>
+      </ErrorBoundary>
     );
   }
 
   // Standard pages - navbar + footer
   return (
-    <div className="min-h-screen flex flex-col">
-      <Navbar variant={navbarVariant} />
-      <main id="main-content" className={`flex-1${transparentOffset}`}>{renderPage()}</main>
-      <Footer />
-    </div>
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col">
+        <Navbar variant={navbarVariant} />
+        <main id="main-content" className={`flex-1${transparentOffset}`}>{renderPage()}</main>
+        <Footer />
+      </div>
+    </ErrorBoundary>
   );
 }
 
 export default function Home() {
   return (
-    <ConvexClientProvider>
-      <RouterProvider>
-        <AppContent />
-      </RouterProvider>
-    </ConvexClientProvider>
+    <ErrorBoundary>
+      <ConvexClientProvider>
+        <RouterProvider>
+          <AppContent />
+        </RouterProvider>
+      </ConvexClientProvider>
+    </ErrorBoundary>
   );
 }

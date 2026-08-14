@@ -147,6 +147,7 @@ export default function HomePage() {
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white mb-6 leading-[1.05] tracking-tight">
               Find your next{" "}
               <span
+                aria-live="polite"
                 aria-label={`Word cycling: ${HERO_WORDS.join(', ')}`}
                 className="inline-block text-amber-400 text-center align-baseline motion-safe:transition-[opacity,transform] motion-safe:duration-400 motion-safe:ease-out"
                 style={{
@@ -272,11 +273,23 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {(trendingSpots ?? []).map((spot) => (
-              <HotspotCard key={spot.id} spot={spot} navigate={navigate} />
-            ))}
-          </div>
+          {trendingSpots === undefined ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <HotspotSkeleton key={i} />
+              ))}
+            </div>
+          ) : trendingSpots.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No trending spots yet. Be the first to add one!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {trendingSpots.map((spot) => (
+                <HotspotCard key={spot.id} spot={spot} navigate={navigate} />
+              ))}
+            </div>
+          )}
 
           <div className="mt-8 text-center sm:hidden">
             <Button variant="outline" onClick={() => navigate("explore", { sort: "trending" })}>
@@ -309,17 +322,33 @@ export default function HomePage() {
             </Button>
           </div>
 
-          <Carousel className="w-full">
-            <CarouselContent className="gap-6">
-              {(featuredSpots ?? []).map((spot) => (
-                <CarouselItem key={spot.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
-                  <FeaturedCard spot={spot} navigate={navigate} />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden lg:flex -left-6" />
-            <CarouselNext className="hidden lg:flex -right-6" />
-          </Carousel>
+          {featuredSpots === undefined ? (
+            <Carousel className="w-full">
+              <CarouselContent className="gap-6">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <CarouselItem key={i} className="basis-full sm:basis-1/2 lg:basis-1/3">
+                    <FeaturedSkeleton />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          ) : featuredSpots.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No featured spots yet.</p>
+            </div>
+          ) : (
+            <Carousel className="w-full">
+              <CarouselContent className="gap-6">
+                {featuredSpots.map((spot) => (
+                  <CarouselItem key={spot.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
+                    <FeaturedCard spot={spot} navigate={navigate} />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden lg:flex -left-6" />
+              <CarouselNext className="hidden lg:flex -right-6" />
+            </Carousel>
+          )}
         </div>
       </section>
 
@@ -665,6 +694,30 @@ export default function HomePage() {
 }
 
 // ─── Hotspot Card (Grid) ─────────────────────────────────
+function HotspotSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="aspect-[4/3] bg-muted animate-pulse" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+        <div className="h-3 bg-muted rounded animate-pulse w-1/2" />
+      </div>
+    </div>
+  );
+}
+
+function FeaturedSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-card basis-full sm:basis-1/2 lg:basis-1/3">
+      <div className="aspect-[16/10] bg-muted animate-pulse" />
+      <div className="p-5 space-y-2">
+        <div className="h-5 bg-muted rounded animate-pulse w-2/3" />
+        <div className="h-4 bg-muted rounded animate-pulse w-full" />
+      </div>
+    </div>
+  );
+}
+
 function HotspotCard({
   spot,
   navigate,
@@ -690,7 +743,7 @@ function HotspotCard({
 
   return (
     <Card
-      className="overflow-hidden hover:shadow-lg motion-safe:transition-shadow cursor-pointer group"
+      className="overflow-hidden hover:shadow-xl hover:-translate-y-0.5 motion-safe:transition-all motion-safe:duration-300 cursor-pointer group"
       onClick={() => navigate("hotspot", { id: spot.id })}
     >
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
@@ -714,8 +767,8 @@ function HotspotCard({
           aria-label="Save spot"
         >
           <Heart
-            className={`h-4 w-4 ${
-              isBookmarked ? "fill-red-500 text-red-500" : "text-white"
+            className={`h-4 w-4 motion-safe:transition-transform motion-safe:duration-200 ${
+              isBookmarked ? "fill-red-500 text-red-500 scale-110" : "text-white"
             }`}
           />
         </button>
