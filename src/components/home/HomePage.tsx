@@ -11,7 +11,6 @@ import { api } from "@/lib/convex-api";
 import {
   categories,
   reviews,
-  pricingPlans,
   blogPosts,
   neighborhoods,
 } from "@/data/mock-data";
@@ -520,73 +519,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing */}
+      {/* List Your Business CTA */}
       <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto mb-14 text-center">
+          <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-              Pick the plan that fits.
+              Own a hotspot in Lagos?
             </h2>
-            <p className="text-muted-foreground mt-3 text-pretty">
-              Whether you&apos;re exploring Lagos or listing your own spot, we
-              have a tier for you.
+            <p className="text-muted-foreground mt-3 text-pretty text-lg">
+              List your business for free and reach thousands of Lagosians
+              looking for the next great spot.
             </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {pricingPlans.map((plan) => (
-              <Card
-                key={plan.id}
-                className={`relative overflow-hidden ${
-                  plan.popular ? "border-primary shadow-lg" : ""
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-bl-lg">
-                    Popular
-                  </div>
-                )}
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{plan.name}</CardTitle>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-muted-foreground text-sm">
-                      {plan.period}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {plan.description}
-                  </p>
-                </CardHeader>
-                <CardContent className="pb-2 flex-1">
-                  <ul className="space-y-2">
-                    {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        <Check className="h-4 w-4 text-primary shrink-0" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter className="mt-auto">
-                  <Button
-                    className="w-full"
-                    variant={plan.popular ? "default" : "outline"}
-                    onClick={() => {
-                      if (plan.id === "ambassador") {
-                        navigate("contact-us");
-                      } else {
-                        navigate("register");
-                      }
-                    }}
-                  >
-                    {plan.cta}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+              <Button size="lg" onClick={() => navigate("register")}>
+                List Your Business — Free
+              </Button>
+              <Button variant="outline" size="lg" onClick={() => navigate("explore")}>
+                Explore Hotspots
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              100% free during launch. No paid tiers yet.
+            </p>
           </div>
         </div>
       </section>
@@ -662,7 +616,7 @@ export default function HomePage() {
               </h2>
               <p className="text-white/80 max-w-lg mx-auto mb-8">
                 Help the community discover amazing places. Submit your favorite
-                spots and earn ambassador status.
+                spots for free.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
@@ -734,7 +688,7 @@ function HotspotCard({
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isBookmarked && !canSaveMore(maxSaves)) {
-      toast.error("You've reached your 10-spot save limit. Upgrade to Scout for unlimited saves!");
+      toast.error("You've reached your 10-spot save limit.");
       return;
     }
     toggleBookmark(spot.id);

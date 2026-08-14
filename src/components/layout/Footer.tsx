@@ -6,7 +6,6 @@ import { Instagram, Twitter, MapPin, Mail } from "lucide-react";
 
 const footerLinks = [
   { label: "Explore", route: "explore" as const },
-  { label: "Pricing", route: "pricing" as const },
   { label: "Blog", route: "blog" as const },
   { label: "Contact", route: "contact-us" as const },
   { label: "About", route: "about-us" as const },

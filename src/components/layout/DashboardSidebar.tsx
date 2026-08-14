@@ -43,14 +43,14 @@ const sidebarItems: SidebarItem[] = [
   { label: "My Reviews", icon: Star, route: "dashboard-reviews" },
   { label: "Messages", icon: MessageSquare, route: "dashboard-messages" },
   { label: "My Spots", icon: MapPin, route: "dashboard-my-spots" },
-  { label: "Analytics", icon: BarChart3, route: "dashboard-analytics", requiredTier: "ambassador" },
+  { label: "Analytics", icon: BarChart3, route: "dashboard-analytics", requiredTier: "hotspot" },
   { label: "Add Spot", icon: PlusCircle, route: "dashboard-add-spot" },
 ];
 
 const tierIcons: Record<UserTier, React.ElementType> = {
   explorer: MapPin,
-  scout: Star,
-  ambassador: Flame,
+  
+  hotspot: Flame,
 };
 
 export default function DashboardSidebar({ activeRoute, collapsed = false, onToggle, onNavigate }: DashboardSidebarProps) {
@@ -116,7 +116,7 @@ export default function DashboardSidebar({ activeRoute, collapsed = false, onTog
         {sidebarItems
           .filter((item) => {
             if (!item.requiredTier) return true;
-            const tierOrder: Record<UserTier, number> = { explorer: 0, scout: 1, ambassador: 2 };
+            const tierOrder: Record<UserTier, number> = { explorer: 0, hotspot: 1 };
             return tierOrder[userTier] >= tierOrder[item.requiredTier];
           })
           .map((item) => {

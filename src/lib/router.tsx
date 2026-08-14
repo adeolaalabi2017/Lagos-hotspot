@@ -29,7 +29,6 @@ export type Route =
   | "blog"
   | "blog-detail"
   | "contact-us"
-  | "pricing"
   | "privacy-policy"
   | "terms-of-service"
   | "help-center"
@@ -69,7 +68,7 @@ const routeFromHash = (hash: string): { route: Route; params: Record<string, str
     "dashboard-messages", "dashboard-my-spots", "dashboard-add-spot", "dashboard-analytics",
     "admin", "admin-listings", "admin-import", "admin-reviews", "admin-users", "admin-reports", "admin-activity-log",
     "login", "register", "forgot-password",
-    "about-us", "blog", "blog-detail", "contact-us", "pricing",
+    "about-us", "blog", "blog-detail", "contact-us",
     "privacy-policy", "terms-of-service", "help-center", "help-article",
     "faq", "error",
   ];
@@ -128,7 +127,6 @@ const routeTitles: Record<Route, string> = {
   blog: "Blog — Lagos Hotspot",
   "blog-detail": "Blog — Lagos Hotspot",
   "contact-us": "Contact Us — Lagos Hotspot",
-  pricing: "Pricing — Lagos Hotspot",
   "privacy-policy": "Privacy Policy — Lagos Hotspot",
   "terms-of-service": "Terms of Service — Lagos Hotspot",
   "help-center": "Help Center — Lagos Hotspot",

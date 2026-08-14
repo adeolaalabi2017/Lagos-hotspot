@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 
-export type UserTier = "explorer" | "scout" | "ambassador";
+export type UserTier = "explorer" | "hotspot";
 export type UserRole = "user" | "admin";
 
 export interface User {
@@ -17,76 +17,47 @@ export interface User {
 
 interface TierFeature {
   maxSavedSpots: number;
-  earlyAccess: boolean;
-  recommendations: boolean;
-  trendingAlerts: boolean;
-  prioritySupport: boolean;
   listBusiness: boolean;
-  analytics: boolean;
-  featuredPlacement: boolean;
-  respondToReviews: boolean;
-  whatsappIntegration: boolean;
-  customBranding: boolean;
+  maxImages: number;
+  analytics: "none" | "simple";
+  contactInfo: boolean;
 }
 
 export const TIER_FEATURES: Record<UserTier, TierFeature> = {
   explorer: {
     maxSavedSpots: 10,
-    earlyAccess: false,
-    recommendations: false,
-    trendingAlerts: false,
-    prioritySupport: false,
     listBusiness: false,
-    analytics: false,
-    featuredPlacement: false,
-    respondToReviews: false,
-    whatsappIntegration: false,
-    customBranding: false,
+    maxImages: 0,
+    analytics: "none",
+    contactInfo: false,
   },
-  scout: {
-    maxSavedSpots: -1,
-    earlyAccess: true,
-    recommendations: true,
-    trendingAlerts: true,
-    prioritySupport: true,
-    listBusiness: false,
-    analytics: false,
-    featuredPlacement: false,
-    respondToReviews: false,
-    whatsappIntegration: false,
-    customBranding: false,
-  },
-  ambassador: {
-    maxSavedSpots: -1,
-    earlyAccess: true,
-    recommendations: true,
-    trendingAlerts: true,
-    prioritySupport: true,
+  hotspot: {
+    maxSavedSpots: 10,
     listBusiness: true,
-    analytics: true,
-    featuredPlacement: true,
-    respondToReviews: true,
-    whatsappIntegration: true,
-    customBranding: true,
+    maxImages: 5,
+    analytics: "simple",
+    contactInfo: true,
   },
 };
 
 export const TIER_LABELS: Record<UserTier, string> = {
   explorer: "Explorer",
-  scout: "Scout",
-  ambassador: "Ambassador",
+  hotspot: "Hotspot Owner",
+};
+
+export const TIER_DESCRIPTIONS: Record<UserTier, string> = {
+  explorer: "Discover and save the hottest spots in Lagos",
+  hotspot: "List your business and reach thousands of customers",
 };
 
 export const TIER_COLORS: Record<UserTier, string> = {
   explorer: "text-muted-foreground",
-  scout: "text-orange-600",
-  ambassador: "text-amber-600",
+  hotspot: "text-primary",
 };
 
 export const TIER_BG_COLORS: Record<UserTier, string> = {
   explorer: "bg-muted text-muted-foreground",
-  scout: "bg-orange-50 text-orange-700 border-orange-200",
-  ambassador: "bg-amber-50 text-amber-700 border-amber-200",
+  hotspot: "bg-primary/10 text-primary border-primary/20",
 };
 
 interface AuthState {

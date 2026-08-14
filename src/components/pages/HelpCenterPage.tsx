@@ -68,7 +68,7 @@ export default function HelpCenterPage() {
   const { user, isAuthenticated } = useAuthStore();
   const userTier = user?.tier || "explorer";
   const tierFeatures = TIER_FEATURES[userTier];
-  const isScoutOrAbove = isAuthenticated && tierFeatures.prioritySupport;
+  const listBusiness = isAuthenticated && tierFeatures.listBusiness;
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -96,7 +96,7 @@ export default function HelpCenterPage() {
       {/* Priority Support Card (Scout+) */}
       {isAuthenticated && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          {isScoutOrAbove ? (
+          {listBusiness ? (
             <Card className="border-green-200 bg-green-50">
               <CardContent className="pt-6 flex flex-col sm:flex-row items-center gap-6">
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shrink-0">
@@ -108,7 +108,7 @@ export default function HelpCenterPage() {
                     <Badge className="bg-green-600 text-white border-0 text-[10px]">Scout+</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    As a {userTier === "ambassador" ? "Ambassador" : "Scout"} member, you get instant access to our priority support team. Skip the queue and get help in minutes.
+                    As a {userTier === "hotspot" ? "Ambassador" : "Scout"} member, you get instant access to our priority support team. Skip the queue and get help in minutes.
                   </p>
                 </div>
                 <a
@@ -138,7 +138,7 @@ export default function HelpCenterPage() {
                     Upgrade to Scout for instant WhatsApp support and skip the queue.
                   </p>
                 </div>
-                <Button variant="outline" onClick={() => navigate("pricing")}>
+                <Button variant="outline" onClick={() => navigate("home")}>
                   Upgrade to Scout
                 </Button>
               </CardContent>

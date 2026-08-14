@@ -66,7 +66,6 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
     }[] = [
       { label: "Home", route: "home" },
       { label: "Explore", route: "explore" },
-      { label: "Pricing", route: "pricing" },
       { label: "Blog", route: "blog" },
     ];
 

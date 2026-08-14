@@ -31,9 +31,9 @@ const mySpots: MySpot[] = [
   { id: "3", title: "Terra Kulture", area: "Victoria Island", category: "Culture & Arts", image: "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=400&h=300&fit=crop", status: "Pending", rating: 0, vibeScore: 0 },
 ];
 
-function SpotCard({ spot, isAmbassador, featuredSpots, toggleFeatured }: {
+function SpotCard({ spot, isHotspotOwner, featuredSpots, toggleFeatured }: {
   spot: MySpot;
-  isAmbassador: boolean;
+  isHotspotOwner: boolean;
   featuredSpots: Record<string, boolean>;
   toggleFeatured: (id: string) => void;
 }) {
@@ -87,7 +87,7 @@ function SpotCard({ spot, isAmbassador, featuredSpots, toggleFeatured }: {
           )}
         </div>
         {/* Featured Toggle (Ambassador only) */}
-        {isAmbassador && spot.status === "Active" && (
+        {isHotspotOwner && spot.status === "Active" && (
           <div className="flex items-center justify-between py-2 mb-2 border-t border-b">
             <div className="flex items-center gap-2">
               <Star className={`h-4 w-4 ${isFeatured ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
@@ -99,7 +99,7 @@ function SpotCard({ spot, isAmbassador, featuredSpots, toggleFeatured }: {
             />
           </div>
         )}
-        {isAmbassador && !isFeatured && spot.status === "Active" && (
+        {isHotspotOwner && !isFeatured && spot.status === "Active" && (
           <p className="text-[10px] text-muted-foreground mb-2">
             Featured spots appear at the top of search results
           </p>
@@ -143,7 +143,7 @@ export default function DashboardListings() {
   const { navigate } = useRouter();
   const { user } = useAuthStore();
   const userTier = user?.tier || "explorer";
-  const isAmbassador = TIER_FEATURES[userTier].featuredPlacement;
+  const isHotspotOwner = TIER_FEATURES[userTier].listBusiness;
 
   const [activeTab, setActiveTab] = useState("all");
   const [featuredSpots, setFeaturedSpots] = useState<Record<string, boolean>>({});
@@ -182,7 +182,7 @@ export default function DashboardListings() {
       </div>
 
       {/* Ambassador Feature Note */}
-      {!isAmbassador && (
+      {!isHotspotOwner && (
         <Card className="border-muted bg-muted/30">
           <CardContent className="p-4 flex items-center gap-3">
             <Lock className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -191,7 +191,7 @@ export default function DashboardListings() {
                 <span className="font-medium text-foreground">Featured Placement</span> is available for Ambassador tier. Upgrade to feature your spots at the top of search results.
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("home")}>
               Upgrade
             </Button>
           </CardContent>
@@ -213,7 +213,7 @@ export default function DashboardListings() {
                 <SpotCard
                   key={spot.id}
                   spot={spot}
-                  isAmbassador={isAmbassador}
+                  isHotspotOwner={isHotspotOwner}
                   featuredSpots={featuredSpots}
                   toggleFeatured={toggleFeatured}
                 />

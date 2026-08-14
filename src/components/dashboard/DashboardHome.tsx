@@ -43,7 +43,7 @@ const activityIconMap: Record<string, React.ElementType> = {
 };
 
 // ─── Mock early access hotspots ──────────────────────────
-const earlyAccessHotspots = [
+const listBusinessHotspots = [
   {
     id: "ea-1",
     title: "Skyline Rooftop Lounge",
@@ -71,7 +71,7 @@ const earlyAccessHotspots = [
 ];
 
 // ─── Mock trending alerts ────────────────────────────────
-const trendingAlerts = [
+const listBusiness = [
   { id: "ta-1", text: "🔥 Quilox just hit a 97 vibe score!", time: "2 min ago" },
   { id: "ta-2", text: "⚡ New rooftop bar opening in Ikoyi this Friday", time: "15 min ago" },
   { id: "ta-3", text: "🏖️ Elegushi Beach weekend party trending", time: "1 hour ago" },
@@ -131,7 +131,7 @@ export default function DashboardHome() {
     };
   }, [bookmarkedIds]);
 
-  const isScoutOrAbove = userTier === "scout" || userTier === "ambassador";
+  const isHotspotOwner = userTier === "hotspot";
 
   return (
     <div className="space-y-6">
@@ -174,16 +174,16 @@ export default function DashboardHome() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {userTier === "explorer" && "Save up to 10 spots • Basic search"}
-                  {userTier === "scout" && "Unlimited saves • Trending alerts • Priority support"}
-                  {userTier === "ambassador" && "List your spot • Analytics • Featured placement"}
+                    {isHotspotOwner && "List your business • Simple analytics • Contact info"}
+
                 </p>
               </div>
             </div>
-            {userTier !== "ambassador" && (
+            {userTier !== "hotspot" && (
               <Button
                 size="sm"
                 variant={userTier === "explorer" ? "default" : "outline"}
-                onClick={() => navigate("pricing")}
+                onClick={() => navigate("home")}
                 className="shrink-0"
               >
                 <Flame className="h-3.5 w-3.5 mr-1.5" />
@@ -195,13 +195,13 @@ export default function DashboardHome() {
       </Card>
 
       {/* Early Access Section (Scout+) */}
-      <Card className={isScoutOrAbove ? "border-primary/20" : "border-muted opacity-75"}>
+      <Card className={isHotspotOwner ? "border-primary/20" : "border-muted opacity-75"}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
               <CardTitle className="text-lg">Early Access</CardTitle>
-              {isScoutOrAbove ? (
+              {isHotspotOwner ? (
                 <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
                   Scout+
                 </Badge>
@@ -209,21 +209,21 @@ export default function DashboardHome() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
               )}
             </div>
-            {!isScoutOrAbove && (
-              <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+            {!isHotspotOwner && (
+              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
                 Upgrade to Scout
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          {isScoutOrAbove ? (
+          {isHotspotOwner ? (
             <>
               <p className="text-xs text-muted-foreground mb-4">
                 Available to Scout+ members before public launch
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {earlyAccessHotspots.map((spot) => (
+                {listBusinessHotspots.map((spot) => (
                   <div key={spot.id} className="relative rounded-lg overflow-hidden group">
                     {spot.image && (
                       <img
@@ -257,13 +257,13 @@ export default function DashboardHome() {
       </Card>
 
       {/* Personalized Recommendations (Scout+) */}
-      <Card className={isScoutOrAbove ? "" : "border-muted opacity-75"}>
+      <Card className={isHotspotOwner ? "" : "border-muted opacity-75"}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Compass className="h-5 w-5 text-primary" />
               <CardTitle className="text-lg">Recommended for You</CardTitle>
-              {isScoutOrAbove ? (
+              {isHotspotOwner ? (
                 <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
                   Scout+
                 </Badge>
@@ -271,15 +271,15 @@ export default function DashboardHome() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
               )}
             </div>
-            {!isScoutOrAbove && (
-              <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+            {!isHotspotOwner && (
+              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
                 Upgrade to Scout
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          {isScoutOrAbove ? (
+          {isHotspotOwner ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {recommendedHotspots.map((spot) => (
                 <Card
@@ -325,13 +325,13 @@ export default function DashboardHome() {
       </Card>
 
       {/* Trending Alerts (Scout+) */}
-      <Card className={isScoutOrAbove ? "border-orange-200 bg-orange-50/30" : "border-muted opacity-75"}>
+      <Card className={isHotspotOwner ? "border-orange-200 bg-orange-50/30" : "border-muted opacity-75"}>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-orange-500" />
               <CardTitle className="text-lg">Trending Alerts</CardTitle>
-              {isScoutOrAbove ? (
+              {isHotspotOwner ? (
                 <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[10px]">
                   Scout+
                 </Badge>
@@ -339,17 +339,17 @@ export default function DashboardHome() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
               )}
             </div>
-            {!isScoutOrAbove && (
-              <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+            {!isHotspotOwner && (
+              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
                 Upgrade to Scout
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          {isScoutOrAbove ? (
+          {isHotspotOwner ? (
             <div className="space-y-2">
-              {trendingAlerts.map((alert) => (
+              {listBusiness.map((alert) => (
                 <div
                   key={alert.id}
                   className="flex items-center justify-between p-3 bg-white rounded-lg border border-orange-100 hover:border-orange-200 transition-colors"

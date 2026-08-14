@@ -27,7 +27,6 @@ import AboutUsPage from "@/components/pages/AboutUsPage";
 import BlogPage from "@/components/pages/BlogPage";
 import BlogDetailPage from "@/components/pages/BlogDetailPage";
 import ContactUsPage from "@/components/pages/ContactUsPage";
-import PricingPage from "@/components/pages/PricingPage";
 import PrivacyPolicyPage from "@/components/pages/PrivacyPolicyPage";
 import HelpCenterPage from "@/components/pages/HelpCenterPage";
 import HelpArticlePage from "@/components/pages/HelpArticlePage";
@@ -167,8 +166,6 @@ function AppContent() {
         return <BlogDetailPage />;
       case "contact-us":
         return <ContactUsPage />;
-      case "pricing":
-        return <PricingPage />;
       case "privacy-policy":
         return <PrivacyPolicyPage />;
       case "help-center":

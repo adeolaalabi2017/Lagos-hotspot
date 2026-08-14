@@ -38,7 +38,7 @@ interface ReviewReply {
 
 function ReviewCardWithReply({
   review,
-  isAmbassador,
+  isHotspotOwner,
   reply,
   onReplyChange,
   onSendReply,
@@ -46,7 +46,7 @@ function ReviewCardWithReply({
   onToggleReply,
 }: {
   review: typeof reviews[0];
-  isAmbassador: boolean;
+  isHotspotOwner: boolean;
   reply: Record<string, string>;
   onReplyChange: (id: string, text: string) => void;
   onSendReply: (id: string) => void;
@@ -133,7 +133,7 @@ function ReviewCardWithReply({
                 <MessageSquare className="h-3.5 w-3.5 mr-1.5" />
                 View Spot
               </Button>
-              {isAmbassador && !existingReply && (
+              {isHotspotOwner && !existingReply && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -179,7 +179,7 @@ export default function DashboardReviews() {
   const { navigate } = useRouter();
   const { user } = useAuthStore();
   const userTier = user?.tier || "explorer";
-  const isAmbassador = TIER_FEATURES[userTier].respondToReviews;
+  const isHotspotOwner = TIER_FEATURES[userTier].listBusiness;
 
   const [replyTexts, setReplyTexts] = useState<Record<string, string>>({});
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -231,7 +231,7 @@ export default function DashboardReviews() {
       </div>
 
       {/* Ambassador Reply Note */}
-      {!isAmbassador && (
+      {!isHotspotOwner && (
         <Card className="border-muted bg-muted/30">
           <CardContent className="p-4 flex items-center gap-3">
             <Lock className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -240,7 +240,7 @@ export default function DashboardReviews() {
                 <span className="font-medium text-foreground">Respond to Reviews</span> is available for Ambassador tier. Upgrade to reply to customer reviews.
               </p>
             </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("home")}>
               Upgrade
             </Button>
           </CardContent>
@@ -291,7 +291,7 @@ export default function DashboardReviews() {
           <ReviewCardWithReply
             key={review.id}
             review={review}
-            isAmbassador={isAmbassador}
+            isHotspotOwner={isHotspotOwner}
             reply={replyTexts}
             onReplyChange={handleReplyChange}
             onSendReply={handleSendReply}

@@ -52,7 +52,7 @@ export default function DashboardProfile() {
   const { navigate } = useRouter();
   const userTier = user?.tier || "explorer";
   const tierFeatures = TIER_FEATURES[userTier];
-  const isAmbassador = userTier === "ambassador";
+  const isHotspotOwner = userTier === "hotspot";
 
   const [formData, setFormData] = useState({
     name: user?.name || "Tunde Bakare",
@@ -62,7 +62,7 @@ export default function DashboardProfile() {
   });
 
   // Trending Alerts toggle (visual only)
-  const [trendingAlertsEnabled, setTrendingAlertsEnabled] = useState(true);
+  const [listBusinessEnabled, setTrendingAlertsEnabled] = useState(true);
 
   // Custom Branding state
   const [brandColor, setBrandColor] = useState("#E8613C");
@@ -220,7 +220,7 @@ export default function DashboardProfile() {
               <div>
                 <div className="flex items-center gap-2">
                   <p className="text-sm font-medium text-foreground">Trending Alerts</p>
-                  {tierFeatures.trendingAlerts ? (
+                  {tierFeatures.listBusiness ? (
                     <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[10px]">
                       Scout+
                     </Badge>
@@ -231,13 +231,13 @@ export default function DashboardProfile() {
                 <p className="text-xs text-muted-foreground">Get notified when hotspots near you start trending</p>
               </div>
             </div>
-            {tierFeatures.trendingAlerts ? (
+            {tierFeatures.listBusiness ? (
               <Switch
-                checked={trendingAlertsEnabled}
+                checked={listBusinessEnabled}
                 onCheckedChange={setTrendingAlertsEnabled}
               />
             ) : (
-              <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
                 Upgrade to Scout
               </Button>
             )}
@@ -278,13 +278,13 @@ export default function DashboardProfile() {
       </Card>
 
       {/* Custom Branding (Ambassador only) */}
-      <Card className={isAmbassador ? "border-amber-200" : "border-muted opacity-75"}>
+      <Card className={isHotspotOwner ? "border-amber-200" : "border-muted opacity-75"}>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Palette className="h-5 w-5 text-amber-600" />
               <CardTitle className="text-lg">Custom Branding</CardTitle>
-              {isAmbassador ? (
+              {isHotspotOwner ? (
                 <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[10px]">
                   Ambassador
                 </Badge>
@@ -292,15 +292,15 @@ export default function DashboardProfile() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
               )}
             </div>
-            {!isAmbassador && (
-              <Button variant="outline" size="sm" onClick={() => navigate("pricing")}>
+            {!isHotspotOwner && (
+              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
                 Upgrade to Ambassador
               </Button>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          {isAmbassador ? (
+          {isHotspotOwner ? (
             <div className="space-y-5">
               <p className="text-xs text-muted-foreground">
                 Customize how your spot appears to visitors on Lagos Hotspot.

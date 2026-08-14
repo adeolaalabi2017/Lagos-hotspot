@@ -21,7 +21,7 @@ function makeLocalUser(email: string): User {
     email: base,
     name: base.split("@")[0] || email.trim(),
     avatar: base.slice(0, 2).toUpperCase(),
-    tier: base.startsWith("ambassador") || base.endsWith("@ambassador.lagos-hotspot") ? "ambassador" : "explorer",
+    tier: "explorer",
     role: "user" as UserRole,
     suspendedAt: null,
   };
