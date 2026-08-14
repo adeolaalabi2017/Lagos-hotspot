@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type UserTier = "explorer" | "scout" | "ambassador";
 export type UserRole = "user" | "admin";
@@ -150,6 +150,33 @@ function toUIUser(row: SessionUser): User {
   };
 }
 
+const memoryStorage = {
+  _data: new Map<string, string>(),
+  getItem(name: string): string | null {
+    return this._data.get(name) ?? null;
+  },
+  setItem(name: string, value: string): void {
+    this._data.set(name, value);
+  },
+  removeItem(name: string): void {
+    this._data.delete(name);
+  },
+};
+
+function isLocalStorageAvailable(): boolean {
+  try {
+    if (typeof localStorage === "undefined") return false;
+    const test = "__storage_test__";
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const authStorage = isLocalStorageAvailable() ? localStorage : memoryStorage;
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
@@ -248,6 +275,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "lagos-hotspot-auth",
       version: 3,
+      storage: createJSONStorage(() => authStorage),
       partialize: (state) => ({ user: state.user, isAuthenticated: state.isAuthenticated }),
       migrate: (persistedState, version) => {
         if (!persistedState) return persistedState as never;
