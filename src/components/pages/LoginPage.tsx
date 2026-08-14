@@ -60,7 +60,7 @@ export default function LoginPage() {
             email: rawUser.email,
             name: rawUser.name ?? "",
             avatar: rawUser.avatar ?? "",
-            tier: rawUser.role === "admin" ? "ambassador" : "explorer",
+            tier: "explorer",
             role: (rawUser.role === "admin" ? "admin" : "user") as UserRole,
             suspendedAt: rawUser.suspendedAt != null ? String(rawUser.suspendedAt) : null,
           }
