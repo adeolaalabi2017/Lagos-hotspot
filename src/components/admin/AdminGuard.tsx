@@ -12,25 +12,13 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      const redirect =
-        typeof window !== "undefined" ? window.location.hash : "#/admin";
-      router.navigate("login", { redirect });
+      router.navigate("login");
       toast.info("Sign in as an admin to continue");
       return;
     }
     if (user.role !== "admin") {
       router.navigate("home");
       toast.error("Admins only");
-      return;
-    }
-    if (user.email) {
-      fetch("/api/admin/bootstrap", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, name: user.name }),
-      }).catch(() => {
-        /* bootstrap is best-effort */
-      });
     }
   }, [isAuthenticated, user, router]);
 
