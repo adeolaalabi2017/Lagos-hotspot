@@ -89,7 +89,7 @@ async function loadCollections(ctx: any) {
 function filterAndSort(listings: any[], args: any) {
   const q = (args.q ?? "").trim().toLowerCase();
   return listings
-    .filter((row) => (args.trendingOnly ? row.isTrending : true))
+    .filter((row) => (args.status ? row.status === args.status : row.status === "published"))
     .filter((row) => (args.featuredOnly ? row.isFeatured : true))
     .filter((row) => {
       if (!q) return true;
@@ -177,6 +177,7 @@ export const submitListing = mutation({
     instagramHandle: v.optional(v.string()),
     tags: v.optional(v.string()),
     features: v.optional(v.string()),
+    images: v.optional(v.array(v.string())),
     authorId: v.optional(v.string()),
     authorEmail: v.optional(v.string()),
     authorName: v.optional(v.string()),
@@ -187,7 +188,8 @@ export const submitListing = mutation({
       description: args.description,
       category: args.category,
       price: args.priceLevel,
-      image: "",
+      image: args.image || args.images?.[0] || "",
+      images: args.images || [],
       rating: 0,
       reviewCount: 0,
       location: args.area,
@@ -257,6 +259,59 @@ export const createBooking = mutation({
       status: "pending",
     });
     return { ok: true };
+  },
+});
+
+export const search = query({
+  args: {
+    q: v.string(),
+    area: v.optional(v.string()),
+    category: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const listings = await ctx.db.query("listings").collect();
+    const q = args.q.toLowerCase();
+    
+    return listings
+      .filter((row) => row.status === "published")
+      .filter((row) => {
+        const hay = [row.title, row.description, row.category, row.location, row.city, row.tags, row.amenities]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(q);
+      })
+      .filter((row) => {
+        if (!args.area || args.area === "all") return true;
+        return row.location === args.area;
+      })
+      .filter((row) => {
+        if (!args.category || args.category === "all") return true;
+        return row.category === args.category;
+      })
+      .slice(0, 50)
+      .map((row: any) => ({
+        id: row._id,
+        title: row.title,
+        description: row.description ?? null,
+        category: row.category,
+        priceLevel: row.price ? Number(row.price) : null,
+        image: row.image ?? null,
+        rating: row.rating ?? 0,
+        reviews: row.reviewCount ?? 0,
+        area: row.location ?? "",
+        city: row.city ?? "Lagos",
+        phone: row.phone ?? "",
+        whatsappNumber: row.whatsappNumber ?? "",
+        instagramHandle: row.instagramHandle ?? "",
+        isFeatured: row.isFeatured,
+        isOpen: row.isOpen,
+        isTrending: row.isTrending,
+        isVerified: row.isVerified,
+        tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
+        amenities: row.amenities ? row.amenities.split(",").map((a: string) => a.trim()) : [],
+        vibeScore: Math.min(99, Math.max(0, Math.round(60 + (row.rating ?? 0) * 5 + (row.isTrending ? 5 : 0) + (row.isVerified ? 3 : 0) + Math.min(15, row.reviewCount ?? 0)))),
+      }));
   },
 });
 

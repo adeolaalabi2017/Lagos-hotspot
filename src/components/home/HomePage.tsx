@@ -126,9 +126,8 @@ export default function HomePage() {
 
   const handleSearch = () => {
     const params: Record<string, string> = {};
-    if (searchQuery) params.q = searchQuery;
-    else if (!searchQuery) params.q = HERO_WORDS[wordIndex];
-    if (searchArea) params.area = searchArea;
+    if (searchQuery.trim()) params.q = searchQuery.trim();
+    if (searchArea && searchArea !== "all") params.area = searchArea;
     navigate("explore", params);
   };
 

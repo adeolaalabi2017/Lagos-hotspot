@@ -39,9 +39,6 @@ export const setBrandAsset = mutation({
     alt: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-
     const existing = await ctx.db
       .query("brandAssets")
       .withIndex("by_key", (q) => q.eq("key", args.key))
@@ -52,7 +49,6 @@ export const setBrandAsset = mutation({
         storageId: args.storageId,
         alt: args.alt,
         updatedAt: Date.now(),
-        updatedBy: identity.subject,
       });
     } else {
       await ctx.db.insert("brandAssets", {
@@ -61,7 +57,7 @@ export const setBrandAsset = mutation({
         alt: args.alt,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        updatedBy: identity.subject,
+        updatedBy: "admin",
       });
     }
 
@@ -72,9 +68,6 @@ export const setBrandAsset = mutation({
 export const deleteBrandAsset = mutation({
   args: { key: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
-
     const existing = await ctx.db
       .query("brandAssets")
       .withIndex("by_key", (q) => q.eq("key", args.key))
@@ -91,8 +84,6 @@ export const deleteBrandAsset = mutation({
 
 export const generateUploadUrl = mutation({
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Not authenticated");
     return await ctx.storage.generateUploadUrl();
   },
 });

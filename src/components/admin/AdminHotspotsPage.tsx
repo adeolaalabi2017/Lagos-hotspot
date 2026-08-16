@@ -4,20 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminLayout } from "./AdminLayout";
 import { AdminGuard } from "./AdminGuard";
 import { useAuthStore } from "@/lib/auth-store";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/lib/convex-api";
 import { toast } from "sonner";
-import { Plus, Trash2, Pencil, Copy, Search } from "lucide-react";
+import { Plus, Trash2, Pencil, Copy, Search, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { AdminHotspotForm, type HotspotFormValues } from "./AdminHotspotForm";
-import { defaultHours, type HourRow } from "./HoursEditor";
 
 type HotspotStatus = "draft" | "published" | "archived";
 
@@ -39,177 +31,97 @@ interface AdminHotspot {
   tags: string | null;
   amenities: string | null;
   status: string;
-  lat: number | null;
-  lng: number | null;
-  rejectReason: string | null;
-  hours: HourRow[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: number;
+  updatedAt: number;
 }
 
 const FILTERS = [
   { id: "all", label: "All" },
   { id: "published", label: "Published" },
   { id: "draft", label: "Draft" },
+  { id: "pending", label: "Pending" },
   { id: "featured", label: "Featured" },
-  { id: "verified", label: "Verified" },
-  { id: "trending", label: "Trending" },
 ] as const;
 
 type FilterId = (typeof FILTERS)[number]["id"];
 
-function effectiveStatus(row: AdminHotspot): HotspotStatus {
-  const s = (row.status || "").toLowerCase();
-  if (s === "draft") return "draft";
-  if (s === "archived") return "archived";
-  return "published";
-}
-
 export function AdminHotspotsPage() {
   const user = useAuthStore((s) => s.user);
-  const [rows, setRows] = useState<AdminHotspot[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterId>("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"newest" | "title">("newest");
 
-  const [editing, setEditing] = useState<AdminHotspot | "new" | null>(null);
-  const [archiving, setArchiving] = useState<AdminHotspot | null>(null);
+  const hotspots = useQuery(api.admin.listAll, {
+    status: filter === "all" ? undefined : filter === "featured" ? undefined : filter,
+    q: search || undefined,
+    limit: 100,
+  }) as AdminHotspot[] | undefined;
 
-  const headers = useMemo(() => {
-    return {} as Record<string, string>;
-  }, []);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/admin/hotspots", { headers });
-      if (!res.ok) throw new Error("Failed to load");
-      const data = (await res.json()) as { hotspots: AdminHotspot[] };
-      setRows(data.hotspots);
-    } catch (err) {
-      console.error(err);
-      toast.error("Could not load hotspots");
-    } finally {
-      setLoading(false);
-    }
-  }, [headers]);
-
-  useEffect(() => {
-    if (user?.role === "admin") {
-      const id = requestAnimationFrame(() => void load());
-      return () => cancelAnimationFrame(id);
-    }
-  }, [user?.role, load, headers]);
+  const updateListing = useMutation(api.admin.updateListing);
+  const deleteListing = useMutation(api.admin.deleteListing);
 
   const filtered = useMemo(() => {
-    let list = rows;
-    if (filter !== "all") {
-      list = list.filter((r) => {
-        if (filter === "published") return effectiveStatus(r) === "published";
-        if (filter === "draft") return effectiveStatus(r) === "draft";
-        if (filter === "featured") return r.isFeatured;
-        if (filter === "verified") return r.isVerified;
-        if (filter === "trending") return r.isTrending;
-        return true;
-      });
+    if (!hotspots) return [];
+    let list = hotspots;
+    
+    if (filter === "featured") {
+      list = list.filter((r) => r.isFeatured);
     }
-    const q = search.trim().toLowerCase();
-    if (q) {
-      list = list.filter(
-        (r) =>
-          r.title.toLowerCase().includes(q) ||
-          (r.area ?? "").toLowerCase().includes(q)
-      );
-    }
+    
     if (sort === "title") {
       list = [...list].sort((a, b) => a.title.localeCompare(b.title));
     } else {
-      list = [...list].sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+      list = [...list].sort((a, b) => b.createdAt - a.createdAt);
     }
+    
     return list;
-  }, [rows, filter, search, sort]);
+  }, [hotspots, filter, sort]);
 
-  async function save(values: HotspotFormValues) {
-    if (!user) return;
-    const isNew = editing === "new";
-    const id = isNew ? null : (editing as AdminHotspot).id;
-    const url = isNew ? "/api/admin/hotspots" : `/api/admin/hotspots/${id}`;
-    const res = await fetch(url, {
-      method: isNew ? "POST" : "PATCH",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify(values),
-    });
-    if (!res.ok) {
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
-      toast.error(data.error ?? "Save failed");
-      return;
+  const handleApprove = async (id: string) => {
+    try {
+      await updateListing({ id, status: "published" });
+      toast.success("Hotspot approved");
+    } catch {
+      toast.error("Failed to approve");
     }
-    toast.success(isNew ? "Hotspot created" : "Changes saved");
-    setEditing(null);
-    load();
-  }
+  };
 
-  async function archive(row: AdminHotspot) {
-    const res = await fetch(`/api/admin/hotspots/${row.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify({ status: "archived" }),
-    });
-    if (!res.ok) {
-      toast.error("Could not archive");
-      return;
+  const handleReject = async (id: string) => {
+    try {
+      await updateListing({ id, status: "draft", rejectReason: "Rejected by admin" });
+      toast.success("Hotspot rejected");
+    } catch {
+      toast.error("Failed to reject");
     }
-    toast.success(`Archived ${row.title}`);
-    setArchiving(null);
-    load();
-  }
+  };
 
-  async function duplicate(row: AdminHotspot) {
-    const payload = {
-      title: `${row.title} (copy)`,
-      description: row.description,
-      category: row.category,
-      area: row.area,
-      price: row.price,
-      phone: row.phone,
-      whatsappNumber: row.whatsappNumber,
-      instagramHandle: row.instagramHandle,
-      image: row.image,
-      isFeatured: false,
-      isVerified: false,
-      isTrending: false,
-      isOpen: row.isOpen,
-      tags: row.tags,
-      amenities: row.amenities,
-      lat: row.lat,
-      lng: row.lng,
-      status: "draft",
-    };
-    const res = await fetch("/api/admin/hotspots", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      toast.error("Could not duplicate");
-      return;
+  const handleToggleFeatured = async (id: string, current: boolean) => {
+    try {
+      await updateListing({ id, isFeatured: !current });
+      toast.success(current ? "Removed from featured" : "Marked as featured");
+    } catch {
+      toast.error("Failed to update");
     }
-    toast.success("Duplicated");
-    load();
-  }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Delete this hotspot permanently?")) return;
+    try {
+      await deleteListing({ id });
+      toast.success("Hotspot deleted");
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
 
   return (
     <AdminGuard>
       <AdminLayout
         current="admin-listings"
         title="Hotspots"
-        description="Author, edit, and publish the Lagos catalogue. Newly created rows start as Draft — flip to Published when they're ready for the public site."
+        description="Review, approve, and manage hotspot listings"
         actions={
-          <Button onClick={() => setEditing("new")}>
+          <Button onClick={() => {}}>
             <Plus className="h-4 w-4 mr-1" />
             New hotspot
           </Button>
@@ -222,8 +134,8 @@ export function AdminHotspotsPage() {
               onClick={() => setFilter(f.id)}
               className={
                 filter === f.id
-                  ? "rounded-full bg-primary text-primary-foreground text-xs font-medium px-3 py-1.5 motion-safe:transition-colors"
-                  : "rounded-full border bg-card text-muted-foreground text-xs font-medium px-3 py-1.5 hover:text-foreground motion-safe:transition-colors"
+                  ? "rounded-full bg-primary text-primary-foreground text-xs font-medium px-3 py-1.5"
+                  : "rounded-full border bg-card text-muted-foreground text-xs font-medium px-3 py-1.5 hover:text-foreground"
               }
               aria-pressed={filter === f.id}
             >
@@ -232,10 +144,7 @@ export function AdminHotspotsPage() {
           ))}
           <span className="ml-auto flex items-center gap-2">
             <div className="relative">
-              <Search
-                className="h-4 w-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-                aria-hidden
-              />
+              <Search className="h-4 w-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -261,203 +170,66 @@ export function AdminHotspotsPage() {
             <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3 font-medium">Title</th>
-                <th className="text-left px-4 py-3 font-medium hidden md:table-cell">
-                  Area
-                </th>
+                <th className="text-left px-4 py-3 font-medium hidden md:table-cell">Area</th>
                 <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">
-                  Flags
-                </th>
+                <th className="text-left px-4 py-3 font-medium hidden lg:table-cell">Flags</th>
                 <th className="text-right px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-12 text-center text-muted-foreground"
-                  >
-                    Loading hotspots…
-                  </td>
-                </tr>
+              {!hotspots ? (
+                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">Loading hotspots…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-4 py-12 text-center text-muted-foreground"
-                  >
-                    No hotspots match the current filter.
-                  </td>
-                </tr>
+                <tr><td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">No hotspots found.</td></tr>
               ) : (
-                filtered.map((row) => {
-                  const status = effectiveStatus(row);
-                  return (
-                    <tr
-                      key={row.id}
-                      className="border-t hover:bg-muted/30 motion-safe:transition-colors"
-                    >
-                      <td className="px-4 py-3 font-medium text-foreground">
-                        {row.title}
-                      </td>
-                      <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-                        {row.area ?? "—"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusPill status={status} />
-                      </td>
-                      <td className="px-4 py-3 hidden lg:table-cell">
-                        <div className="flex flex-wrap gap-1">
-                          {row.isFeatured ? <Flag label="Featured" /> : null}
-                          {row.isVerified ? <Flag label="Verified" /> : null}
-                          {row.isTrending ? <Flag label="Trending" /> : null}
-                          {!row.isFeatured && !row.isVerified && !row.isTrending ? (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          ) : null}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setEditing(row)}
-                            aria-label={`Edit ${row.title}`}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => duplicate(row)}
-                            aria-label={`Duplicate ${row.title}`}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setArchiving(row)}
-                            aria-label={`Archive ${row.title}`}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
+                filtered.map((row) => (
+                  <tr key={row.id} className="border-t hover:bg-muted/30">
+                    <td className="px-4 py-3 font-medium text-foreground">{row.title}</td>
+                    <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{row.area ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        row.status === "published" ? "bg-green-100 text-green-700" :
+                        row.status === "draft" ? "bg-yellow-100 text-yellow-700" :
+                        row.status === "pending" ? "bg-blue-100 text-blue-700" :
+                        "bg-gray-100 text-gray-700"
+                      }`}>
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <div className="flex flex-wrap gap-1">
+                        {row.isFeatured ? <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">Featured</span> : null}
+                        {row.isVerified ? <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded">Verified</span> : null}
+                        {row.isTrending ? <span className="text-[10px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded">Trending</span> : null}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-1">
+                        {row.status === "pending" && (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={() => handleApprove(row.id)} aria-label={`Approve ${row.title}`}>
+                              <Check className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => handleReject(row.id)} aria-label={`Reject ${row.title}`}>
+                              <X className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </>
+                        )}
+                        <Button variant="ghost" size="sm" onClick={() => handleToggleFeatured(row.id, row.isFeatured)} aria-label={`Toggle featured ${row.title}`}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDelete(row.id)} aria-label={`Delete ${row.title}`}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
         </div>
-
-        <p className="text-xs text-muted-foreground mt-3">
-          Showing {filtered.length} of {rows.length} hotspots.
-        </p>
-
-        {editing ? (
-          <AdminHotspotForm
-            open
-            onOpenChange={(o) => {
-              if (!o) setEditing(null);
-            }}
-            initialValues={
-              editing === "new"
-                ? null
-                : hotspotToFormValues(editing)
-            }
-            onSubmit={save}
-          />
-        ) : null}
-
-        <Dialog
-          open={archiving !== null}
-          onOpenChange={(o) => {
-            if (!o) setArchiving(null);
-          }}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Archive hotspot?</DialogTitle>
-              <DialogDescription>
-                {archiving
-                  ? `“${archiving.title}” will be removed from the public site but kept in the database for the audit log.`
-                  : ""}
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="ghost" onClick={() => setArchiving(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={() => archiving && archive(archiving)}
-              >
-                Archive
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </AdminLayout>
     </AdminGuard>
   );
-}
-
-function StatusPill({ status }: { status: HotspotStatus }) {
-  if (status === "published") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs font-medium">
-        Published
-      </span>
-    );
-  }
-  if (status === "draft") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 text-amber-700 px-2 py-0.5 text-xs font-medium">
-        Draft
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-xs font-medium">
-      Archived
-    </span>
-  );
-}
-
-function Flag({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center rounded-full bg-secondary text-secondary-foreground px-2 py-0.5 text-xs font-medium">
-      {label}
-    </span>
-  );
-}
-
-function hotspotToFormValues(row: AdminHotspot): HotspotFormValues {
-  const hours: HourRow[] =
-    row.hours && row.hours.length > 0
-      ? [...row.hours].sort((a, b) => a.dayOfWeek - b.dayOfWeek)
-      : defaultHours();
-  return {
-    title: row.title,
-    description: row.description ?? "",
-    category: row.category,
-    area: row.area ?? "",
-    priceLevel: (row.price ?? "") as HotspotFormValues["priceLevel"],
-    phone: row.phone ?? "",
-    whatsappNumber: row.whatsappNumber ?? "",
-    instagramHandle: row.instagramHandle ?? "",
-    coverImageUrl: row.image ?? "",
-    galleryUrls: [],
-    tags: row.tags ?? "",
-    status: effectiveStatus(row),
-    isFeatured: row.isFeatured,
-    isVerified: row.isVerified,
-    isTrending: row.isTrending,
-    lat: row.lat == null ? "" : String(row.lat),
-    lng: row.lng == null ? "" : String(row.lng),
-    hours,
-  };
 }

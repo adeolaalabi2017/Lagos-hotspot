@@ -47,6 +47,11 @@ const priceLevels = [
   { value: "4", label: "Luxury" },
 ];
 
+export interface HotspotImage {
+  file: File;
+  preview: string;
+}
+
 export default function DashboardAddListing() {
   const { navigate } = useRouter();
   const { user } = useAuthStore();
@@ -63,6 +68,8 @@ export default function DashboardAddListing() {
     tags: "",
     features: "",
   });
+  const [images, setImages] = useState<HotspotImage[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submitListing = useMutation((api as any).hotspots.submitListing);
 
@@ -70,20 +77,72 @@ export default function DashboardAddListing() {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    const remaining = 5 - images.length;
+    const newFiles = Array.from(files).slice(0, remaining);
+    
+    const newImages = newFiles.map((file) => ({
+      file,
+      preview: URL.createObjectURL(file),
+    }));
+    
+    setImages((prev) => [...prev, ...newImages]);
+    e.target.value = "";
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => {
+      const img = prev[index];
+      if (img) URL.revokeObjectURL(img.preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const uploadImages = async (): Promise<string[]> => {
+    if (images.length === 0) return [];
+    setUploading(true);
+    
+    try {
+      const urls: string[] = [];
+      for (const img of images) {
+        // For now, convert to base64 data URL for demo
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.readAsDataURL(img.file);
+        });
+        urls.push(base64);
+      }
+      return urls;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.spotName || !formData.category || !formData.area) {
       toast.error("Please fill in all required fields (Spot Name, Category, Area)");
       return;
     }
+    if (!formData.description) {
+      toast.error("Please provide a description");
+      return;
+    }
     setSubmitting(true);
     try {
+      const imageUrls = await uploadImages();
       await submitListing({
         ...formData,
+        image: imageUrls[0] || "",
+        images: imageUrls,
         authorId: user?.id,
         authorEmail: user?.email,
         authorName: user?.name,
       });
-      toast.success("Spot submitted for review! We'll review it within 24-48 hours.");
+      toast.success("Spot submitted for review!");
       navigate("dashboard-my-spots");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to submit spot";
@@ -201,27 +260,36 @@ export default function DashboardAddListing() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-            <div className="flex flex-col items-center gap-3">
-              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Upload className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">
-                  Drag & drop your spot photos here
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  or click to browse files
-                </p>
-              </div>
-              <Button variant="outline" size="sm" type="button">
-                <ImagePlus className="h-4 w-4 mr-2" />
-                Choose Images
-              </Button>
-              <p className="text-xs text-muted-foreground">
-                PNG, JPG, GIF up to 5MB each. Max 10 images.
-              </p>
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              {formData.images.map((img, i) => (
+                <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                  <img src={img.preview} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    className="absolute top-0.5 right-0.5 h-5 w-5 rounded-full bg-destructive text-white flex items-center justify-center"
+                    aria-label={`Remove image ${i + 1}`}
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {formData.images.length < 5 && (
+                <label className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-primary/50 cursor-pointer flex items-center justify-center">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageSelect}
+                    className="sr-only"
+                  />
+                  <ImagePlus className="h-6 w-6 text-muted-foreground" />
+                </label>
+              )}
             </div>
+            <p className="text-xs text-muted-foreground">
+              Upload up to 5 images (PNG, JPG, WebP). Max 5MB each.
+            </p>
           </div>
         </CardContent>
       </Card>

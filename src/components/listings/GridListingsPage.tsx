@@ -552,13 +552,10 @@ export default function GridListingsPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const hotspots = useQuery((api as any).hotspots.feed, {
-    q: searchQuery || undefined,
+  const hotspots = useQuery((api as any).hotspots.search, {
+    q: searchQuery || " ",
     area: selectedArea !== "all" ? selectedArea : undefined,
     category: selectedCategory !== "all" ? selectedCategory : undefined,
-    price: selectedPrice !== "all" ? selectedPrice : undefined,
-    openNow: openNowOnly || undefined,
-    sort: selectedSort || undefined,
   }) as PublicHotspot[] | undefined;
   const loading = hotspots === undefined;
   const error = null as string | null;

@@ -8,6 +8,7 @@ import {
   Users as UsersIcon,
   Flag,
   Activity,
+  Settings,
   Upload,
   ChevronRight,
 } from "lucide-react";
@@ -21,7 +22,8 @@ export type AdminRoute =
   | "admin-reviews"
   | "admin-users"
   | "admin-reports"
-  | "admin-activity-log";
+  | "admin-activity-log"
+  | "admin-settings";
 
 const NAV_ITEMS: Array<{
   route: AdminRoute;
@@ -64,6 +66,12 @@ const NAV_ITEMS: Array<{
     label: "Activity log",
     Icon: Activity,
     description: "Audit trail",
+  },
+  {
+    route: "admin-settings",
+    label: "Settings",
+    Icon: Settings,
+    description: "Brand assets and config",
   },
 ];
 

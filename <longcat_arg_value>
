@@ -1,0 +1,145 @@
+import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
+
+export const listAll = query({
+  args: {
+    q: v.optional(v.string()),
+    status: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    let query = ctx.db.query("listings");
+    
+    if (args.status && args.status !== "all") {
+      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+    }
+    
+    const listings = await query.collect();
+    
+    const filtered = listings
+      .filter((row) => {
+        if (!args.q) return true;
+        const hay = [row.title, row.description, row.category, row.location, row.city]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        return hay.includes(args.q.toLowerCase());
+      })
+      .slice(0, args.limit ?? 100);
+    
+    return filtered.map((row: any) => ({
+      id: row._id,
+      title: row.title,
+      description: row.description ?? null,
+      category: row.category,
+      area: row.location ?? null,
+      price: row.price ?? null,
+      phone: row.phone ?? null,
+      whatsappNumber: row.whatsappNumber ?? null,
+      instagramHandle: row.instagramHandle ?? null,
+      image: row.image ?? null,
+      isFeatured: row.isFeatured,
+      isVerified: row.isVerified,
+      isTrending: row.isTrending,
+      isOpen: row.isOpen,
+      tags: row.tags ?? null,
+      amenities: row.amenities ?? null,
+      status: row.status,
+      lat: row.lat ?? null,
+      lng: row.lng ?? null,
+      rejectReason: row.rejectReason ?? null,
+      createdAt: row._creationTime,
+      updatedAt: row._creationTime,
+    }));
+  },
+});
+
+export const updateListing = mutation({
+  args: {
+    id: v.string(),
+    status: v.optional(v.string()),
+    isFeatured: v.optional(v.boolean()),
+    isVerified: v.optional(v.boolean()),
+    isTrending: v.optional(v.boolean()),
+    isOpen: v.optional(v.boolean()),
+    rejectReason: v.optional(v.string()),
+    title: v.optional(v.string()),
+    description: v.optional(v.string()),
+    category: v.optional(v.string()),
+    area: v.optional(v.string()),
+    priceLevel: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    whatsapp: v.optional(v.string()),
+    instagram: v.optional(v.string()),
+    tags: v.optional(v.string()),
+    amenities: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const patch: Record<string, any> = {};
+    
+    if (args.status !== undefined) patch.status = args.status;
+    if (args.isFeatured !== undefined) patch.isFeatured = args.isFeatured;
+    if (args.isVerified !== undefined) patch.isVerified = args.isVerified;
+    if (args.isTrending !== undefined) patch.isTrending = args.isTrending;
+    if (args.isOpen !== undefined) patch.isOpen = args.isOpen;
+    if (args.rejectReason !== undefined) patch.rejectReason = args.rejectReason;
+    if (args.title !== undefined) patch.title = args.title;
+    if (args.description !== undefined) patch.description = args.description;
+    if (args.category !== undefined) patch.category = args.category;
+    if (args.area !== undefined) patch.location = args.area;
+    if (args.priceLevel !== undefined) patch.price = args.priceLevel;
+    if (args.phone !== undefined) patch.phone = args.phone;
+    if (args.whatsapp !== undefined) patch.whatsappNumber = args.whatsapp;
+    if (args.instagram !== undefined) patch.instagramHandle = args.instagram;
+    if (args.tags !== undefined) patch.tags = args.tags;
+    if (args.amenities !== undefined) patch.amenities = args.amenities;
+    
+    await ctx.db.patch(args.id as any, patch);
+    return { ok: true };
+  },
+});
+
+export const deleteListing = mutation({
+  args: { id: v.string() },
+  handler: async (ctx, args) => {
+    // Delete related records
+    const hours = await ctx.db.query("listingHours").collect();
+    for (const h of hours) {
+      if (h.listingId === args.id) await ctx.db.delete(h._id);
+    }
+    
+    const media = await ctx.db.query("media").collect();
+    for (const m of media) {
+      if (m.hotspotId === args.id) await ctx.db.delete(m._id);
+    }
+    
+    await ctx.db.delete(args.id as any);
+    return { ok: true };
+  },
+});
+
+export const listUsers = query({
+  args: { q: v.optional(v.string()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const users = await ctx.db.query("users").collect();
+    
+    const filtered = users
+      .filter((u) => {
+        if (!args.q) return true;
+        const hay = [u.email, u.name].filter(Boolean).join(" ").toLowerCase();
+        return hay.includes(args.q.toLowerCase());
+      })
+      .slice(0, args.limit ?? 100);
+    
+    return filtered.map((u: any) => ({
+      id: u._id,
+      email: u.email,
+      name: u.name ?? null,
+      avatar: u.avatar ?? null,
+      role: u.role,
+      createdAt: u._creationTime,
+      suspendedAt: u.suspendedAt ?? null,
+      suspendedReason: u.suspendedReason ?? null,
+    }));
+  },
+});

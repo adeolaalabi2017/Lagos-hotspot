@@ -39,6 +39,7 @@ export default defineSchema({
     lng: v.optional(v.number()),
     rejectReason: v.optional(v.string()),
     status: v.string(),
+    images: v.optional(v.array(v.string())),
     authorId: v.optional(v.string()),
     authorEmail: v.optional(v.string()),
     authorName: v.optional(v.string()),
