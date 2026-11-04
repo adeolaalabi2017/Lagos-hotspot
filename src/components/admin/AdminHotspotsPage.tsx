@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AdminLayout } from "./AdminLayout";
 import { AdminGuard } from "./AdminGuard";
+import { AdminHotspotForm, type HotspotFormValues } from "./AdminHotspotForm";
+import { ConvexError } from "convex/values";
 import { useAuthStore } from "@/lib/auth-store";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/lib/convex-api";
@@ -66,6 +68,40 @@ export function AdminHotspotsPage() {
 
   const updateListing = useMutation(api.admin.updateListing);
   const deleteListing = useMutation(api.admin.deleteListing);
+  const createHotspot = useMutation(api.admin.createHotspot);
+  const [formOpen, setFormOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+
+  const handleCreate = async (values: HotspotFormValues) => {
+    const num = (s: string) => (s.trim() ? Number(s) : undefined);
+    try {
+      await createHotspot({
+        token,
+        title: values.title,
+        description: values.description,
+        category: values.category,
+        area: values.area,
+        priceLevel: values.priceLevel || undefined,
+        phone: values.phone,
+        whatsappNumber: values.whatsappNumber,
+        instagramHandle: values.instagramHandle,
+        coverImageUrl: values.coverImageUrl,
+        galleryUrls: values.galleryUrls,
+        tags: values.tags,
+        status: values.status,
+        isFeatured: values.isFeatured,
+        isVerified: values.isVerified,
+        isTrending: values.isTrending,
+        lat: num(values.lat),
+        lng: num(values.lng),
+        hours: values.hours,
+      });
+      toast.success("Hotspot created");
+      setFormOpen(false);
+    } catch (err) {
+      toast.error(err instanceof ConvexError ? String(err.data) : "Failed to create hotspot");
+    }
+  };
 
   const filtered = useMemo(() => {
     if (!hotspots) return [];
@@ -128,7 +164,12 @@ export function AdminHotspotsPage() {
         title="Hotspots"
         description="Review, approve, and manage hotspot listings"
         actions={
-          <Button onClick={() => {}}>
+          <Button
+            onClick={() => {
+              setFormKey((k) => k + 1);
+              setFormOpen(true);
+            }}
+          >
             <Plus className="h-4 w-4 mr-1" />
             New hotspot
           </Button>
@@ -236,6 +277,13 @@ export function AdminHotspotsPage() {
             </tbody>
           </table>
         </div>
+        <AdminHotspotForm
+          key={formKey}
+          open={formOpen}
+          onOpenChange={setFormOpen}
+          initialValues={null}
+          onSubmit={handleCreate}
+        />
       </AdminLayout>
     </AdminGuard>
   );

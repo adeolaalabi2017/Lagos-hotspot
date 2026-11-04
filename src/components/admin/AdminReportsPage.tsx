@@ -5,6 +5,8 @@ import { AdminLayout } from "./AdminLayout";
 import { AdminGuard } from "./AdminGuard";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "sonner";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 import { Flag, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,6 +56,7 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 export function AdminReportsPage() {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [reports, setReports] = useState<AdminReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterId>("open");
@@ -63,24 +66,22 @@ export function AdminReportsPage() {
   );
   const [busy, setBusy] = useState(false);
 
-  const headers = useMemo(() => ({}), []);
-
   const load = useCallback(async () => {
+    if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/reports?status=${filter}`, {
-        headers,
-      });
-      if (!res.ok) throw new Error("Failed");
-      const data = (await res.json()) as { reports: AdminReport[] };
-      setReports(data.reports);
+      const data = (await convex.query(api.admin.listReports, {
+        token,
+        status: filter,
+      })) as AdminReport[];
+      setReports(data);
     } catch (err) {
       console.error(err);
       toast.error("Could not load reports");
     } finally {
       setLoading(false);
     }
-  }, [filter, headers]);
+  }, [filter, token]);
 
   useEffect(() => {
     if (user?.role === "admin") {
@@ -93,16 +94,14 @@ export function AdminReportsPage() {
     if (!resolving) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/reports/${resolving.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", ...headers },
-        body: JSON.stringify({ outcome }),
-      });
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? "Could not resolve");
+      try {
+        await convex.mutation(api.admin.resolveReport, {
+          token: token ?? "",
+          id: resolving.id,
+          outcome,
+        });
+      } catch {
+        toast.error("Could not resolve");
         return;
       }
       toast.success(

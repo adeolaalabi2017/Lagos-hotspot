@@ -13,7 +13,9 @@ import type * as auth from "../auth.js";
 import type * as bookmarks from "../bookmarks.js";
 import type * as brand from "../brand.js";
 import type * as hotspots from "../hotspots.js";
+import type * as lib_audit from "../lib/audit.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_csv from "../lib/csv.js";
 import type * as listings from "../listings.js";
 
 import type {
@@ -28,7 +30,9 @@ declare const fullApi: ApiFromModules<{
   bookmarks: typeof bookmarks;
   brand: typeof brand;
   hotspots: typeof hotspots;
+  "lib/audit": typeof lib_audit;
   "lib/auth": typeof lib_auth;
+  "lib/csv": typeof lib_csv;
   listings: typeof listings;
 }>;
 

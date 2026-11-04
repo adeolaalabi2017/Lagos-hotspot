@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "./AdminLayout";
 import { AdminGuard } from "./AdminGuard";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "sonner";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 import { Activity } from "lucide-react";
 
 interface AdminActionRow {
@@ -23,11 +25,13 @@ const ACTION_OPTIONS = [
   { id: "hotspot.create", label: "Hotspot created" },
   { id: "hotspot.update", label: "Hotspot updated" },
   { id: "hotspot.archive", label: "Hotspot archived" },
+  { id: "hotspot.delete", label: "Hotspot deleted" },
   { id: "hotspot.import", label: "CSV import" },
   { id: "media.uploaded", label: "Media uploaded" },
   { id: "review.approve", label: "Review approved" },
   { id: "review.hide", label: "Review hidden" },
   { id: "review.delete", label: "Review deleted" },
+  { id: "user.role", label: "User role changed" },
   { id: "user.suspend", label: "User suspended" },
   { id: "user.reinstate", label: "User reinstated" },
   { id: "report.resolve", label: "Report resolved" },
@@ -45,33 +49,30 @@ const TARGET_OPTIONS = [
 
 export function AdminActivityLogPage() {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [rows, setRows] = useState<AdminActionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [action, setAction] = useState("");
   const [targetType, setTargetType] = useState("");
 
-  const headers = useMemo(() => ({}), []);
-
   const load = useCallback(async () => {
+    if (!token) return;
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (action) params.set("action", action);
-      if (targetType) params.set("targetType", targetType);
-      params.set("limit", "200");
-      const res = await fetch(`/api/admin/activity-log?${params.toString()}`, {
-        headers,
-      });
-      if (!res.ok) throw new Error("Failed");
-      const data = (await res.json()) as { rows: AdminActionRow[] };
-      setRows(data.rows);
+      const data = (await convex.query(api.admin.listActivity, {
+        token,
+        action: action || undefined,
+        targetType: targetType || undefined,
+        limit: 200,
+      })) as AdminActionRow[];
+      setRows(data);
     } catch (err) {
       console.error(err);
       toast.error("Could not load activity log");
     } finally {
       setLoading(false);
     }
-  }, [action, targetType, headers]);
+  }, [action, targetType, token]);
 
   useEffect(() => {
     if (user?.role === "admin") {

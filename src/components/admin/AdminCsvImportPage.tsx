@@ -6,6 +6,9 @@ import { AdminGuard } from "./AdminGuard";
 import { useAuthStore } from "@/lib/auth-store";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
+import { ConvexError } from "convex/values";
 import { Upload, FileText, Check, X } from "lucide-react";
 
 interface PreviewRow {
@@ -35,6 +38,7 @@ const HEADERS = [
 
 export function AdminCsvImportPage() {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [fileName, setFileName] = useState<string>("");
   const [csv, setCsv] = useState<string>("");
   const [preview, setPreview] = useState<PreviewRow[] | null>(null);
@@ -62,28 +66,20 @@ export function AdminCsvImportPage() {
   }
 
   async function importNow() {
-    if (!csv || !user) return;
+    if (!csv || !user || !token) return;
     setImporting(true);
     try {
-      const res = await fetch("/api/admin/hotspots/import-csv", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ fileName, csv }),
-      });
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? "Import failed");
-        return;
-      }
-      const data = (await res.json()) as {
+      let data: {
         preview: PreviewRow[];
         successCount: number;
         failureCount: number;
       };
+      try {
+        data = await convex.mutation(api.admin.importCsv, { token, fileName, csv });
+      } catch (err) {
+        toast.error(err instanceof ConvexError ? String(err.data) : "Import failed");
+        return;
+      }
       setPreview(data.preview);
       setCommitted({
         success: data.successCount,
