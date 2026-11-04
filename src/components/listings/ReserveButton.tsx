@@ -45,7 +45,7 @@ export function ReserveButton({
 }: ReserveButtonProps) {
   const { navigate } = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const createBooking = useMutation((api as any).hotspots.createBooking);
 
   const [open, setOpen] = useState(false);
@@ -73,7 +73,7 @@ export function ReserveButton({
     try {
       await createBooking({
         listingId: hotspotId,
-        userId: user?.id ?? "",
+        token: token ?? "",
         date,
         time,
         partySize,

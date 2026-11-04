@@ -1,13 +1,16 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./lib/auth";
 
 export const listAll = query({
   args: {
+    token: v.string(),
     q: v.optional(v.string()),
     status: v.optional(v.string()),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     const allListings = await ctx.db.query("listings").collect();
     
     const filtered = allListings
@@ -51,6 +54,7 @@ export const listAll = query({
 
 export const updateListing = mutation({
   args: {
+    token: v.string(),
     id: v.string(),
     status: v.optional(v.string()),
     isFeatured: v.optional(v.boolean()),
@@ -70,6 +74,7 @@ export const updateListing = mutation({
     amenities: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     const patch: Record<string, any> = {};
     
     if (args.status !== undefined) patch.status = args.status;
@@ -95,8 +100,9 @@ export const updateListing = mutation({
 });
 
 export const deleteListing = mutation({
-  args: { id: v.string() },
+  args: { token: v.string(), id: v.string() },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     // Delete related records
     const hours = await ctx.db.query("listingHours").collect();
     for (const h of hours) {
@@ -114,8 +120,9 @@ export const deleteListing = mutation({
 });
 
 export const listUsers = query({
-  args: { q: v.optional(v.string()), limit: v.optional(v.number()) },
+  args: { token: v.string(), q: v.optional(v.string()), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     const users = await ctx.db.query("users").collect();
     
     const filtered = users

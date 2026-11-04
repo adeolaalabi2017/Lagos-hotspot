@@ -21,7 +21,7 @@ export function WriteReviewForm({
 }: WriteReviewFormProps) {
   const { navigate } = useRouter();
   const user = useAuthStore((s) => s.user);
-  const currentUser = user!;
+  const token = useAuthStore((s) => s.token);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
@@ -67,9 +67,7 @@ export function WriteReviewForm({
         listingId: hotspotId,
         rating,
         comment: comment.trim() || undefined,
-        authorId: currentUser.id,
-        authorName: currentUser.name,
-        authorAvatar: currentUser.avatar,
+        token,
       });
       toast.success("Review submitted. It's pending moderator approval.");
       setRating(0);

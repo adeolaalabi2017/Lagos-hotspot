@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireUser } from "./lib/auth";
 
 function splitCsv(value: string | null | undefined): string[] {
   if (!value) return [];
@@ -208,11 +209,10 @@ export const submitListing = mutation({
     instagramHandle: v.optional(v.string()),
     tags: v.optional(v.string()),
     features: v.optional(v.string()),
-    authorId: v.optional(v.string()),
-    authorEmail: v.optional(v.string()),
-    authorName: v.optional(v.string()),
+    token: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
     await ctx.db.insert("listings", {
       title: args.spotName,
       description: args.description,
@@ -237,9 +237,9 @@ export const submitListing = mutation({
       lng: undefined,
       rejectReason: undefined,
       status: "pending",
-      authorId: args.authorId,
-      authorEmail: args.authorEmail,
-      authorName: args.authorName,
+      authorId: user._id,
+      authorEmail: user.email,
+      authorName: user.name,
     });
     return { ok: true };
   },
@@ -250,22 +250,20 @@ export const submitReview = mutation({
     listingId: v.string(),
     rating: v.number(),
     comment: v.optional(v.string()),
-    authorId: v.string(),
-    authorName: v.optional(v.string()),
-    authorAvatar: v.optional(v.string()),
+    token: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
+    if (!Number.isInteger(args.rating) || args.rating < 1 || args.rating > 5) {
+      throw new Error("Rating must be 1-5");
+    }
     await ctx.db.insert("reviews", {
       listingId: args.listingId,
       rating: args.rating,
       comment: args.comment,
       status: "pending",
-      authorId: args.authorId,
-      author: {
-        id: args.authorId,
-        name: args.authorName,
-        avatar: args.authorAvatar,
-      },
+      authorId: user._id,
+      author: { id: user._id, name: user.name, avatar: user.avatar },
     });
     return { ok: true };
   },
@@ -273,8 +271,8 @@ export const submitReview = mutation({
 
 export const createBooking = mutation({
   args: {
+    token: v.string(),
     listingId: v.string(),
-    userId: v.string(),
     date: v.string(),
     time: v.optional(v.string()),
     partySize: v.optional(v.number()),
@@ -283,9 +281,10 @@ export const createBooking = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
     await ctx.db.insert("bookings", {
       listingId: args.listingId,
-      userId: args.userId,
+      userId: user._id,
       date: args.date,
       time: args.time,
       partySize: args.partySize,
@@ -300,19 +299,20 @@ export const createBooking = mutation({
 
 export const startConversation = mutation({
   args: {
+    token: v.string(),
     listingId: v.string(),
-    userId: v.string(),
     body: v.string(),
   },
   handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
     const threadId = await ctx.db.insert("conversationThreads", {
-      userId: args.userId,
+      userId: user._id,
       listingId: args.listingId,
       lastMessageAt: new Date().toISOString(),
     });
     await ctx.db.insert("conversationMessages", {
       threadId: String(threadId),
-      senderId: args.userId,
+      senderId: user._id,
       body: args.body,
     });
     return { threadId: String(threadId) };

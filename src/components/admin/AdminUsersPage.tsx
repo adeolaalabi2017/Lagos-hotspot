@@ -32,15 +32,16 @@ interface AdminUser {
 
 export function AdminUsersPage() {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [search, setSearch] = useState("");
   const [suspending, setSuspending] = useState<AdminUser | null>(null);
   const [reason, setReason] = useState("");
   const [actionInFlight, setActionInFlight] = useState(false);
 
-  const users = useQuery(api.admin.listUsers, {
-    q: search || undefined,
-    limit: 100,
-  }) as AdminUser[] | undefined;
+  const users = useQuery(
+    api.admin.listUsers,
+    token ? { token, q: search || undefined, limit: 100 } : "skip"
+  ) as AdminUser[] | undefined;
 
   const suspendUser = useMutation(api.auth.suspendUser);
   const reinstateUser = useMutation(api.auth.reinstateUser);
@@ -54,7 +55,7 @@ export function AdminUsersPage() {
     }
     setActionInFlight(true);
     try {
-      await suspendUser({ userId: suspending.id, reason });
+      await suspendUser({ token, userId: suspending.id, reason });
       toast.success("User suspended");
       setSuspending(null);
       setReason("");
@@ -67,7 +68,7 @@ export function AdminUsersPage() {
 
   const handleReinstate = async (u: AdminUser) => {
     try {
-      await reinstateUser({ userId: u.id });
+      await reinstateUser({ token, userId: u.id });
       toast.success("User reinstated");
     } catch {
       toast.error("Failed to reinstate");
@@ -76,7 +77,7 @@ export function AdminUsersPage() {
 
   const handleRoleChange = async (u: AdminUser, newRole: "user" | "admin") => {
     try {
-      await updateRole({ userId: u.id, role: newRole });
+      await updateRole({ token, userId: u.id, role: newRole });
       toast.success(`Role changed to ${newRole}`);
     } catch {
       toast.error("Failed to change role");

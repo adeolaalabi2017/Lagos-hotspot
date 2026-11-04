@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, type Route } from "@/lib/router";
-import { useAuthStore } from "@/lib/auth-store";
+import { useAuthStore, useSignOut } from "@/lib/auth-store";
 import {
   Menu,
   X,
@@ -52,7 +52,8 @@ const BRAND_FALLBACKS = {
 
 export default function Navbar({ variant = "solid" }: NavbarProps) {
   const { navigate, route } = useRouter();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const logout = useSignOut();
   const brand = useBrandAssets();
   const logoUrl = brand.logo?.url || BRAND_FALLBACKS.logo;
   const [scrolled, setScrolled] = useState(false);

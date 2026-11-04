@@ -1,34 +1,41 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import {
+  createSession,
+  findSession,
+  getUser,
+  hashPassword,
+  publicUser,
+  requireAdmin,
+  verifyPassword,
+} from "./lib/auth";
 
-const AUTH_SECRET = process.env.AUTH_SECRET ?? "dev-only-pepper-change-me";
-
-async function hashPassword(password: string) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + "|" + AUTH_SECRET);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+const ROLES = ["user", "admin"] as const;
+const MIN_PASSWORD_LENGTH = 8;
 
 export const signup = mutation({
   args: { email: v.string(), password: v.string(), name: v.string() },
   handler: async (ctx, args) => {
+    const email = args.email.trim().toLowerCase();
+    if (args.password.length < MIN_PASSWORD_LENGTH) {
+      throw new Error(`Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+    }
     const existing = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email.toLowerCase()))
+      .withIndex("by_email", (q) => q.eq("email", email))
       .first();
     if (existing) {
       throw new Error("Email already registered");
     }
-    const passwordHash = await hashPassword(args.password);
     const userId = await ctx.db.insert("users", {
-      email: args.email.toLowerCase(),
+      email,
       name: args.name || undefined,
       role: "user",
-      passwordHash,
+      passwordHash: await hashPassword(args.password),
     });
-    return { userId };
+    const token = await createSession(ctx, userId);
+    const user = await ctx.db.get(userId);
+    return { userId, user: publicUser(user!), token };
   },
 });
 
@@ -37,112 +44,109 @@ export const login = mutation({
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email.toLowerCase()))
+      .withIndex("by_email", (q) => q.eq("email", args.email.trim().toLowerCase()))
       .first();
     if (!user?.passwordHash) throw new Error("Invalid credentials");
-    const passwordHash = await hashPassword(args.password);
-    if (user.passwordHash !== passwordHash) {
-      throw new Error("Invalid credentials");
-    }
+    const { ok, needsRehash } = await verifyPassword(args.password, user.passwordHash);
+    if (!ok) throw new Error("Invalid credentials");
     if (user.suspendedAt) {
       throw new Error("Account suspended");
     }
-    const token = `${user._id}:${user.role}`;
-    await ctx.db.insert("sessions", {
-      userId: user._id,
-      token,
-      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
-    });
-    return {
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name ?? null,
-        avatar: user.avatar ?? null,
-        role: user.role,
-        suspendedAt: user.suspendedAt ?? null,
-      },
-      token,
-    };
+    if (needsRehash) {
+      await ctx.db.patch(user._id, { passwordHash: await hashPassword(args.password) });
+    }
+    const token = await createSession(ctx, user._id);
+    return { user: publicUser(user), token };
   },
 });
 
 export const me = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    if (!args.token) return null;
-    const [userId] = args.token.split(":");
-    if (!userId) return null;
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_user", (q) => q.eq("userId", userId as any))
-      .first();
-    if (!session || session.expiresAt < Date.now()) return null;
-    const user = await ctx.db.get(session.userId);
-    if (!user || user.suspendedAt) return null;
-    return {
-      id: user._id,
-      email: user.email,
-      name: user.name ?? null,
-      avatar: user.avatar ?? null,
-      role: user.role,
-      suspendedAt: user.suspendedAt ?? null,
-    };
+    const user = await getUser(ctx, args.token);
+    return user ? publicUser(user) : null;
   },
 });
 
+/** Ends only the session that owns `token`. */
 export const logout = mutation({
   args: { token: v.string() },
   handler: async (ctx, args) => {
-    const [userId] = args.token.split(":");
-    if (!userId) return;
-    const sessions = await ctx.db
-      .query("sessions")
-      .withIndex("by_user", (q) => q.eq("userId", userId as any))
-      .collect();
-    for (const session of sessions) {
-      await ctx.db.delete(session._id);
-    }
+    const session = await findSession(ctx, args.token);
+    if (session) await ctx.db.delete(session._id);
   },
 });
 
 export const updateRole = mutation({
-  args: { userId: v.string(), role: v.string() },
+  args: { token: v.string(), userId: v.id("users"), role: v.string() },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.userId as any, { role: args.role });
+    const admin = await requireAdmin(ctx, args.token);
+    if (!(ROLES as readonly string[]).includes(args.role)) {
+      throw new Error("Unknown role");
+    }
+    if (args.userId === admin._id && args.role !== "admin") {
+      throw new Error("You cannot remove your own admin role");
+    }
+    await ctx.db.patch(args.userId, { role: args.role });
+    await ctx.db.insert("adminActions", {
+      actorId: admin._id,
+      action: "update_role",
+      targetType: "user",
+      targetId: args.userId,
+      metadata: args.role,
+    });
   },
 });
 
 export const suspendUser = mutation({
-  args: { userId: v.string(), reason: v.optional(v.string()) },
+  args: { token: v.string(), userId: v.id("users"), reason: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.userId as any, {
+    const admin = await requireAdmin(ctx, args.token);
+    if (args.userId === admin._id) throw new Error("You cannot suspend yourself");
+    await ctx.db.patch(args.userId, {
       suspendedAt: Date.now(),
       suspendedReason: args.reason,
+    });
+    // Sign the user out everywhere.
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_user", (q) => q.eq("userId", args.userId))
+      .collect();
+    for (const session of sessions) await ctx.db.delete(session._id);
+    await ctx.db.insert("adminActions", {
+      actorId: admin._id,
+      action: "suspend_user",
+      targetType: "user",
+      targetId: args.userId,
+      reason: args.reason,
     });
   },
 });
 
 export const reinstateUser = mutation({
-  args: { userId: v.string() },
+  args: { token: v.string(), userId: v.id("users") },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.userId as any, {
+    const admin = await requireAdmin(ctx, args.token);
+    await ctx.db.patch(args.userId, {
       suspendedAt: undefined,
       suspendedReason: undefined,
+    });
+    await ctx.db.insert("adminActions", {
+      actorId: admin._id,
+      action: "reinstate_user",
+      targetType: "user",
+      targetId: args.userId,
     });
   },
 });
 
 export const listUsers = query({
-  handler: async (ctx) => {
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     const users = await ctx.db.query("users").order("desc").collect();
     return users.map((u) => ({
-      id: u._id,
-      email: u.email,
-      name: u.name ?? null,
-      avatar: u.avatar ?? null,
-      role: u.role,
-      suspendedAt: u.suspendedAt ?? null,
+      ...publicUser(u),
       createdAt: u._creationTime,
     }));
   },

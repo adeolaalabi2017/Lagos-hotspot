@@ -47,15 +47,22 @@ type FilterId = (typeof FILTERS)[number]["id"];
 
 export function AdminHotspotsPage() {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [filter, setFilter] = useState<FilterId>("all");
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<"newest" | "title">("newest");
 
-  const hotspots = useQuery(api.admin.listAll, {
-    status: filter === "all" ? undefined : filter === "featured" ? undefined : filter,
-    q: search || undefined,
-    limit: 100,
-  }) as AdminHotspot[] | undefined;
+  const hotspots = useQuery(
+    api.admin.listAll,
+    token
+      ? {
+          token,
+          status: filter === "all" ? undefined : filter === "featured" ? undefined : filter,
+          q: search || undefined,
+          limit: 100,
+        }
+      : "skip"
+  ) as AdminHotspot[] | undefined;
 
   const updateListing = useMutation(api.admin.updateListing);
   const deleteListing = useMutation(api.admin.deleteListing);
@@ -79,7 +86,7 @@ export function AdminHotspotsPage() {
 
   const handleApprove = async (id: string) => {
     try {
-      await updateListing({ id, status: "published" });
+      await updateListing({ token, id, status: "published" });
       toast.success("Hotspot approved");
     } catch {
       toast.error("Failed to approve");
@@ -88,7 +95,7 @@ export function AdminHotspotsPage() {
 
   const handleReject = async (id: string) => {
     try {
-      await updateListing({ id, status: "draft", rejectReason: "Rejected by admin" });
+      await updateListing({ token, id, status: "draft", rejectReason: "Rejected by admin" });
       toast.success("Hotspot rejected");
     } catch {
       toast.error("Failed to reject");
@@ -97,7 +104,7 @@ export function AdminHotspotsPage() {
 
   const handleToggleFeatured = async (id: string, current: boolean) => {
     try {
-      await updateListing({ id, isFeatured: !current });
+      await updateListing({ token, id, isFeatured: !current });
       toast.success(current ? "Removed from featured" : "Marked as featured");
     } catch {
       toast.error("Failed to update");
@@ -107,7 +114,7 @@ export function AdminHotspotsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this hotspot permanently?")) return;
     try {
-      await deleteListing({ id });
+      await deleteListing({ token, id });
       toast.success("Hotspot deleted");
     } catch {
       toast.error("Failed to delete");

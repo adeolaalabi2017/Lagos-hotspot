@@ -54,7 +54,7 @@ export interface HotspotImage {
 
 export default function DashboardAddListing() {
   const { navigate } = useRouter();
-  const { user } = useAuthStore();
+  const { token } = useAuthStore();
 
   const [formData, setFormData] = useState({
     spotName: "",
@@ -136,11 +136,8 @@ export default function DashboardAddListing() {
       const imageUrls = await uploadImages();
       await submitListing({
         ...formData,
-        image: imageUrls[0] || "",
         images: imageUrls,
-        authorId: user?.id,
-        authorEmail: user?.email,
-        authorName: user?.name,
+        token: token ?? "",
       });
       toast.success("Spot submitted for review!");
       navigate("dashboard-my-spots");
