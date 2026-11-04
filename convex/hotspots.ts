@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { requireUser } from "./lib/auth";
 import { parseBookingInput } from "../src/lib/bookings";
 
@@ -354,5 +354,69 @@ export const startConversation = mutation({
     });
     if (existing) await ctx.db.patch(existing._id, { lastMessageAt: new Date().toISOString() });
     return { threadId: String(threadId) };
+  },
+});
+
+const REPORT_CATEGORIES = ["spam", "fake", "harassment", "other"] as const;
+const MAX_OPEN_REPORTS_PER_USER = 20;
+
+/**
+ * Reports a hotspot or a review for admins to look at (AdminReportsPage).
+ * Exactly one of hotspotId and reviewId must be given.
+ */
+export const submitReport = mutation({
+  args: {
+    token: v.string(),
+    category: v.string(),
+    reason: v.optional(v.string()),
+    hotspotId: v.optional(v.string()),
+    reviewId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
+    if (!(REPORT_CATEGORIES as readonly string[]).includes(args.category)) {
+      throw new ConvexError("Pick a reason for the report");
+    }
+    if (!!args.hotspotId === !!args.reviewId) {
+      throw new ConvexError("Report either a spot or a review");
+    }
+    const reason = args.reason?.trim() || undefined;
+    if (reason && reason.length > 500) {
+      throw new ConvexError("Keep the details under 500 characters");
+    }
+
+    const listingId = args.hotspotId ? ctx.db.normalizeId("listings", args.hotspotId) : null;
+    const reviewId = args.reviewId ? ctx.db.normalizeId("reviews", args.reviewId) : null;
+    const target = listingId ? await ctx.db.get(listingId) : reviewId ? await ctx.db.get(reviewId) : null;
+    if (!target) throw new ConvexError("That spot or review no longer exists");
+
+    const existing = listingId
+      ? await ctx.db
+          .query("reports")
+          .withIndex("by_hotspot", (q) => q.eq("hotspotId", args.hotspotId))
+          .collect()
+      : await ctx.db
+          .query("reports")
+          .withIndex("by_review", (q) => q.eq("reviewId", args.reviewId))
+          .collect();
+    if (existing.some((r) => r.reporterId === user._id && r.status === "open")) {
+      throw new ConvexError("You've already reported this. We'll take a look.");
+    }
+    const openByUser = (await ctx.db.query("reports").collect()).filter(
+      (r) => r.reporterId === user._id && r.status === "open"
+    );
+    if (openByUser.length >= MAX_OPEN_REPORTS_PER_USER) {
+      throw new ConvexError("You have too many open reports. Please wait for us to review them.");
+    }
+
+    await ctx.db.insert("reports", {
+      category: args.category,
+      reason,
+      status: "open",
+      reporterId: user._id,
+      hotspotId: listingId ? args.hotspotId : undefined,
+      reviewId: reviewId ? args.reviewId : undefined,
+    });
+    return { ok: true };
   },
 });
