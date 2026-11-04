@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter, type Route } from "@/lib/router";
-import { useAuthStore, TIER_LABELS, TIER_BG_COLORS, type UserTier } from "@/lib/auth-store";
+import { useAuthStore, TIER_LABELS, TIER_BG_COLORS, type UserTier, useSignOut } from "@/lib/auth-store";
 import {
   LayoutDashboard,
   User,
@@ -55,7 +55,8 @@ const tierIcons: Record<UserTier, React.ElementType> = {
 
 export default function DashboardSidebar({ activeRoute, collapsed = false, onToggle, onNavigate }: DashboardSidebarProps) {
   const { navigate } = useRouter();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
+  const logout = useSignOut();
 
   const userTier = user?.tier || "explorer";
   const TierIcon = tierIcons[userTier];

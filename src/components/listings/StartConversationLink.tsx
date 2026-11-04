@@ -34,7 +34,7 @@ export function StartConversationLink({
 }: StartConversationLinkProps) {
   const { navigate } = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const startConversationMutation = useMutation((api as any).hotspots.startConversation);
   const [open, setOpen] = useState(false);
   const [body, setBody] = useState("");
@@ -51,7 +51,7 @@ export function StartConversationLink({
     try {
       const data = await startConversationMutation({
         listingId: hotspotId,
-        userId: user?.id ?? "",
+        token: token ?? "",
         body: text,
       });
       toast.success("Conversation started");

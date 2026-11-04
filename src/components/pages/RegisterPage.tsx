@@ -76,7 +76,7 @@ export default function RegisterPage() {
         role: "user",
         suspendedAt: null,
       };
-      setSessionUser(user);
+      setSessionUser(user, result?.token ?? null);
       navigate("dashboard");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Sign up failed";

@@ -8,10 +8,12 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
 import type * as bookmarks from "../bookmarks.js";
 import type * as brand from "../brand.js";
 import type * as hotspots from "../hotspots.js";
+import type * as lib_auth from "../lib/auth.js";
 import type * as listings from "../listings.js";
 
 import type {
@@ -21,10 +23,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
   auth: typeof auth;
   bookmarks: typeof bookmarks;
   brand: typeof brand;
   hotspots: typeof hotspots;
+  "lib/auth": typeof lib_auth;
   listings: typeof listings;
 }>;
 

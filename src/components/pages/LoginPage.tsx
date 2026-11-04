@@ -65,7 +65,7 @@ export default function LoginPage() {
             suspendedAt: rawUser.suspendedAt != null ? String(rawUser.suspendedAt) : null,
           }
         : makeLocalUser(email.trim());
-      setSessionUser(user);
+      setSessionUser(user, result?.token ?? null);
       navigate("dashboard");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";

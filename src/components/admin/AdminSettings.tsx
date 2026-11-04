@@ -22,6 +22,7 @@ const BRAND_ASSETS = [
 export default function AdminSettingsPage() {
   const { navigate } = useRouter();
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const generateUploadUrl = useMutation(api.brand.generateUploadUrl);
   const setBrandAsset = useMutation(api.brand.setBrandAsset);
   const deleteBrandAsset = useMutation(api.brand.deleteBrandAsset);
@@ -43,7 +44,7 @@ export default function AdminSettingsPage() {
 
     setUploading(key);
     try {
-      const uploadUrl = await generateUploadUrl();
+      const uploadUrl = await generateUploadUrl({ token });
 
       const res = await fetch(uploadUrl, {
         method: "POST",
@@ -56,6 +57,7 @@ export default function AdminSettingsPage() {
       const { storageId } = await res.json();
 
       await setBrandAsset({
+        token,
         key,
         storageId,
         alt: `${key} image`,
@@ -74,7 +76,7 @@ export default function AdminSettingsPage() {
   const handleDelete = async (key: string) => {
     if (!confirm(`Delete ${key}? This will revert to the default.`)) return;
     try {
-      await deleteBrandAsset({ key });
+      await deleteBrandAsset({ token, key });
       toast.success(`${key} deleted`);
     } catch {
       toast.error(`Failed to delete ${key}`);

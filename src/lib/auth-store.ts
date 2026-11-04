@@ -1,6 +1,9 @@
 "use client";
 
+import { useCallback } from "react";
 import { create } from "zustand";
+import { useMutation } from "convex/react";
+import { api } from "@/lib/convex-api";
 
 export type UserTier = "explorer" | "hotspot";
 export type UserRole = "user" | "admin";
@@ -63,15 +66,18 @@ export const TIER_BG_COLORS: Record<UserTier, string> = {
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
-  setSessionUser: (user: User | null) => void;
+  /** Session token from api.auth.login/signup; pass it to every Convex call made for the user. */
+  token: string | null;
+  setSessionUser: (user: User | null, token?: string | null) => void;
   logout: () => void;
   updateTier: (tier: UserTier) => void;
   setRole: (role: UserRole) => void;
 }
 
 const STORAGE_KEY = "lagos-hotspot-auth";
+const TOKEN_KEY = "lagos-hotspot-token";
 
-function saveToStorage(user: User | null): void {
+function saveToStorage(user: User | null, token: string | null): void {
   try {
     if (typeof localStorage !== "undefined") {
       if (user) {
@@ -79,36 +85,43 @@ function saveToStorage(user: User | null): void {
       } else {
         localStorage.removeItem(STORAGE_KEY);
       }
-    }
-  } catch {
-    /* ignore */
-  }
-}
-
-function loadFromStorage(): User | null {
-  try {
-    if (typeof localStorage !== "undefined") {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        return JSON.parse(raw) as User;
+      if (token) {
+        localStorage.setItem(TOKEN_KEY, token);
+      } else {
+        localStorage.removeItem(TOKEN_KEY);
       }
     }
   } catch {
     /* ignore */
   }
-  return null;
+}
+
+function loadFromStorage(): { user: User | null; token: string | null } {
+  try {
+    if (typeof localStorage !== "undefined") {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (raw) {
+        return { user: JSON.parse(raw) as User, token };
+      }
+    }
+  } catch {
+    /* ignore */
+  }
+  return { user: null, token: null };
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   isAuthenticated: false,
   user: null,
-  setSessionUser: (user) => {
-    saveToStorage(user);
-    set({ isAuthenticated: !!user, user });
+  token: null,
+  setSessionUser: (user, token = null) => {
+    saveToStorage(user, user ? token : null);
+    set({ isAuthenticated: !!user, user, token: user ? token : null });
   },
   logout: () => {
-    saveToStorage(null);
-    set({ isAuthenticated: false, user: null });
+    saveToStorage(null, null);
+    set({ isAuthenticated: false, user: null, token: null });
   },
   updateTier: (tier) =>
     set((state) => ({
@@ -122,8 +135,19 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 // Load persisted user on client-side init
 if (typeof window !== "undefined") {
-  const user = loadFromStorage();
+  const { user, token } = loadFromStorage();
   if (user) {
-    useAuthStore.setState({ isAuthenticated: true, user });
+    useAuthStore.setState({ isAuthenticated: true, user, token });
   }
+}
+
+/** Revokes the session on the server, then clears local auth state. */
+export function useSignOut() {
+  const revoke = useMutation(api.auth.logout);
+  const logout = useAuthStore((s) => s.logout);
+  return useCallback(() => {
+    const token = useAuthStore.getState().token;
+    logout();
+    if (token) revoke({ token }).catch(() => {});
+  }, [revoke, logout]);
 }

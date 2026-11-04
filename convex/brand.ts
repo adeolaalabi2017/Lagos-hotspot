@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./lib/auth";
 
 export const getBrandAsset = query({
   args: { key: v.string() },
@@ -34,11 +35,13 @@ export const getAllBrandAssets = query({
 
 export const setBrandAsset = mutation({
   args: {
+    token: v.string(),
     key: v.string(),
     storageId: v.id("_storage"),
     alt: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const admin = await requireAdmin(ctx, args.token);
     const existing = await ctx.db
       .query("brandAssets")
       .withIndex("by_key", (q) => q.eq("key", args.key))
@@ -49,6 +52,7 @@ export const setBrandAsset = mutation({
         storageId: args.storageId,
         alt: args.alt,
         updatedAt: Date.now(),
+        updatedBy: admin._id,
       });
     } else {
       await ctx.db.insert("brandAssets", {
@@ -57,7 +61,7 @@ export const setBrandAsset = mutation({
         alt: args.alt,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        updatedBy: "admin",
+        updatedBy: admin._id,
       });
     }
 
@@ -66,8 +70,9 @@ export const setBrandAsset = mutation({
 });
 
 export const deleteBrandAsset = mutation({
-  args: { key: v.string() },
+  args: { token: v.string(), key: v.string() },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     const existing = await ctx.db
       .query("brandAssets")
       .withIndex("by_key", (q) => q.eq("key", args.key))
@@ -83,7 +88,9 @@ export const deleteBrandAsset = mutation({
 });
 
 export const generateUploadUrl = mutation({
-  handler: async (ctx) => {
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx, args.token);
     return await ctx.storage.generateUploadUrl();
   },
 });
