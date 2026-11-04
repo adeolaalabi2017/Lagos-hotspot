@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect, useLayoutEffect } from "react";
 
 export type Route =
   | "home"
@@ -138,13 +138,20 @@ const routeTitles: Record<Route, string> = {
 };
 
 export function RouterProvider({ children }: { children: React.ReactNode }) {
-  const [routeState, setRouteState] = useState<{ route: Route; params: Record<string, string> }>(() => {
-    if (typeof window !== "undefined") {
-      return routeFromHash(window.location.hash);
-    }
-    return { route: "home", params: {} };
+  // The server can't see the URL hash, so it always renders "home". Start the
+  // client on "home" too so hydration matches, then switch to the hash route
+  // in a layout effect, which runs before the browser paints.
+  const [routeState, setRouteState] = useState<{ route: Route; params: Record<string, string> }>({
+    route: "home",
+    params: {},
   });
-  const [history, setHistory] = useState<Route[]>([routeState.route]);
+  const [history, setHistory] = useState<Route[]>(["home"]);
+
+  useLayoutEffect(() => {
+    const parsed = routeFromHash(window.location.hash);
+    setRouteState(parsed);
+    setHistory([parsed.route]);
+  }, []);
 
   const navigate = useCallback((newRoute: Route, params: Record<string, string> = {}) => {
     const query = Object.entries(params)
