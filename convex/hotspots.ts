@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/auth";
+import { parseBookingInput } from "../src/lib/bookings";
 
 function splitCsv(value: string | null | undefined): string[] {
   if (!value) return [];
@@ -250,15 +251,19 @@ export const createBooking = mutation({
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx, args.token);
+    const listingId = ctx.db.normalizeId("listings", args.listingId);
+    if (!listingId || !(await ctx.db.get(listingId))) throw new Error("Listing not found");
+    const input = parseBookingInput(args);
+    if (!input.ok) throw new Error(input.error);
     await ctx.db.insert("bookings", {
       listingId: args.listingId,
       userId: user._id,
-      date: args.date,
-      time: args.time,
-      partySize: args.partySize,
-      name: args.name,
-      phone: args.phone,
-      notes: args.notes,
+      date: input.dateStr,
+      time: input.timeStr ?? undefined,
+      partySize: input.partySize,
+      name: input.name ?? undefined,
+      phone: input.phone ?? undefined,
+      notes: input.notes ?? undefined,
       status: "pending",
     });
     return { ok: true };
@@ -322,16 +327,31 @@ export const startConversation = mutation({
   args: { token: v.string(), listingId: v.string(), body: v.string() },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx, args.token);
-    const threadId = await ctx.db.insert("conversationThreads", {
-      userId: user._id,
-      listingId: args.listingId,
-      lastMessageAt: new Date().toISOString(),
-    });
+    const body = args.body.trim();
+    if (!body) throw new Error("Message is empty");
+    if (body.length > 2000) throw new Error("Message is too long");
+    const listingId = ctx.db.normalizeId("listings", args.listingId);
+    if (!listingId || !(await ctx.db.get(listingId))) throw new Error("Listing not found");
+    // One thread per guest and listing.
+    const existing = (
+      await ctx.db
+        .query("conversationThreads")
+        .withIndex("by_user", (q) => q.eq("userId", user._id))
+        .collect()
+    ).find((t) => t.listingId === args.listingId);
+    const threadId =
+      existing?._id ??
+      (await ctx.db.insert("conversationThreads", {
+        userId: user._id,
+        listingId: args.listingId,
+        lastMessageAt: new Date().toISOString(),
+      }));
     await ctx.db.insert("conversationMessages", {
       threadId: String(threadId),
       senderId: user._id,
-      body: args.body,
+      body,
     });
+    if (existing) await ctx.db.patch(existing._id, { lastMessageAt: new Date().toISOString() });
     return { threadId: String(threadId) };
   },
 });

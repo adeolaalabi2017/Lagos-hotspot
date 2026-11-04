@@ -8,6 +8,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bookmark, BookmarkCheck, Compass } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery } from "convex/react";
+import { api } from "@/lib/convex-api";
+import type { PublicHotspot } from "@/lib/public-listing";
 
 function SavedSpotCard({
   hotspotId,
@@ -17,16 +20,27 @@ function SavedSpotCard({
   onRemove: (id: string) => void;
 }) {
   const { navigate } = useRouter();
+  const hotspot = useQuery(api.hotspots.detail, { id: hotspotId }) as
+    | PublicHotspot
+    | null
+    | undefined;
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow group">
       <div className="relative h-40 bg-muted overflow-hidden flex items-center justify-center">
-        <Compass className="h-8 w-8 text-muted-foreground" />
+        {hotspot?.image ? (
+          <img src={hotspot.image} alt="" className="size-full object-cover" />
+        ) : (
+          <Compass className="h-8 w-8 text-muted-foreground" />
+        )}
       </div>
       <CardContent className="p-4">
-        <h3 className="font-semibold text-foreground text-sm mb-2 truncate">
-          {hotspotId.slice(0, 8)}
+        <h3 className="font-semibold text-foreground text-sm truncate">
+          {hotspot === undefined ? "Loading…" : hotspot?.title ?? "Spot no longer available"}
         </h3>
+        <p className="text-xs text-muted-foreground mb-2 truncate">
+          {hotspot ? [hotspot.category, hotspot.area].filter(Boolean).join(" · ") : "\u00a0"}
+        </p>
         <div className="flex items-center justify-between pt-3 border-t">
           <Button
             variant="outline"

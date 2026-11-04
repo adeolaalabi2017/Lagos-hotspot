@@ -1,6 +1,9 @@
 "use client";
 
 import { create } from "zustand";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
+import { useAuthStore } from "@/lib/auth-store";
 
 interface BookmarkState {
   bookmarkedIds: string[];
@@ -12,7 +15,8 @@ interface BookmarkState {
   removeBookmark: (id: string) => void;
   canSaveMore: (limit: number) => boolean;
   remainingSaves: (limit: number) => number;
-  refresh: () => void;
+  /** Reloads saved ids from Convex for the signed-in user; clears them when signed out. */
+  refresh: () => Promise<void>;
   setIds: (ids: string[]) => void;
 }
 
@@ -43,14 +47,22 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
       }));
       return;
     }
-    if (!isAuthSaved) {
-      set((state) => ({
-        bookmarkedIds: [...state.bookmarkedIds, id],
-        error: null,
-      }));
-    } else {
+    if (isAuthSaved) {
       get().removeBookmark(id);
+      return;
     }
+    set((state) => ({
+      bookmarkedIds: [...state.bookmarkedIds, id],
+      error: null,
+    }));
+    const token = useAuthStore.getState().token;
+    if (!token) return;
+    convex.mutation(api.bookmarks.createBookmark, { token, listingId: id }).catch(() => {
+      set((state) => ({
+        bookmarkedIds: state.bookmarkedIds.filter((bid) => bid !== id),
+        error: "Could not save spot",
+      }));
+    });
   },
 
   isBookmarked(id) {
@@ -62,6 +74,16 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
   },
 
   removeBookmark(id) {
+    const wasSaved = get().bookmarkedIds.includes(id);
+    const token = useAuthStore.getState().token;
+    if (wasSaved && token) {
+      convex.mutation(api.bookmarks.deleteBookmark, { token, listingId: id }).catch(() => {
+        set((state) => ({
+          bookmarkedIds: [...state.bookmarkedIds, id],
+          error: "Could not remove spot",
+        }));
+      });
+    }
     set((state) => ({
       bookmarkedIds: state.bookmarkedIds.filter((bid) => bid !== id),
       bookmarkedIdsAnonymous: state.bookmarkedIdsAnonymous.filter(
@@ -81,8 +103,21 @@ export const useBookmarkStore = create<BookmarkState>((set, get) => ({
     return Math.max(0, limit - get().bookmarkedIds.length);
   },
 
-  refresh() {
-    // Bookmarks are now managed via Convex queries in components
+  async refresh() {
+    const token = useAuthStore.getState().token;
+    if (!token) {
+      set({ bookmarkedIds: [], loading: false });
+      return;
+    }
+    set({ loading: true });
+    try {
+      const ids = await convex.query(api.bookmarks.listBookmarks, { token });
+      set({ bookmarkedIds: sanitizeIds(ids), error: null });
+    } catch {
+      set({ error: "Could not load saved spots" });
+    } finally {
+      set({ loading: false });
+    }
   },
 
   setIds(ids) {
