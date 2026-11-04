@@ -3,7 +3,8 @@
 import { ConvexReactClient } from "convex/react";
 import { ConvexProvider } from "convex/react";
 
-const convex = new ConvexReactClient(
+// Exported so non-React code (zustand stores) can call Convex too.
+export const convex = new ConvexReactClient(
   process.env.NEXT_PUBLIC_CONVEX_URL as string
 );
 

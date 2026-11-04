@@ -66,7 +66,7 @@ const routeFromHash = (hash: string): { route: Route; params: Record<string, str
   const validRoutes: Route[] = [
     "home", "explore", "hotspot", "dashboard",
     "dashboard-profile", "dashboard-saved", "dashboard-reviews",
-    "dashboard-messages", "dashboard-my-spots", "dashboard-add-spot", "dashboard-analytics",
+    "dashboard-messages", "dashboard-my-spots", "dashboard-add-spot", "dashboard-analytics", "dashboard-reservations",
     "admin", "admin-listings", "admin-import", "admin-reviews", "admin-users", "admin-reports", "admin-activity-log", "admin-settings",
     "login", "register", "forgot-password",
     "about-us", "blog", "blog-detail", "contact-us",

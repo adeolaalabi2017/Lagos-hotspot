@@ -5,6 +5,8 @@ import { useRouter } from "@/lib/router";
 import { useAuthStore, TIER_LABELS, TIER_BG_COLORS } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import type { PublicHotspot } from "@/lib/public-listing";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 import { dashboardStats, recentActivities, messages } from "@/data/mock-data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -96,33 +98,25 @@ export default function DashboardHome() {
       // Fetch the bookmarked hotspots to extract their categories
       const ids = [...bookmarkedIds];
       if (ids.length > 0) {
-        const responses = await Promise.all(
+        const hotspots = await Promise.all(
           ids.slice(0, 8).map((id) =>
-            fetch(`/api/listings/${id}`)
-              .then((r) => (r.ok ? r.json() : null))
+            (convex.query(api.hotspots.detail, { id }) as Promise<PublicHotspot | null>)
               .catch(() => null)
           )
         );
-        for (const data of responses) {
-          if (data?.hotspot?.category)
-            categorySet.add(data.hotspot.category);
+        for (const hotspot of hotspots) {
+          if (hotspot?.category) categorySet.add(hotspot.category);
         }
       }
 
       // Pick a query — first category if any, else trending
-      const params = new URLSearchParams();
-      params.set("sort", "rating");
-      if (categorySet.size > 0) {
-        params.set("category", [...categorySet][0]);
-      } else {
-        params.set("trending", "true");
-      }
-      const res = await fetch(`/api/listings?${params.toString()}`);
-      if (!res.ok) return;
-      const data = (await res.json()) as { hotspots: PublicHotspot[] };
-      if (cancelled) return;
+      const category = [...categorySet][0];
+      const hotspots = (await convex
+        .query(api.hotspots.feed, category ? { category, sort: "rating" } : { sort: "trending" })
+        .catch(() => null)) as PublicHotspot[] | null;
+      if (!hotspots || cancelled) return;
       setRecommendedHotspots(
-        data.hotspots.filter((h) => !bookmarkedIds.includes(h.id)).slice(0, 3)
+        hotspots.filter((h) => !bookmarkedIds.includes(h.id)).slice(0, 3)
       );
     };
     resolveCategories();

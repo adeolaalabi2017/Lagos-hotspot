@@ -15,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 
 interface ThreadListing {
   id: string;
@@ -73,6 +75,7 @@ export default function DashboardMessages() {
   const { navigate } = useRouter();
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const token = useAuthStore((s) => s.token);
 
   const [threads, setThreads] = useState<Thread[]>([]);
   const [loadingThreads, setLoadingThreads] = useState(false);
@@ -105,18 +108,11 @@ export default function DashboardMessages() {
 
   const loadThreads = useCallback(
     async (showSpinner = false) => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated || !token) return;
       if (showSpinner) setLoadingThreads(true);
       try {
-        const res = await fetch("/api/messaging/threads", {
-          credentials: "same-origin",
-        });
-        if (!res.ok) {
-          setThreadsError("Could not load inbox");
-          return;
-        }
-        const data = (await res.json()) as { threads?: Thread[] };
-        setThreads(Array.isArray(data.threads) ? data.threads : []);
+        const data = (await convex.query(api.bookmarks.listThreads, { token })) as Thread[];
+        setThreads(Array.isArray(data) ? data : []);
         setThreadsError(null);
       } catch {
         setThreadsError("Could not load inbox");
@@ -124,7 +120,7 @@ export default function DashboardMessages() {
         if (showSpinner) setLoadingThreads(false);
       }
     },
-    [isAuthenticated]
+    [isAuthenticated, token]
   );
 
   useEffect(() => {
@@ -139,24 +135,20 @@ export default function DashboardMessages() {
   }, [loadThreads]);
 
   const loadMessages = useCallback(async (threadId: string) => {
+    if (!token) return;
     setLoadingMessages(true);
     try {
-      const res = await fetch(
-        `/api/messaging/threads/${encodeURIComponent(threadId)}/messages`,
-        { credentials: "same-origin" }
-      );
-      if (!res.ok) {
-        toast.error("Could not load messages");
-        return;
-      }
-      const data = (await res.json()) as { messages?: Message[] };
-      setMessages(Array.isArray(data.messages) ? data.messages : []);
+      const data = (await convex.query(api.bookmarks.listMessages, {
+        token,
+        threadId,
+      })) as Message[];
+      setMessages(Array.isArray(data) ? data : []);
     } catch {
       toast.error("Could not load messages");
     } finally {
       setLoadingMessages(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     const tid = selectedThreadId;
@@ -165,10 +157,11 @@ export default function DashboardMessages() {
     async function run() {
       await loadMessages(tid!);
       if (cancelled) return;
-      await fetch(
-        `/api/messaging/threads/${encodeURIComponent(tid!)}/read`,
-        { method: "POST", credentials: "same-origin" }
-      ).catch(() => {});
+      if (token) {
+        await convex
+          .mutation(api.bookmarks.markRead, { token, threadId: tid! })
+          .catch(() => {});
+      }
       setThreads((prev) =>
         prev.map((t) =>
           t.id === tid! ? { ...t, unreadCount: 0 } : t
@@ -179,14 +172,14 @@ export default function DashboardMessages() {
     return () => {
       cancelled = true;
     };
-  }, [selectedThreadId, loadMessages]);
+  }, [selectedThreadId, loadMessages, token]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   async function handleSend() {
-    if (!selectedThreadId) return;
+    if (!selectedThreadId || !token) return;
     const text = messageInput.trim();
     if (!text) return;
     setSending(true);
@@ -203,22 +196,16 @@ export default function DashboardMessages() {
     setMessages((prev) => [...prev, optimistic]);
     setMessageInput("");
     try {
-      const res = await fetch(
-        `/api/messaging/threads/${encodeURIComponent(selectedThreadId)}/messages`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ body: text }),
-        }
-      );
-      if (res.status === 403) {
-        throw new Error("Your account is suspended and cannot send messages.");
-      }
-      if (!res.ok) {
-        throw new Error("Could not send message");
-      }
-      const data = (await res.json()) as { message: Message };
+      const message = (await convex
+        .mutation(api.bookmarks.sendMessage, {
+          token,
+          threadId: selectedThreadId,
+          body: text,
+        })
+        .catch(() => {
+          throw new Error("Could not send message");
+        })) as Message;
+      const data = { message };
       setMessages((prev) =>
         prev.map((m) => (m.id === optimisticId ? data.message : m))
       );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { RouterProvider, useRouter, type Route } from "@/lib/router";
 import { useAuthStore } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
@@ -79,12 +79,17 @@ function AppContent() {
   const isAdmin = adminRoutes.includes(route);
   const isAuth = authRoutes.includes(route);
 
+  // During hydration the auth store reports its initial (signed-out) state,
+  // so only redirect once the saved session has been read on the client.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+
   // Auth guard: redirect to login if trying to access dashboard without auth
   useEffect(() => {
-    if (isDashboard && !isAuthenticated) {
+    if (hydrated && isDashboard && !isAuthenticated) {
       navigate("login");
     }
-  }, [isDashboard, isAuthenticated, navigate]);
+  }, [hydrated, isDashboard, isAuthenticated, navigate]);
 
   // Re-hydrate bookmarks when auth state flips (login/logout).
   useEffect(() => {

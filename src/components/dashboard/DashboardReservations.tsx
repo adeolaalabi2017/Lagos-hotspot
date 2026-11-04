@@ -17,6 +17,8 @@ import {
 import { toast } from "sonner";
 import { useRouter } from "@/lib/router";
 import { useAuthStore } from "@/lib/auth-store";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 
 interface Listing {
   id: string;
@@ -89,6 +91,7 @@ export default function DashboardReservations() {
   const { navigate } = useRouter();
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const token = useAuthStore((s) => s.token);
   const [tab, setTab] = useState<"guest" | "host">("guest");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
@@ -97,25 +100,22 @@ export default function DashboardReservations() {
 
   const load = useCallback(
     async (role: "guest" | "host") => {
+      if (!token) return;
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/bookings?role=${role}`, {
-          credentials: "same-origin",
-        });
-        if (!res.ok) {
-          setError("Could not load reservations");
-          return;
-        }
-        const data = (await res.json()) as { bookings?: Booking[] };
-        setBookings(Array.isArray(data.bookings) ? data.bookings : []);
+        const data = (await convex.query(api.bookmarks.listBookings, {
+          token,
+          role,
+        })) as Booking[];
+        setBookings(Array.isArray(data) ? data : []);
       } catch {
         setError("Could not load reservations");
       } finally {
         setLoading(false);
       }
     },
-    []
+    [token]
   );
 
   useEffect(() => {
@@ -136,25 +136,16 @@ export default function DashboardReservations() {
     action: "confirm" | "decline" | "cancel",
     note?: string
   ) {
+    if (!token) return;
     setMutating(id);
     try {
-      const res = await fetch(
-        `/api/bookings/${encodeURIComponent(id)}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({ action, note }),
-        }
-      );
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? `Could not ${action}`);
-        return;
-      }
-      const data = (await res.json()) as { booking: Booking };
+      const booking = (await convex.mutation(api.bookmarks.decideBooking, {
+        token,
+        bookingId: id,
+        action,
+        note,
+      })) as Booking;
+      const data = { booking };
       setBookings((prev) =>
         prev.map((b) => (b.id === id ? data.booking : b))
       );
@@ -173,20 +164,15 @@ export default function DashboardReservations() {
   }
 
   async function remove(id: string) {
+    if (!token) return;
     setMutating(id);
     try {
-      const res = await fetch(
-        `/api/bookings/${encodeURIComponent(id)}`,
-        { method: "DELETE", credentials: "same-origin" }
-      );
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        toast.error(data.error ?? "Could not cancel");
-        return;
-      }
-      setBookings((prev) => prev.filter((b) => b.id !== id));
+      const booking = (await convex.mutation(api.bookmarks.decideBooking, {
+        token,
+        bookingId: id,
+        action: "cancel",
+      })) as Booking;
+      setBookings((prev) => prev.map((b) => (b.id === id ? booking : b)));
       toast.success("Reservation cancelled");
     } catch {
       toast.error("Could not cancel");
