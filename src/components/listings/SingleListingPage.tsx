@@ -12,6 +12,7 @@ import type { PublicHotspot } from "@/lib/public-listing";
 import { WriteReviewForm } from "./WriteReviewForm";
 import { StartConversationLink } from "./StartConversationLink";
 import { ReserveButton } from "./ReserveButton";
+import { ReportButton } from "./ReportButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,7 +40,6 @@ import {
   Coffee,
   Music,
   ArrowLeft,
-  Flag,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -113,9 +113,18 @@ function ReviewCard({
                   {review.rating.toFixed(1)}
                 </Badge>
               </div>
-              <span className="text-xs text-muted-foreground">
-                {new Date(review.createdAt).toLocaleDateString()}
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="text-xs text-muted-foreground">
+                  {new Date(review.createdAt).toLocaleDateString()}
+                </span>
+                <ReportButton
+                  target={{ reviewId: review.id }}
+                  subject={`${review.author.name ?? "this"}'s review`}
+                  variant="ghost"
+                  iconOnly
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                />
+              </div>
             </div>
             <div className="flex items-center gap-1.5 mb-2">
               <StarRating rating={review.rating} size="sm" />
@@ -601,16 +610,11 @@ export default function SingleListingPage() {
                     <Share2 className="h-4 w-4 mr-2" />
                     Share
                   </Button>
-                  <Button
-                    variant="outline"
+                  <ReportButton
+                    target={{ hotspotId: hotspot.id }}
+                    subject={hotspot.title}
                     className="flex-1"
-                    onClick={() => {
-                      toast.success("Report submitted. We'll review this spot.");
-                    }}
-                  >
-                    <Flag className="h-4 w-4 mr-2" />
-                    Report
-                  </Button>
+                  />
                 </div>
               </CardContent>
             </Card>
