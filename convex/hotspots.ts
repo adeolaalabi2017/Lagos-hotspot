@@ -148,7 +148,8 @@ export const reviewsByListing = query({
   args: { id: v.string() },
   handler: async (ctx, args) => {
     const rows = await ctx.db.query("reviews").filter((q) => q.eq(q.field("listingId"), args.id)).order("desc").collect();
-    return rows.map((row: any) => ({
+    // Pending and hidden reviews stay private until an admin approves them.
+    return rows.filter((row) => row.status === "approved").map((row: any) => ({
       id: row._id,
       rating: row.rating,
       comment: row.comment ?? null,

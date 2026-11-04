@@ -16,6 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ImagePlus, X, Save } from "lucide-react";
 import { useAuthStore } from "@/lib/auth-store";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 import { HoursEditor, defaultHours, type HourRow } from "./HoursEditor";
 
 export type HotspotFormValues = {
@@ -93,6 +95,7 @@ export function AdminHotspotForm({
   onSubmit: (values: HotspotFormValues) => Promise<void> | void;
 }) {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [values, setValues] = useState<HotspotFormValues>(
     initialValues ?? EMPTY_VALUES
   );
@@ -124,25 +127,31 @@ export function AdminHotspotForm({
   }
 
   async function handleUpload(file: File, kind: "cover" | "gallery") {
-    if (!user) return;
+    if (!user || !token) return;
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Max 5 MB per image");
       return;
     }
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: fd,
-      });
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        toast.error(data.error ?? "Upload failed");
+      // Upload straight to Convex storage, then ask for the file's public URL.
+      let data: { url: string };
+      try {
+        const uploadUrl = (await convex.mutation(api.brand.generateUploadUrl, {
+          token,
+        })) as string;
+        const res = await fetch(uploadUrl, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+        if (!res.ok) throw new Error("Upload failed");
+        const { storageId } = (await res.json()) as { storageId: string };
+        data = await convex.mutation(api.admin.uploadedFileUrl, { token, storageId });
+      } catch {
+        toast.error("Upload failed");
         return;
       }
-      const data = (await res.json()) as { url: string };
       if (kind === "cover") {
         patch("coverImageUrl", data.url);
       } else {

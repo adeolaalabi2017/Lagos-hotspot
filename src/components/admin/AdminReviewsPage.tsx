@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AdminLayout } from "./AdminLayout";
 import { AdminGuard } from "./AdminGuard";
 import { useAuthStore } from "@/lib/auth-store";
 import { toast } from "sonner";
+import { convex } from "@/components/convex-provider";
+import { api } from "@/lib/convex-api";
 import { Check, EyeOff, Trash2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,29 +44,28 @@ type FilterId = (typeof STATUS_FILTERS)[number]["id"];
 
 export function AdminReviewsPage() {
   const user = useAuthStore((s) => s.user);
+  const token = useAuthStore((s) => s.token);
   const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterId>("pending");
   const [deleting, setDeleting] = useState<AdminReview | null>(null);
 
-  const headers = useMemo(() => ({}), []);
-
   const load = useCallback(async () => {
+    if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/reviews?status=${filter}`, {
-        headers,
-      });
-      if (!res.ok) throw new Error("Failed");
-      const data = (await res.json()) as { reviews: AdminReview[] };
-      setReviews(data.reviews);
+      const data = (await convex.query(api.admin.listReviews, {
+        token,
+        status: filter,
+      })) as AdminReview[];
+      setReviews(data);
     } catch (err) {
       console.error(err);
       toast.error("Could not load reviews");
     } finally {
       setLoading(false);
     }
-  }, [filter, headers]);
+  }, [filter, token]);
 
   useEffect(() => {
     if (user?.role === "admin") {
@@ -74,12 +75,13 @@ export function AdminReviewsPage() {
   }, [user?.role, load]);
 
   async function patch(id: string, action: "approved" | "hide") {
-    const res = await fetch(`/api/admin/reviews/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify({ action }),
-    });
-    if (!res.ok) {
+    try {
+      await convex.mutation(api.admin.setReviewStatus, {
+        token: token ?? "",
+        id,
+        status: action === "approved" ? "approved" : "hidden",
+      });
+    } catch {
       toast.error("Action failed");
       return;
     }
@@ -90,11 +92,9 @@ export function AdminReviewsPage() {
   async function destroy() {
     if (!deleting) return;
     const id = deleting.id;
-    const res = await fetch(`/api/admin/reviews/${id}`, {
-      method: "DELETE",
-      headers,
-    });
-    if (!res.ok) {
+    try {
+      await convex.mutation(api.admin.deleteReview, { token: token ?? "", id });
+    } catch {
       toast.error("Delete failed");
       return;
     }

@@ -90,7 +90,7 @@ export const updateRole = mutation({
     await ctx.db.patch(args.userId, { role: args.role });
     await ctx.db.insert("adminActions", {
       actorId: admin._id,
-      action: "update_role",
+      action: "user.role",
       targetType: "user",
       targetId: args.userId,
       metadata: args.role,
@@ -115,7 +115,7 @@ export const suspendUser = mutation({
     for (const session of sessions) await ctx.db.delete(session._id);
     await ctx.db.insert("adminActions", {
       actorId: admin._id,
-      action: "suspend_user",
+      action: "user.suspend",
       targetType: "user",
       targetId: args.userId,
       reason: args.reason,
@@ -133,7 +133,7 @@ export const reinstateUser = mutation({
     });
     await ctx.db.insert("adminActions", {
       actorId: admin._id,
-      action: "reinstate_user",
+      action: "user.reinstate",
       targetType: "user",
       targetId: args.userId,
     });

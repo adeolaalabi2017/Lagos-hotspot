@@ -172,7 +172,7 @@ export const reviewsByListing = query({
       .filter((q) => q.eq(q.field("listingId"), args.id))
       .order("desc")
       .collect();
-    return rows.map((row: any) => ({
+    return rows.filter((row) => row.status === "approved").map((row: any) => ({
       id: row._id,
       rating: row.rating,
       comment: row.comment ?? null,
