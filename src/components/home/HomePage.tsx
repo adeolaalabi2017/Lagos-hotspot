@@ -10,7 +10,6 @@ import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { api } from "@/lib/convex-api";
 import {
   categories,
-  reviews,
   blogPosts,
   neighborhoods,
 } from "@/data/mock-data";
@@ -33,7 +32,6 @@ import {
   Music,
   Flower2,
   Store,
-  ShieldCheck,
   MessageCircle,
   Sparkles,
 } from "lucide-react";
@@ -83,6 +81,7 @@ const LONGEST_HERO_WORD = HERO_WORDS.reduce((a, b) => (a.length >= b.length ? a 
 
 import { useBrandAssets } from "@/lib/use-brand-assets";
 import { SpotPhoto } from "@/components/listings/SpotPhoto";
+import { isOpenNow, openStateLabel } from "@/lib/hours";
 
 const BRAND_FALLBACKS = {
   logo: "/images/lagos-hotspot-logo.png",
@@ -119,6 +118,12 @@ export default function HomePage() {
     sort: "trending",
     limit: 4,
   }) as PublicHotspot[] | undefined;
+  // Every published spot, to count spots per neighbourhood.
+  const allSpots = useQuery((api as any).hotspots.feed, {}) as PublicHotspot[] | undefined;
+  const spotsByArea = new Map<string, number>();
+  for (const spot of allSpots ?? []) {
+    spotsByArea.set(spot.area, (spotsByArea.get(spot.area) ?? 0) + 1);
+  }
   const featuredSpots = useQuery((api as any).hotspots.feed, {
     featuredOnly: true,
     sort: "rating",
@@ -149,9 +154,6 @@ export default function HomePage() {
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
           <div className="max-w-3xl mx-auto text-center">
-            <Badge className="bg-primary/90 text-primary-foreground mb-5 border-0 text-sm px-4 py-2 font-semibold">
-              Lagos&apos; #1 Hotspot Guide
-            </Badge>
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white mb-6 leading-[1.05] tracking-tight">
               Find your next{" "}
               <span
@@ -171,8 +173,8 @@ export default function HomePage() {
               </span>
             </h1>
             <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto text-pretty">
-              Search 1,000+ vetted restaurants, clubs, beaches, and hidden
-              corners across Lagos.
+              Search restaurants, clubs, beaches and hidden corners across
+              Lagos. Our team checks every spot before it goes live.
             </p>
 
             {/* Search Bar */}
@@ -268,7 +270,7 @@ export default function HomePage() {
                 Hot Right Now
               </h2>
               <p className="text-muted-foreground mt-3 text-pretty">
-                The four spots everyone is talking about this week.
+                The spots getting attention across Lagos right now.
               </p>
             </div>
             <Button
@@ -317,7 +319,7 @@ export default function HomePage() {
                 Editor&apos;s Picks
               </h2>
               <p className="text-muted-foreground mt-3 text-pretty">
-                Three places we keep coming back to, no matter the season.
+                Places we keep coming back to, no matter the season.
               </p>
             </div>
             <Button
@@ -402,10 +404,15 @@ export default function HomePage() {
                     {nhood.description}
                   </p>
                   <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      {nhood.hotspotCount} spots
-                    </Badge>
+                    {allSpots !== undefined && (
+                      <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        {(() => {
+                          const n = spotsByArea.get(nhood.name) ?? 0;
+                          return n === 0 ? "No spots yet" : `${n} ${n === 1 ? "spot" : "spots"}`;
+                        })()}
+                      </Badge>
+                    )}
                     <span className="text-primary text-sm font-medium group-hover:underline">
                       Explore →
                     </span>
@@ -442,7 +449,7 @@ export default function HomePage() {
                 icon: Star,
                 title: "Read Reviews",
                 description:
-                  "See what other Lagosians are saying. Verified reviews help you pick the perfect spot every time.",
+                  "See what other Lagosians are saying. Our team checks every review before it appears.",
                 color: "bg-accent text-accent-foreground",
               },
               {
@@ -467,64 +474,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Reviews */}
-      <section className="py-20 lg:py-28 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mb-14">
-            <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-              What Lagosians are saying.
-            </h2>
-            <p className="text-muted-foreground mt-3 text-pretty">
-              Real reviews from people who actually live here.
-            </p>
-          </div>
-          <Carousel className="w-full">
-            <CarouselContent className="gap-6">
-              {reviews.slice(0, 3).map((review) => (
-                <CarouselItem key={review.id} className="basis-full md:basis-1/2 lg:basis-1/3">
-                  <Card className="hover:shadow-lg motion-safe:transition-shadow h-full">
-                    <CardContent className="p-6">
-                      <div className="flex items-center gap-1 mb-3">
-                        {Array.from({ length: review.rating }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className="h-4 w-4 fill-amber-400 text-amber-400"
-                          />
-                        ))}
-                      </div>
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                        &ldquo;{review.comment}&rdquo;
-                      </p>
-                      <div className="flex items-center justify-between mt-auto">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
-                            {review.avatar}
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium">{review.user}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {review.date}
-                            </p>
-                          </div>
-                        </div>
-                        {review.isVerified && (
-                          <Badge variant="secondary" className="text-xs">
-                            <ShieldCheck className="h-3 w-3 mr-1" />
-                            Verified
-                          </Badge>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="hidden lg:flex -left-6" />
-            <CarouselNext className="hidden lg:flex -right-6" />
-          </Carousel>
         </div>
       </section>
 
@@ -693,6 +642,7 @@ function HotspotCard({
   const maxSaves = TIER_FEATURES[userTier].maxSavedSpots;
   const { canSaveMore, toggleBookmark, isBookmarked: checkBookmarked } = useBookmarkStore();
   const isBookmarked = checkBookmarked(spot.id);
+  const openStatus = openStateLabel(isOpenNow(spot.openingHours, spot.isOpen));
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -735,15 +685,13 @@ function HotspotCard({
           />
         </button>
         {/* Open/Closed */}
-        <div
-          className={`absolute bottom-3 left-3 px-2 py-0.5 rounded text-xs font-medium ${
-            spot.isOpen
-              ? "bg-emerald-500/90 text-white"
-              : "bg-red-500/90 text-white"
-          }`}
-        >
-          {spot.isOpen ? "Open Now" : "Closed"}
-        </div>
+        {openStatus && (
+          <div
+            className={`absolute bottom-3 left-3 px-2 py-0.5 rounded text-xs font-medium ${openStatus.className}`}
+          >
+            {openStatus.label}
+          </div>
+        )}
       </div>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-1">

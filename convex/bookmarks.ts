@@ -274,3 +274,52 @@ export const markRead = mutation({
     return { ok: true };
   },
 });
+
+// ---------- The signed-in user's own content ----------
+
+/** Spots the user submitted, newest first, with their review status. */
+export const mySpots = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
+    const listings = (await ctx.db.query("listings").collect())
+      .filter((l) => l.authorId === user._id)
+      .sort((a, b) => b._creationTime - a._creationTime);
+    return listings.map((l) => ({
+      id: l._id,
+      title: l.title,
+      category: l.category,
+      area: l.location ?? null,
+      image: l.image || null,
+      status: l.status,
+      rejectReason: l.rejectReason ?? null,
+      rating: l.rating,
+      reviewCount: l.reviewCount,
+      createdAt: iso(l._creationTime)!,
+    }));
+  },
+});
+
+/** Reviews the user wrote, newest first, including pending and hidden ones. */
+export const myReviews = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
+    const reviews = await ctx.db
+      .query("reviews")
+      .withIndex("by_author", (q) => q.eq("authorId", user._id))
+      .order("desc")
+      .collect();
+    return Promise.all(
+      reviews.map(async (r) => ({
+        id: r._id,
+        listingId: r.listingId,
+        listingTitle: (await getListing(ctx, r.listingId))?.title ?? null,
+        rating: r.rating,
+        comment: r.comment ?? null,
+        status: r.status,
+        createdAt: iso(r._creationTime)!,
+      }))
+    );
+  },
+});

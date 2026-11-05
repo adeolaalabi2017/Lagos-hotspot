@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { SpotPhoto } from "./SpotPhoto";
+import { isOpenNow, openStateLabel } from "@/lib/hours";
 import {
   Sheet,
   SheetContent,
@@ -113,11 +114,12 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
   const maxSaves = TIER_FEATURES[userTier].maxSavedSpots;
   const { canSaveMore, toggleBookmark, isBookmarked: checkBookmarked } = useBookmarkStore();
   const isBookmarked = checkBookmarked(hotspot.id);
+  const openStatus = openStateLabel(isOpenNow(hotspot.openingHours, hotspot.isOpen));
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isBookmarked && !canSaveMore(maxSaves)) {
-      toast.error("You've reached your 10-spot save limit. Upgrade to Scout for unlimited saves!");
+      toast.error("You can save up to 10 spots. Remove one from Saved spots to add another.");
       return;
     }
     toggleBookmark(hotspot.id);
@@ -141,15 +143,11 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
             />
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               <VibeBadge score={hotspot.vibeScore} />
-              <Badge
-                className={`text-[10px] font-medium border-0 ${
-                  hotspot.isOpen
-                    ? "bg-emerald-600 text-white"
-                    : "bg-red-600 text-white"
-                }`}
-              >
-                {hotspot.isOpen ? "Open" : "Closed"}
-              </Badge>
+              {openStatus && (
+                <Badge className={`text-xs font-medium border-0 ${openStatus.className}`}>
+                  {openStatus.label}
+                </Badge>
+              )}
             </div>
           </div>
           <CardContent className="flex-1 p-4 sm:p-5">
@@ -230,15 +228,11 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
         />
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <VibeBadge score={hotspot.vibeScore} />
-          <Badge
-            className={`text-[10px] font-medium border-0 ${
-              hotspot.isOpen
-                ? "bg-emerald-600 text-white"
-                : "bg-red-600 text-white"
-            }`}
-          >
-            {hotspot.isOpen ? "Open" : "Closed"}
-          </Badge>
+          {openStatus && (
+            <Badge className={`text-xs font-medium border-0 ${openStatus.className}`}>
+              {openStatus.label}
+            </Badge>
+          )}
         </div>
         <Button
           variant="ghost"
@@ -552,7 +546,7 @@ export default function GridListingsPage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const hotspots = useQuery((api as any).hotspots.search, {
-    q: searchQuery || " ",
+    q: searchQuery,
     area: selectedArea !== "all" ? selectedArea : undefined,
     category: selectedCategory !== "all" ? selectedCategory : undefined,
   }) as PublicHotspot[] | undefined;
@@ -649,7 +643,16 @@ export default function GridListingsPage() {
   }
 
   const areaText = selectedArea !== "all" ? selectedArea : "Lagos";
-  const visibleHotspots = hotspots ?? [];
+  const visibleHotspots = (hotspots ?? [])
+    .filter((h) => selectedPrice === "all" || String(h.priceLevel ?? "") === selectedPrice)
+    .filter((h) => !openNowOnly || isOpenNow(h.openingHours, h.isOpen).state === "open-now")
+    .sort((a, b) => {
+      if (selectedSort === "trending") {
+        return Number(b.isTrending) - Number(a.isTrending) || b.rating - a.rating;
+      }
+      if (selectedSort === "newest") return b.createdAt.localeCompare(a.createdAt);
+      return b.rating - a.rating || b.reviews - a.reviews;
+    });
 
   return (
     <div className="min-h-screen bg-background">

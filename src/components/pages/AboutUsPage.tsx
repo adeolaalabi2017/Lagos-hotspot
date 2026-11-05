@@ -78,9 +78,9 @@ export default function AboutUsPage() {
                 not a guessing game.
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                Today, Lagos Hotspot is the most trusted guide to Lagos&apos; vibrant scene. From the
-                suya spots of Yaba to the rooftop lounges of Victoria Island, we help you find
-                your next favorite place in the city that never sleeps.
+                We&apos;re just getting started. From the suya spots of Yaba to the rooftop
+                lounges of Victoria Island, we&apos;re adding places one at a time and checking
+                each one, so you can find your next favorite spot in the city that never sleeps.
               </p>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-lg">

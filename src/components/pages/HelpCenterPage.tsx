@@ -93,60 +93,6 @@ export default function HelpCenterPage() {
         </div>
       </PageHero>
 
-      {/* Priority Support Card (Scout+) */}
-      {isAuthenticated && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-          {listBusiness ? (
-            <Card className="border-green-200 bg-green-50">
-              <CardContent className="pt-6 flex flex-col sm:flex-row items-center gap-6">
-                <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shrink-0">
-                  <ShieldCheck className="h-8 w-8 text-white" />
-                </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-bold text-foreground">Priority Support</h3>
-                    <Badge className="bg-green-600 text-white border-0 text-[10px]">Scout+</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    As a {userTier === "hotspot" ? "Ambassador" : "Scout"} member, you get instant access to our priority support team. Skip the queue and get help in minutes.
-                  </p>
-                </div>
-                <a
-                  href="https://wa.me/2348012345678"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button className="bg-green-600 hover:bg-green-700">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Get instant help via WhatsApp
-                  </Button>
-                </a>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="border-muted bg-muted/30">
-              <CardContent className="pt-6 flex flex-col sm:flex-row items-center gap-6">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center shrink-0">
-                  <Lock className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <div className="flex-1 text-center sm:text-left">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-lg font-bold text-foreground">Priority Support</h3>
-                    <Badge variant="outline" className="text-muted-foreground text-[10px]">Scout+</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Upgrade to Scout for instant WhatsApp support and skip the queue.
-                  </p>
-                </div>
-                <Button variant="outline" onClick={() => navigate("home")}>
-                  Upgrade to Scout
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </section>
-      )}
-
       {/* Popular Topics */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h2 className="text-xl font-bold text-foreground mb-6">
@@ -223,35 +169,6 @@ export default function HelpCenterPage() {
         </div>
       </section>
 
-      {/* WhatsApp Support CTA Card */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Card className="border-green-200 bg-green-50">
-          <CardContent className="pt-6 flex flex-col sm:flex-row items-center gap-6">
-            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shrink-0">
-              <MessageCircle className="h-8 w-8 text-white" />
-            </div>
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-lg font-bold text-foreground">
-                Need Help Fast?
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Chat with our support team on WhatsApp. We typically respond within minutes during business hours.
-              </p>
-            </div>
-            <a
-              href="https://wa.me/2348012345678"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button className="bg-green-600 hover:bg-green-700">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                WhatsApp Us
-              </Button>
-            </a>
-          </CardContent>
-        </Card>
-      </section>
-
       {/* Contact Support */}
       <section className="py-16 bg-muted/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -259,47 +176,17 @@ export default function HelpCenterPage() {
             Still Need Help?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Our support team is here to assist you. Reach out through any of
-            these channels.
+            Email our team and we&apos;ll get back to you.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto">
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="w-11 h-11 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Mail className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="font-semibold text-sm">Email Support</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  hello@lagos-hotspot.com
-                </p>
-              </CardContent>
-            </Card>
-            <Card className="text-center hover:shadow-lg transition-shadow">
-              <CardContent className="pt-6">
-                <div className="w-11 h-11 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <Phone className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="font-semibold text-sm">Phone Support</h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  +234 801 234 5678
-                </p>
-              </CardContent>
-            </Card>
-            <a
-              href="https://wa.me/2348012345678"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block"
-            >
-              <Card className="text-center hover:shadow-lg transition-shadow cursor-pointer h-full">
+          <div className="max-w-xs mx-auto">
+            <a href="mailto:hello@lagos-hotspot.com" className="block">
+              <Card className="text-center hover:shadow-lg transition-shadow">
                 <CardContent className="pt-6">
-                  <div className="w-11 h-11 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <MessageCircle className="h-5 w-5 text-green-600" />
+                  <div className="w-11 h-11 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Mail className="h-5 w-5 text-primary" />
                   </div>
-                  <h3 className="font-semibold text-sm">WhatsApp Chat</h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    8 AM - 6 PM (WAT)
-                  </p>
+                  <h3 className="font-semibold text-sm">Email support</h3>
+                  <p className="text-xs text-muted-foreground mt-1">hello@lagos-hotspot.com</p>
                 </CardContent>
               </Card>
             </a>

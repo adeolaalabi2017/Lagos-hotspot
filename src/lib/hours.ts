@@ -43,7 +43,8 @@ export function getNowInZone(date: Date, timeZone: string): {
     const parts = fmt.formatToParts(date);
     const hh = parts.find((p) => p.type === "hour")?.value ?? "00";
     const mm = parts.find((p) => p.type === "minute")?.value ?? "00";
-    return { hours: Number(hh), minutes: Number(mm) };
+    // Some engines format midnight as "24" with hour12: false.
+    return { hours: Number(hh) % 24, minutes: Number(mm) };
   } catch {
     return { hours: date.getHours(), minutes: date.getMinutes() };
   }
@@ -67,21 +68,50 @@ export function isOpenNow(
   }
 
   const dow = getDayOfWeekInZone(now, timeZone);
-  const today = hours.find((h) => h.dayOfWeek === dow);
-  if (!today) return { state: "closed-today" };
-  if (today.isClosed) return { state: "closed-today" };
-
   const { hours: hh, minutes: mm } = getNowInZone(now, timeZone);
   const nowM = hh * 60 + mm;
+
+  // Late-night hours from yesterday (e.g. 20:00–03:00) may still be running.
+  const yesterday = hours.find((h) => h.dayOfWeek === (dow + 6) % 7);
+  if (yesterday && !yesterday.isClosed) {
+    const opensM = toMinutes(yesterday.opensAt);
+    const closesM = toMinutes(yesterday.closesAt);
+    if (opensM != null && closesM != null && closesM <= opensM && nowM < closesM) {
+      return { state: "open-now", until: yesterday.closesAt };
+    }
+  }
+
+  const today = hours.find((h) => h.dayOfWeek === dow);
+  if (!today || today.isClosed) return { state: "closed-today" };
   const opensM = toMinutes(today.opensAt);
   const closesM = toMinutes(today.closesAt);
   if (opensM == null || closesM == null) return { state: "closed-today" };
 
-  if (nowM >= opensM && nowM <= closesM) {
-    return { state: "open-now", until: today.closesAt ?? null };
+  // Closing at or before opening time means the spot closes after midnight.
+  const overnight = closesM <= opensM;
+  if (nowM >= opensM && (overnight || nowM < closesM)) {
+    return { state: "open-now", until: today.closesAt };
   }
-  if (nowM < opensM) {
-    return { state: "closed-now", opensAt: today.opensAt };
-  }
+  if (nowM < opensM) return { state: "closed-now", opensAt: today.opensAt };
   return { state: "closed-today" };
+}
+
+/**
+ * Short card label and colour for an open state, or null when the hours are
+ * unknown (show nothing rather than guess). Colours are dark enough for white
+ * text to pass WCAG AA.
+ */
+export function openStateLabel(state: OpenState): { label: string; className: string } | null {
+  switch (state.state) {
+    case "open-now":
+      return { label: "Open now", className: "bg-emerald-700 text-white" };
+    case "closed-now":
+      return state.opensAt
+        ? { label: `Opens ${state.opensAt}`, className: "bg-amber-700 text-white" }
+        : { label: "Closed", className: "bg-red-700 text-white" };
+    case "closed-today":
+      return { label: "Closed", className: "bg-red-700 text-white" };
+    default:
+      return null;
+  }
 }

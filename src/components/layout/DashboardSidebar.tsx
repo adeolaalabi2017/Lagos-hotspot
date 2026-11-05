@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, initials } from "@/lib/utils";
 
 interface DashboardSidebarProps {
   activeRoute: Route;
@@ -93,7 +93,7 @@ export default function DashboardSidebar({ activeRoute, collapsed = false, onTog
       <div className={cn("p-4 border-b border-border", collapsed && "p-2")}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
-            {user?.avatar || "ES"}
+            {user?.avatar || initials(user?.name)}
           </div>
           {!collapsed && (
             <div className="min-w-0">

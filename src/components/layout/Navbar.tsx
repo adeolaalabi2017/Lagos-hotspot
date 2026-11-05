@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, type Route } from "@/lib/router";
 import { useAuthStore, useSignOut } from "@/lib/auth-store";
+import { initials } from "@/lib/utils";
 import {
   Menu,
   X,
@@ -214,7 +215,7 @@ export default function Navbar({ variant = "solid" }: NavbarProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full h-11 w-11">
                     <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold">
-                      {user?.avatar || "U"}
+                      {user?.avatar || initials(user?.name)}
                     </div>
                   </Button>
                 </DropdownMenuTrigger>

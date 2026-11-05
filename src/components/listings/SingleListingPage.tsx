@@ -176,7 +176,7 @@ export default function SingleListingPage() {
 
   const handleSave = () => {
     if (!isBookmarked && !canSaveMore(maxSaves)) {
-      toast.error("You've reached your 10-spot save limit. Upgrade to Scout for unlimited saves!");
+      toast.error("You can save up to 10 spots. Remove one from Saved spots to add another.");
       return;
     }
     toggleBookmark(hotspotId);
@@ -267,13 +267,7 @@ export default function SingleListingPage() {
                 Verified
               </Badge>
             )}
-            <OpenNowBadge
-              hours={
-                (hotspot.hours as unknown as { dayOfWeek: number; opensAt: string | null; closesAt: string | null; isClosed: boolean }[] | null) ??
-                null
-              }
-              legacyIsOpen={hotspot.isOpen}
-            />
+            <OpenNowBadge hours={hotspot.openingHours} legacyIsOpen={hotspot.isOpen} />
             {hotspot.isTrending && (
               <Badge className="bg-orange-500 text-white border-0 flex items-center gap-1 text-xs">
                 <Flame className="h-3 w-3" />
@@ -696,7 +690,7 @@ function OpenNowBadge({ hours, legacyIsOpen }: OpenNowBadgeProps) {
   );
   if (state.state === "open-now") {
     return (
-      <Badge className="bg-emerald-600 text-white border-0 text-xs">
+      <Badge className="bg-emerald-700 text-white border-0 text-xs">
         Open now
         {state.until ? ` · until ${state.until}` : ""}
       </Badge>
@@ -704,27 +698,18 @@ function OpenNowBadge({ hours, legacyIsOpen }: OpenNowBadgeProps) {
   }
   if (state.state === "closed-now" && state.opensAt) {
     return (
-      <Badge className="bg-amber-500 text-white border-0 text-xs">
+      <Badge className="bg-amber-700 text-white border-0 text-xs">
         Opens at {state.opensAt}
       </Badge>
     );
   }
   if (state.state === "closed-today") {
     return (
-      <Badge className="bg-red-600 text-white border-0 text-xs">
+      <Badge className="bg-red-700 text-white border-0 text-xs">
         Closed today
       </Badge>
     );
   }
-  return (
-    <Badge
-      className={`text-xs border-0 ${
-        legacyIsOpen
-          ? "bg-emerald-600 text-white"
-          : "bg-red-600 text-white"
-      }`}
-    >
-      {legacyIsOpen ? "Open" : "Closed"}
-    </Badge>
-  );
+  // No hours on file: say nothing rather than guess.
+  return null;
 }

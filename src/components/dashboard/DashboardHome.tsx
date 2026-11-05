@@ -1,432 +1,241 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useQuery } from "convex/react";
 import { useRouter } from "@/lib/router";
-import { useAuthStore, TIER_LABELS, TIER_BG_COLORS } from "@/lib/auth-store";
+import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
 import type { PublicHotspot } from "@/lib/public-listing";
 import { convex } from "@/components/convex-provider";
 import { api } from "@/lib/convex-api";
-import { dashboardStats, recentActivities, messages } from "@/data/mock-data";
+import { SpotPhoto } from "@/components/listings/SpotPhoto";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
-  Heart,
-  Star,
-  MapPin,
-  Flame,
-  Bell,
-  TrendingUp,
   ArrowRight,
-  Clock,
-  Compass,
-  PlusCircle,
   Bookmark,
-  Sparkles,
-  Lock,
-  Zap,
+  CalendarDays,
+  Compass,
+  Flame,
+  MapPin,
+  MessageCircle,
+  PlusCircle,
+  Star,
 } from "lucide-react";
 
-const iconMap: Record<string, React.ElementType> = {
-  Heart,
-  Star,
-  MapPin,
-  Flame,
+// Shapes returned by convex/bookmarks.ts (listBookings / listThreads).
+interface Booking {
+  id: string;
+  listingId: string;
+  listing: { title: string };
+  date: string;
+  time: string | null;
+  partySize: number | null;
+  status: string;
+}
+
+interface Thread {
+  id: string;
+  listing: { title: string };
+  lastMessageAt: string;
+  lastMessage: { body: string } | null;
+  unreadCount: number;
+}
+
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-800",
+  confirmed: "bg-green-100 text-green-800",
+  declined: "bg-red-100 text-red-800",
+  cancelled: "bg-muted text-muted-foreground",
+  completed: "bg-blue-100 text-blue-800",
 };
 
-const activityIconMap: Record<string, React.ElementType> = {
-  review: Star,
-  save: Bookmark,
-  visit: MapPin,
-  share: Flame,
-};
+function formatBookingDate(date: string, time: string | null): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const label = new Date(Date.UTC(y, m - 1, d)).toLocaleDateString(undefined, {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+  return time ? `${label} · ${time}` : label;
+}
 
-// ─── Mock early access hotspots ──────────────────────────
-const listBusinessHotspots = [
-  {
-    id: "ea-1",
-    title: "Skyline Rooftop Lounge",
-    category: "Nightlife",
-    area: "Ikoyi",
-    image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=400&h=300&fit=crop",
-    openingDate: "Coming March 2025",
-  },
-  {
-    id: "ea-2",
-    title: "AfroBeat Kitchen",
-    category: "Food & Dining",
-    area: "Lekki",
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=300&fit=crop",
-    openingDate: "Coming April 2025",
-  },
-  {
-    id: "ea-3",
-    title: "Lagos Art Collective",
-    category: "Culture & Arts",
-    area: "Yaba",
-    image: "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=400&h=300&fit=crop",
-    openingDate: "Coming February 2025",
-  },
-];
-
-// ─── Mock trending alerts ────────────────────────────────
-const listBusiness = [
-  { id: "ta-1", text: "🔥 Quilox just hit a 97 vibe score!", time: "2 min ago" },
-  { id: "ta-2", text: "⚡ New rooftop bar opening in Ikoyi this Friday", time: "15 min ago" },
-  { id: "ta-3", text: "🏖️ Elegushi Beach weekend party trending", time: "1 hour ago" },
-  { id: "ta-4", text: "🎵 Live Afrobeat at Bogobiri tonight", time: "3 hours ago" },
-];
+function formatRelative(iso: string): string {
+  const mins = Math.round((Date.now() - new Date(iso).getTime()) / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} h ago`;
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
 
 export default function DashboardHome() {
   const { navigate } = useRouter();
-  const { user } = useAuthStore();
-  const userTier = user?.tier || "explorer";
+  const { user, token } = useAuthStore();
   const { bookmarkedIds } = useBookmarkStore();
+  const maxSaves = TIER_FEATURES[user?.tier || "explorer"].maxSavedSpots;
 
-  // Fetch recommended hotspots: prefer categories derived from saved spots, fall back to trending
-  const [recommendedHotspots, setRecommendedHotspots] = useState<
-    PublicHotspot[]
-  >([]);
+  const bookings = useQuery(
+    api.bookmarks.listBookings,
+    token ? { token, role: "guest" } : "skip"
+  ) as Booking[] | undefined;
+  const threads = useQuery(api.bookmarks.listThreads, token ? { token } : "skip") as
+    | Thread[]
+    | undefined;
 
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = (bookings ?? [])
+    .filter((b) => b.date >= today && (b.status === "pending" || b.status === "confirmed"))
+    .sort((a, b) => (a.date + (a.time ?? "")).localeCompare(b.date + (b.time ?? "")));
+  const unread = (threads ?? []).reduce((sum, t) => sum + t.unreadCount, 0);
+
+  // Recommendations: spots in the categories of saved spots, else trending ones.
+  const [recommended, setRecommended] = useState<PublicHotspot[] | null>(null);
   useEffect(() => {
     let cancelled = false;
-    const categorySet = new Set<string>();
-    const resolveCategories = async () => {
-      // Fetch the bookmarked hotspots to extract their categories
-      const ids = [...bookmarkedIds];
-      if (ids.length > 0) {
-        const hotspots = await Promise.all(
-          ids.slice(0, 8).map((id) =>
-            (convex.query(api.hotspots.detail, { id }) as Promise<PublicHotspot | null>)
-              .catch(() => null)
+    (async () => {
+      const saved = await Promise.all(
+        bookmarkedIds.slice(0, 8).map((id) =>
+          (convex.query(api.hotspots.detail, { id }) as Promise<PublicHotspot | null>).catch(
+            () => null
           )
-        );
-        for (const hotspot of hotspots) {
-          if (hotspot?.category) categorySet.add(hotspot.category);
-        }
-      }
-
-      // Pick a query — first category if any, else trending
-      const category = [...categorySet][0];
-      const hotspots = (await convex
+        )
+      );
+      const category = saved.find((h) => h?.category)?.category;
+      const spots = (await convex
         .query(api.hotspots.feed, category ? { category, sort: "rating" } : { sort: "trending" })
         .catch(() => null)) as PublicHotspot[] | null;
-      if (!hotspots || cancelled) return;
-      setRecommendedHotspots(
-        hotspots.filter((h) => !bookmarkedIds.includes(h.id)).slice(0, 3)
-      );
-    };
-    resolveCategories();
+      if (cancelled) return;
+      setRecommended((spots ?? []).filter((h) => !bookmarkedIds.includes(h.id)).slice(0, 3));
+    })();
     return () => {
       cancelled = true;
     };
   }, [bookmarkedIds]);
 
-  const isHotspotOwner = userTier === "hotspot";
+  const firstName = user?.name?.trim().split(/\s+/)[0];
+
+  const stats = [
+    {
+      label: "Saved spots",
+      value: bookmarkedIds.length,
+      detail: `of ${maxSaves}`,
+      icon: Bookmark,
+      route: "dashboard-saved" as const,
+    },
+    {
+      label: "Upcoming reservations",
+      value: bookings === undefined ? null : upcoming.length,
+      detail: null,
+      icon: CalendarDays,
+      route: "dashboard-reservations" as const,
+    },
+    {
+      label: "Conversations",
+      value: threads === undefined ? null : threads.length,
+      detail: unread > 0 ? `${unread} unread` : null,
+      icon: MessageCircle,
+      route: "dashboard-messages" as const,
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Welcome Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">
-            Hey, {user?.name?.split(" ")[0] || "Explorer"}! 🔥
-          </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Here&apos;s your Lagos hotspot dashboard. Keep discovering the best spots!
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="relative">
-            <Bell className="h-4 w-4" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center">
-              3
-            </span>
-          </Button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">
+          {firstName ? `Welcome back, ${firstName}` : "Welcome back"}
+        </h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Your saved spots, reservations and messages in one place.
+        </p>
       </div>
 
-      {/* Tier Info Card */}
-      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-white">
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Flame className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-foreground">
-                    {TIER_LABELS[userTier]} Tier
-                  </p>
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${TIER_BG_COLORS[userTier]}`}>
-                    {TIER_LABELS[userTier]}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {userTier === "explorer" && "Save up to 10 spots • Basic search"}
-                    {isHotspotOwner && "List your business • Simple analytics • Contact info"}
-
-                </p>
-              </div>
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {stats.map((stat) => (
+          <button
+            key={stat.label}
+            onClick={() => navigate(stat.route)}
+            className="text-left rounded-xl border bg-card p-5 hover:shadow-md motion-safe:transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <div className="flex items-start justify-between">
+              <p className="text-sm text-muted-foreground">{stat.label}</p>
+              <stat.icon className="h-5 w-5 text-primary" aria-hidden="true" />
             </div>
-            {userTier !== "hotspot" && (
-              <Button
-                size="sm"
-                variant={userTier === "explorer" ? "default" : "outline"}
-                onClick={() => navigate("home")}
-                className="shrink-0"
-              >
-                <Flame className="h-3.5 w-3.5 mr-1.5" />
-                Upgrade Tier
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Early Access Section (Scout+) */}
-      <Card className={isHotspotOwner ? "border-primary/20" : "border-muted opacity-75"}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Early Access</CardTitle>
-              {isHotspotOwner ? (
-                <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                  Scout+
-                </Badge>
-              ) : (
-                <Lock className="h-4 w-4 text-muted-foreground" />
+            <p className="mt-3 text-3xl font-bold text-foreground tabular-nums">
+              {stat.value ?? "—"}
+              {stat.detail && (
+                <span className="ml-1.5 text-sm font-normal text-muted-foreground">
+                  {stat.detail}
+                </span>
               )}
-            </div>
-            {!isHotspotOwner && (
-              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
-                Upgrade to Scout
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isHotspotOwner ? (
-            <>
-              <p className="text-xs text-muted-foreground mb-4">
-                Available to Scout+ members before public launch
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {listBusinessHotspots.map((spot) => (
-                  <div key={spot.id} className="relative rounded-lg overflow-hidden group">
-                    {spot.image && (
-                      <img
-                        src={spot.image}
-                        alt={spot.title}
-                        className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                    <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground border-0 text-[10px]">
-                      Early Access
-                    </Badge>
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <h4 className="text-sm font-semibold text-white line-clamp-1">{spot.title}</h4>
-                      <p className="text-[10px] text-white/70">{spot.category} • {spot.area}</p>
-                      <p className="text-[10px] text-primary font-medium mt-0.5">{spot.openingDate}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-6">
-              <Lock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Upgrade to Scout to see hotspots before they launch publicly
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Personalized Recommendations (Scout+) */}
-      <Card className={isHotspotOwner ? "" : "border-muted opacity-75"}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Compass className="h-5 w-5 text-primary" />
-              <CardTitle className="text-lg">Recommended for You</CardTitle>
-              {isHotspotOwner ? (
-                <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
-                  Scout+
-                </Badge>
-              ) : (
-                <Lock className="h-4 w-4 text-muted-foreground" />
-              )}
-            </div>
-            {!isHotspotOwner && (
-              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
-                Upgrade to Scout
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isHotspotOwner ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {recommendedHotspots.map((spot) => (
-                <Card
-                  key={spot.id}
-                  className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer group"
-                  onClick={() => navigate("hotspot", { id: spot.id })}
-                >
-                  <div className="relative h-28 overflow-hidden">
-                    {spot.image && (
-                      <img
-                        src={spot.image}
-                        alt={spot.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
-                    <div className="absolute top-2 left-2 bg-foreground/85 text-background px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-0.5">
-                      <Flame className="h-2.5 w-2.5 text-primary" />
-                      {spot.vibeScore}
-                    </div>
-                  </div>
-                  <CardContent className="p-3">
-                    <h4 className="text-sm font-semibold text-foreground line-clamp-1">{spot.title}</h4>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                      <MapPin className="h-3 w-3" />
-                      {spot.area}
-                      <span className="mx-0.5">·</span>
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                      {spot.rating}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <Lock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Upgrade to Scout for personalized hotspot recommendations
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Trending Alerts (Scout+) */}
-      <Card className={isHotspotOwner ? "border-orange-200 bg-orange-50/30" : "border-muted opacity-75"}>
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-orange-500" />
-              <CardTitle className="text-lg">Trending Alerts</CardTitle>
-              {isHotspotOwner ? (
-                <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-[10px]">
-                  Scout+
-                </Badge>
-              ) : (
-                <Lock className="h-4 w-4 text-muted-foreground" />
-              )}
-            </div>
-            {!isHotspotOwner && (
-              <Button variant="outline" size="sm" onClick={() => navigate("home")}>
-                Upgrade to Scout
-              </Button>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isHotspotOwner ? (
-            <div className="space-y-2">
-              {listBusiness.map((alert) => (
-                <div
-                  key={alert.id}
-                  className="flex items-center justify-between p-3 bg-white rounded-lg border border-orange-100 hover:border-orange-200 transition-colors"
-                >
-                  <p className="text-sm text-foreground">{alert.text}</p>
-                  <span className="text-[10px] text-muted-foreground shrink-0 ml-3">{alert.time}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <Lock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">
-                Upgrade to Scout for real-time trending alerts
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {dashboardStats.map((stat) => {
-          const IconComp = iconMap[stat.icon] || Heart;
-          return (
-            <Card key={stat.label} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                    <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <IconComp className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-                {stat.change && (
-                  <div className="flex items-center gap-1 mt-3">
-                    <TrendingUp className="h-3.5 w-3.5 text-green-600" />
-                    <span className="text-xs font-medium text-green-600">
-                      {stat.change}
-                    </span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+            </p>
+          </button>
+        ))}
       </div>
 
-      {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activities */}
+        {/* Upcoming reservations */}
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Recent Activity</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Upcoming reservations</CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:text-primary/80"
+                onClick={() => navigate("dashboard-reservations")}
+              >
+                View all
+                <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-0">
-            {recentActivities.map((activity, index) => {
-              const ActIcon = activityIconMap[activity.type] || Clock;
-              return (
-                <div key={activity.id}>
-                  <div className="flex items-start gap-3 py-3">
-                    <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <ActIcon className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground leading-snug">
-                        {activity.text}
+            {bookings === undefined ? (
+              <p className="py-6 text-sm text-muted-foreground">Loading…</p>
+            ) : upcoming.length === 0 ? (
+              <div className="py-6 text-center">
+                <p className="text-sm text-muted-foreground mb-3">
+                  No reservations coming up. Find a spot and reserve a table.
+                </p>
+                <Button variant="outline" size="sm" onClick={() => navigate("explore")}>
+                  Explore spots
+                </Button>
+              </div>
+            ) : (
+              upcoming.slice(0, 3).map((b, i) => (
+                <div key={b.id}>
+                  <button
+                    onClick={() => navigate("hotspot", { id: b.listingId })}
+                    className="w-full flex items-center justify-between gap-3 py-3 text-left"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {b.listing.title}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {activity.time}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatBookingDate(b.date, b.time)}
+                        {b.partySize ? ` · ${b.partySize} ${b.partySize === 1 ? "person" : "people"}` : ""}
                       </p>
                     </div>
-                  </div>
-                  {index < recentActivities.length - 1 && <Separator />}
+                    <Badge
+                      className={`border-0 capitalize text-xs ${STATUS_STYLES[b.status] ?? "bg-muted text-muted-foreground"}`}
+                    >
+                      {b.status}
+                    </Badge>
+                  </button>
+                  {i < Math.min(upcoming.length, 3) - 1 && <Separator />}
                 </div>
-              );
-            })}
+              ))
+            )}
           </CardContent>
         </Card>
 
-        {/* Messages Preview */}
+        {/* Recent messages */}
         <Card>
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -437,50 +246,110 @@ export default function DashboardHome() {
                 className="text-primary hover:text-primary/80"
                 onClick={() => navigate("dashboard-messages")}
               >
-                View All
+                View all
                 <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-0">
-            {messages.map((msg, index) => (
-              <div key={msg.id}>
-                <div className="flex items-center gap-3 py-3 cursor-pointer hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
-                      {msg.avatar}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {msg.sender}
+            {threads === undefined ? (
+              <p className="py-6 text-sm text-muted-foreground">Loading…</p>
+            ) : threads.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                No messages yet. Use &ldquo;Message host&rdquo; on a spot&apos;s page to ask a
+                question.
+              </p>
+            ) : (
+              threads.slice(0, 3).map((t, i) => (
+                <div key={t.id}>
+                  <button
+                    onClick={() => navigate("dashboard-messages", { threadId: t.id })}
+                    className="w-full flex items-center gap-3 py-3 text-left"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {t.listing.title}
+                        </p>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {formatRelative(t.lastMessageAt)}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate mt-0.5">
+                        {t.lastMessage?.body ?? "No messages yet"}
                       </p>
-                      <span className="text-xs text-muted-foreground shrink-0 ml-2">
-                        {msg.time}
-                      </span>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">
-                      {msg.text}
-                    </p>
-                  </div>
-                  {msg.unread > 0 && (
-                    <span className="h-5 min-w-[20px] px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center shrink-0">
-                      {msg.unread}
-                    </span>
-                  )}
+                    {t.unreadCount > 0 && (
+                      <span
+                        className="h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center shrink-0"
+                        aria-label={`${t.unreadCount} unread`}
+                      >
+                        {t.unreadCount}
+                      </span>
+                    )}
+                  </button>
+                  {i < Math.min(threads.length, 3) - 1 && <Separator />}
                 </div>
-                {index < messages.length - 1 && <Separator />}
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Recommendations */}
+      {recommended && recommended.length > 0 && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Recommended for you</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {recommended.map((spot) => (
+                <a
+                  key={spot.id}
+                  href={`#/hotspot?id=${encodeURIComponent(spot.id)}`}
+                  className="block rounded-lg border overflow-hidden hover:shadow-md motion-safe:transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <div className="relative h-28 overflow-hidden">
+                    <SpotPhoto
+                      src={spot.image}
+                      alt=""
+                      category={spot.category}
+                      className="w-full h-full"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-2 left-2 bg-foreground/85 text-background px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-0.5">
+                      <Flame className="h-3 w-3 text-primary" aria-hidden="true" />
+                      {spot.vibeScore}
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-sm font-semibold text-foreground line-clamp-1">
+                      {spot.title}
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                      <MapPin className="h-3 w-3" aria-hidden="true" />
+                      {spot.area}
+                      {spot.reviews > 0 && (
+                        <>
+                          <span className="mx-0.5">·</span>
+                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
+                          {spot.rating}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick actions */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Quick Actions</CardTitle>
+          <CardTitle className="text-lg">Quick actions</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -490,8 +359,8 @@ export default function DashboardHome() {
               onClick={() => navigate("explore")}
             >
               <Compass className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Explore Spots</span>
-              <span className="text-[10px] text-muted-foreground">Discover Lagos hotspots</span>
+              <span className="text-sm font-medium">Explore spots</span>
+              <span className="text-xs text-muted-foreground">Discover Lagos hotspots</span>
             </Button>
             <Button
               variant="outline"
@@ -499,8 +368,8 @@ export default function DashboardHome() {
               onClick={() => navigate("dashboard-add-spot")}
             >
               <PlusCircle className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Add Spot</span>
-              <span className="text-[10px] text-muted-foreground">Submit a new hotspot</span>
+              <span className="text-sm font-medium">Add a spot</span>
+              <span className="text-xs text-muted-foreground">Submit a new hotspot</span>
             </Button>
             <Button
               variant="outline"
@@ -508,8 +377,8 @@ export default function DashboardHome() {
               onClick={() => navigate("dashboard-saved")}
             >
               <Bookmark className="h-5 w-5 text-primary" />
-              <span className="text-sm font-medium">Saved Spots</span>
-              <span className="text-[10px] text-muted-foreground">Your bookmarked places</span>
+              <span className="text-sm font-medium">Saved spots</span>
+              <span className="text-xs text-muted-foreground">Your bookmarked places</span>
             </Button>
           </div>
         </CardContent>
