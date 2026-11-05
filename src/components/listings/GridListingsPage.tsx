@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { SpotPhoto } from "./SpotPhoto";
+import { VibeBadge } from "./VibeBadge";
 import { isOpenNow, openStateLabel } from "@/lib/hours";
 import {
   Sheet,
@@ -84,24 +85,6 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-// ─── Vibe Badge ──────────────────────────────────────────
-function VibeBadge({ score }: { score: number }) {
-  const color =
-    score >= 90
-      ? "bg-red-500 text-white"
-      : score >= 75
-        ? "bg-orange-500 text-white"
-        : score >= 50
-          ? "bg-amber-500 text-white"
-          : "bg-gray-500 text-white";
-  return (
-    <Badge className={`${color} text-xs font-bold border-0 gap-0.5 px-1.5 py-0.5`}>
-      <Flame className="h-3 w-3" />
-      {score}
-    </Badge>
-  );
-}
-
 // ─── Hotspot Card ────────────────────────────────────────
 function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: "grid" | "list" }) {
   const { user } = useAuthStore();
@@ -137,7 +120,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
               loading="lazy"
             />
             <div className="absolute top-2 left-2 flex flex-col gap-1">
-              <VibeBadge score={hotspot.vibeScore} />
+              <VibeBadge score={hotspot.vibeScore} reviews={hotspot.reviews} />
               {openStatus && (
                 <Badge className={`text-xs font-medium border-0 ${openStatus.className}`}>
                   {openStatus.label}
@@ -222,7 +205,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
           loading="lazy"
         />
         <div className="absolute top-2 left-2 flex flex-col gap-1">
-          <VibeBadge score={hotspot.vibeScore} />
+          <VibeBadge score={hotspot.vibeScore} reviews={hotspot.reviews} />
           {openStatus && (
             <Badge className={`text-xs font-medium border-0 ${openStatus.className}`}>
               {openStatus.label}

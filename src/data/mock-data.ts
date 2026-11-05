@@ -300,10 +300,10 @@ export const helpArticles: HelpArticle[] = [
     icon: "Flame",
     slug: "understanding-vibe-scores",
     content: [
-      "The Vibe Score is Lagos Hotspot's unique way of measuring how 'hot' a spot is right now. Scores range from 0 to 100, with higher scores indicating a spot that's currently trending, popular, and highly recommended by the community.",
-      "Vibe Scores are calculated from multiple factors: review ratings and recency (40%), current popularity and visit frequency (25%), social media buzz and mentions (20%), and listing completeness (15%). This means a spot can't simply buy a high score — it must be earned through genuine popularity and community engagement.",
-      "A score above 80 means the spot is currently very hot and trending — expect it to be busy, especially on weekends. Scores between 60-79 indicate a popular, well-regarded spot. Scores below 60 might mean the spot is new, hasn't been reviewed much yet, or is currently less popular.",
-      "Vibe Scores are updated weekly, so they reflect the current state of a spot rather than historical performance. This means seasonal spots like beach clubs might have higher scores in dry season and lower scores during the rains. Always check the score before heading out!"
+      "The vibe score is a number from 0 to 100 that sums up how well a spot is doing on Lagos Hotspot. It is worked out from the spot's reviews, so it changes as soon as a new review is approved.",
+      "Every reviewed spot starts at 60. The average star rating adds up to 25 points (5 points per star), the number of reviews adds up to 15 points (one per review), being marked trending by our team adds 5, and being verified by our team adds 3. Scores are capped at 99.",
+      "A spot with no reviews yet shows New instead of a score, because a score with nothing behind it would be misleading. Owners cannot pay for a higher score.",
+      "As a rough guide: 85 and above means a well-rated spot with plenty of reviews; 70 to 84 means good ratings or a handful of reviews; below 70 means few reviews or mixed ratings so far."
     ],
   },
   {
@@ -364,7 +364,7 @@ export const faqItems: FAQItem[] = [
   },
   {
     question: "How are vibe scores calculated?",
-    answer: "Vibe scores (0-100) are calculated based on a combination of factors including review ratings, popularity, social media buzz, and how recently the spot has been active. A score above 80 means the spot is currently very hot and trending!",
+    answer: "From reviews. Every reviewed spot starts at 60, then gains up to 25 points from its average star rating, up to 15 from its number of reviews, 5 if our team marks it trending and 3 if it is verified, capped at 99. Spots with no reviews show New instead of a score.",
     category: "Features",
   },
   {

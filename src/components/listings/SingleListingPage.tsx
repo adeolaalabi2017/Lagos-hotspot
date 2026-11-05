@@ -355,37 +355,60 @@ export default function SingleListingPage() {
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Main Content — Left 2/3 */}
           <div className="lg:w-2/3">
-            {/* Vibe Score */}
+            {/* Vibe Score: what the number is, and how it is worked out */}
             <Card className="mb-6 overflow-hidden">
               <CardContent className="p-4 sm:p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Flame className="h-5 w-5 text-orange-500" />
-                    <span className="font-semibold text-foreground">Vibe Score</span>
+                {hotspot.reviews === 0 ? (
+                  <div className="flex items-start gap-3">
+                    <Flame className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" aria-hidden="true" />
+                    <div>
+                      <h2 className="font-medium text-foreground">No vibe score yet</h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        The score starts once people review this spot.{" "}
+                        <button
+                          type="button"
+                          onClick={() => router.navigate("help-article", { articleId: "3" })}
+                          className="text-foreground underline underline-offset-4 hover:text-primary"
+                        >
+                          How the vibe score works
+                        </button>
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-2xl font-bold text-primary">{hotspot.vibeScore}</span>
-                </div>
-                <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${hotspot.vibeScore}%`,
-                      background:
-                        hotspot.vibeScore >= 90
-                          ? "linear-gradient(90deg, #ef4444, #f97316)"
-                          : hotspot.vibeScore >= 75
-                            ? "linear-gradient(90deg, #f97316, #eab308)"
-                            : "linear-gradient(90deg, #eab308, #a3a3a3)",
-                    }}
-                  />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {hotspot.vibeScore >= 90
-                    ? "🔥 One of the hottest spots in Lagos right now!"
-                    : hotspot.vibeScore >= 75
-                      ? "⚡ Very popular with the Lagos crowd"
-                      : "👍 A solid choice for a good time"}
-                </p>
+                ) : (
+                  <>
+                    <div className="flex items-end justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Flame className="h-5 w-5 text-primary" aria-hidden="true" />
+                        <h2 className="font-medium text-foreground">Vibe score</h2>
+                      </div>
+                      <p className="tabular-nums">
+                        <span className="font-display text-3xl font-medium text-foreground">{hotspot.vibeScore}</span>
+                        <span className="text-sm text-muted-foreground"> / 100</span>
+                      </p>
+                    </div>
+                    <div
+                      className="w-full h-2 bg-muted rounded-full overflow-hidden"
+                      role="meter"
+                      aria-label="Vibe score"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={hotspot.vibeScore}
+                    >
+                      <div className="h-full rounded-full bg-primary" style={{ width: `${hotspot.vibeScore}%` }} />
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-3">
+                      From {hotspot.reviews} {hotspot.reviews === 1 ? "review" : "reviews"} averaging {hotspot.rating.toFixed(1)} stars.{" "}
+                      <button
+                        type="button"
+                        onClick={() => router.navigate("help-article", { articleId: "3" })}
+                        className="text-foreground underline underline-offset-4 hover:text-primary"
+                      >
+                        How the vibe score works
+                      </button>
+                    </p>
+                  </>
+                )}
               </CardContent>
             </Card>
 
