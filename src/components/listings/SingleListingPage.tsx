@@ -30,7 +30,6 @@ import {
   ShieldCheck,
   MessageCircle,
   Instagram,
-  ExternalLink,
   ChevronLeft,
   Check,
   Wifi,
@@ -233,7 +232,29 @@ export default function SingleListingPage() {
   const features = hotspot.amenities || [];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24 lg:pb-0">
+      {/* Phone booking bar: the main action stays in reach while reading */}
+      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur-sm px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-2">
+          <ReserveButton
+            hotspotId={hotspot.id}
+            hotspotTitle={hotspot.title}
+            size="lg"
+            className="flex-1"
+          />
+          <Button variant="outline" size="lg" asChild className="px-3">
+            <a
+              href={`https://wa.me/${whatsappNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`WhatsApp ${hotspot.title}`}
+            >
+              <MessageCircle className="h-5 w-5 text-green-700" />
+            </a>
+          </Button>
+        </div>
+      </div>
+
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         <Button
@@ -535,81 +556,70 @@ export default function SingleListingPage() {
                   <span className="text-sm text-muted-foreground">{hotspot.phone}</span>
                 </div>
 
-                <Separator />
+                {/* Open state from the opening hours, hidden when none are on file */}
+                <OpenNowRow hours={hotspot.openingHours} legacyIsOpen={hotspot.isOpen} />
 
-                <div className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 shrink-0" />
-                  <Badge
-                    className={`text-xs border-0 ${
-                      hotspot.isOpen
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {hotspot.isOpen ? "Currently Open" : "Currently Closed"}
-                  </Badge>
-                </div>
-
-                {/* Reserve CTA */}
-                <ReserveButton
-                  hotspotId={hotspot.id}
-                  hotspotTitle={hotspot.title}
-                  className="w-full"
-                />
-
-                {/* WhatsApp CTA */}
-                <a
-                  href={`https://wa.me/${whatsappNumber}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
-                  <Button className="w-full bg-green-700 hover:bg-green-800 text-white">
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    Chat on WhatsApp
-                  </Button>
-                </a>
-
-                {/* Message host (in-app) */}
-                <div className="w-full">
-                  <StartConversationLink
+                {/* Booking: one main action, two quieter ways to get in touch */}
+                <div className="space-y-2 pt-2">
+                  <ReserveButton
                     hotspotId={hotspot.id}
                     hotspotTitle={hotspot.title}
-                    variant="outline"
+                    size="lg"
+                    className="w-full"
                   />
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="outline" asChild>
+                      <a
+                        href={`https://wa.me/${whatsappNumber}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageCircle className="h-4 w-4 text-green-700" />
+                        WhatsApp
+                      </a>
+                    </Button>
+                    <StartConversationLink
+                      hotspotId={hotspot.id}
+                      hotspotTitle={hotspot.title}
+                      variant="outline"
+                      label="Message"
+                      className="w-full"
+                    />
+                  </div>
                 </div>
 
-                {/* Instagram link */}
-                <a
-                  href={`https://instagram.com/${hotspot.instagramHandle.replace("@", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block"
-                >
-                  <Button variant="outline" className="w-full">
-                    <Instagram className="h-4 w-4 mr-2" />
-                    {hotspot.instagramHandle}
-                    <ExternalLink className="h-3 w-3 ml-1" />
-                  </Button>
-                </a>
+                <Separator />
 
-                {/* Share & Report */}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
+                {/* Secondary links: plain text, not buttons */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                  {hotspot.instagramHandle && (
+                    <a
+                      href={`https://instagram.com/${hotspot.instagramHandle.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground motion-safe:transition-colors"
+                    >
+                      <Instagram className="h-4 w-4" />
+                      {hotspot.instagramHandle}
+                    </a>
+                  )}
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground motion-safe:transition-colors"
                     onClick={() => {
                       navigator.clipboard?.writeText(window.location.href);
-                      toast.success("Link copied to clipboard!");
+                      toast.success("Link copied");
                     }}
                   >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
+                    <Share2 className="h-4 w-4" />
+                    Copy link
+                  </button>
                   <ReportButton
                     target={{ hotspotId: hotspot.id }}
                     subject={hotspot.title}
-                    className="flex-1"
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto px-0 font-normal text-muted-foreground hover:bg-transparent hover:text-foreground"
                   />
                 </div>
               </CardContent>
@@ -675,19 +685,37 @@ interface OpenNowBadgeProps {
   legacyIsOpen: boolean;
 }
 
-function OpenNowBadge({ hours, legacyIsOpen }: OpenNowBadgeProps) {
+function useOpenState(hours: OpenNowBadgeProps["hours"], legacyIsOpen: boolean | undefined): OpenState {
   const [now, setNow] = useState<Date>(() => new Date());
   React.useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(t);
   }, []);
-  const state: OpenState = useMemo(
+  return useMemo(
     () =>
       hours && hours.length > 0
         ? isOpenNow(hours, legacyIsOpen, now)
         : isOpenNow(null, legacyIsOpen, now),
     [hours, legacyIsOpen, now]
   );
+}
+
+function OpenNowRow({ hours, legacyIsOpen }: OpenNowBadgeProps) {
+  const state = useOpenState(hours, legacyIsOpen);
+  if (state.state === "unknown") return null;
+  return (
+    <>
+      <Separator />
+      <div className="flex items-center gap-3">
+        <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <OpenNowBadge hours={hours} legacyIsOpen={legacyIsOpen} />
+      </div>
+    </>
+  );
+}
+
+function OpenNowBadge({ hours, legacyIsOpen }: OpenNowBadgeProps) {
+  const state = useOpenState(hours, legacyIsOpen);
   if (state.state === "open-now") {
     return (
       <Badge className="bg-emerald-700 text-white border-0 text-xs">

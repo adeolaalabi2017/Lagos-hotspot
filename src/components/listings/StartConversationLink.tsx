@@ -24,6 +24,8 @@ interface StartConversationLinkProps {
   hotspotTitle: string;
   variant?: "default" | "outline" | "ghost";
   size?: "default" | "sm" | "lg" | "icon";
+  className?: string;
+  label?: string;
 }
 
 export function StartConversationLink({
@@ -31,6 +33,8 @@ export function StartConversationLink({
   hotspotTitle,
   variant = "default",
   size = "default",
+  className,
+  label = "Message host",
 }: StartConversationLinkProps) {
   const { navigate } = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -70,10 +74,11 @@ export function StartConversationLink({
       <Button
         variant={variant}
         size={size}
+        className={className}
         onClick={() => navigate("login")}
       >
-        <MessageCircle className="h-4 w-4 mr-2" />
-        Message host
+        <MessageCircle className="h-4 w-4" />
+        {label}
       </Button>
     );
   }
@@ -81,9 +86,9 @@ export function StartConversationLink({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={variant} size={size}>
-          <MessageCircle className="h-4 w-4 mr-2" />
-          Message host
+        <Button variant={variant} size={size} className={className}>
+          <MessageCircle className="h-4 w-4" />
+          {label}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
