@@ -259,7 +259,7 @@ export default function DashboardAddListing() {
         <CardContent>
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3">
-              {formData.images.map((img, i) => (
+              {images.map((img, i) => (
                 <div key={i} className="relative w-24 h-24 rounded-lg overflow-hidden border">
                   <img src={img.preview} alt="" className="w-full h-full object-cover" />
                   <button
@@ -272,7 +272,7 @@ export default function DashboardAddListing() {
                   </button>
                 </div>
               ))}
-              {formData.images.length < 5 && (
+              {images.length < 5 && (
                 <label className="w-24 h-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-primary/50 cursor-pointer flex items-center justify-center">
                   <input
                     type="file"

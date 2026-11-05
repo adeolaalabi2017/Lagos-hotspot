@@ -13,6 +13,7 @@ import { WriteReviewForm } from "./WriteReviewForm";
 import { StartConversationLink } from "./StartConversationLink";
 import { ReserveButton } from "./ReserveButton";
 import { ReportButton } from "./ReportButton";
+import { SpotPhoto } from "./SpotPhoto";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -249,13 +250,12 @@ export default function SingleListingPage() {
       {/* Hero Image Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
         <div className="relative rounded-xl overflow-hidden">
-          {hotspot.image && (
-            <img
-              src={hotspot.image}
-              alt={hotspot.title}
-              className="w-full h-[240px] sm:h-[340px] lg:h-[420px] object-cover"
-            />
-          )}
+          <SpotPhoto
+            src={hotspot.image}
+            alt={hotspot.title}
+            category={hotspot.category}
+            className="w-full h-[240px] sm:h-[340px] lg:h-[420px]"
+          />
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
@@ -288,6 +288,8 @@ export default function SingleListingPage() {
             size="icon"
             className="absolute top-4 right-4 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white"
             onClick={handleSave}
+            aria-label={isBookmarked ? "Remove from saved" : "Save spot"}
+            aria-pressed={isBookmarked}
           >
             <Heart
               className={`h-5 w-5 ${

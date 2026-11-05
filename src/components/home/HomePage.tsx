@@ -82,6 +82,7 @@ const HERO_WORDS = ["Pulse", "Vibe", "Rhythm", "Energy", "Soul", "Beat"] as cons
 const LONGEST_HERO_WORD = HERO_WORDS.reduce((a, b) => (a.length >= b.length ? a : b));
 
 import { useBrandAssets } from "@/lib/use-brand-assets";
+import { SpotPhoto } from "@/components/listings/SpotPhoto";
 
 const BRAND_FALLBACKS = {
   logo: "/images/lagos-hotspot-logo.png",
@@ -709,14 +710,13 @@ function HotspotCard({
       onClick={() => navigate("hotspot", { id: spot.id })}
     >
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-        {spot.image && (
-          <img
-            src={spot.image}
-            alt={`${spot.title} in ${spot.area}`}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
-          />
-        )}
+        <SpotPhoto
+          src={spot.image}
+          alt={`${spot.title} in ${spot.area}`}
+          category={spot.category}
+          loading="lazy"
+          className="w-full h-full group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
+        />
         {/* Vibe Score Badge */}
         <div className="absolute top-3 left-3 bg-black/70 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1">
           <Flame className="h-3 w-3 text-primary" />
@@ -785,14 +785,13 @@ function FeaturedCard({
       onClick={() => navigate("hotspot", { id: spot.id })}
     >
       <div className="relative aspect-video bg-muted overflow-hidden">
-        {spot.image && (
-          <img
-            src={spot.image}
-            alt={`${spot.title} in ${spot.area}`}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
-          />
-        )}
+        <SpotPhoto
+          src={spot.image}
+          alt={`${spot.title} in ${spot.area}`}
+          category={spot.category}
+          loading="lazy"
+          className="w-full h-full group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex items-center gap-2 mb-2">

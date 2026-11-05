@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { SpotPhoto } from "./SpotPhoto";
 import {
   Sheet,
   SheetContent,
@@ -131,14 +132,13 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
       >
         <div className="flex flex-col sm:flex-row">
           <div className="relative sm:w-72 sm:min-h-[200px] overflow-hidden">
-            {hotspot.image && (
-              <img
-                src={hotspot.image}
-                alt={hotspot.title}
-                className="w-full h-48 sm:h-full object-cover group-hover:scale-105 motion-safe:transition-transform duration-500"
-                loading="lazy"
-              />
-            )}
+            <SpotPhoto
+              src={hotspot.image}
+              alt={hotspot.title}
+              category={hotspot.category}
+              className="w-full h-48 sm:h-full group-hover:scale-105 motion-safe:transition-transform duration-500"
+              loading="lazy"
+            />
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               <VibeBadge score={hotspot.vibeScore} />
               <Badge
@@ -221,14 +221,13 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
       aria-label={`View ${hotspot.title} in ${hotspot.area}`}
     >
       <div className="relative overflow-hidden">
-        {hotspot.image && (
-          <img
-            src={hotspot.image}
-            alt={hotspot.title}
-            className="w-full h-48 sm:h-52 object-cover group-hover:scale-105 motion-safe:transition-transform duration-500"
-            loading="lazy"
-          />
-        )}
+        <SpotPhoto
+          src={hotspot.image}
+          alt={hotspot.title}
+          category={hotspot.category}
+          className="w-full h-48 sm:h-52 group-hover:scale-105 motion-safe:transition-transform duration-500"
+          loading="lazy"
+        />
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <VibeBadge score={hotspot.vibeScore} />
           <Badge
