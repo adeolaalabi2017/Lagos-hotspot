@@ -125,7 +125,7 @@ export default function TermsOfServicePage() {
           Terms of Service
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Last updated: January 15, 2025 · NDPR Compliant
+          Last updated: November 5, 2026 · NDPR Compliant
         </p>
       </div>
 
