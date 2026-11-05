@@ -1,5 +1,6 @@
 "use client";
 
+import { GuideCover } from "@/components/pages/GuideCover";
 import React, { useState } from "react";
 import { useQuery } from "convex/react";
 import { useRouter } from "@/lib/router";
@@ -352,17 +353,10 @@ export default function HomePage() {
               <Card
                 key={post.id}
                 className="overflow-hidden hover:-translate-y-0.5 hover:shadow-md motion-safe:transition-[transform,box-shadow] cursor-pointer group"
-                onClick={() => navigate("blog-detail", { id: post.id })}
+                onClick={() => navigate("blog-detail", { postId: post.id })}
               >
                 <div className="aspect-video bg-muted overflow-hidden">
-                  {post.image && (
-                    <img
-                      src={post.image}
-                      alt=""
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-[1.03] motion-safe:transition-transform motion-safe:duration-500"
-                    />
-                  )}
+                  <GuideCover src={post.image} category={post.category} className="w-full h-full group-hover:scale-[1.03] motion-safe:transition-transform motion-safe:duration-500" />
                 </div>
                 <CardContent className="p-5">
                   <p className="text-[13px] font-medium text-muted-foreground mb-2">{post.category}</p>

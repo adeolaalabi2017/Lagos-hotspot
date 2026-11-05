@@ -1,5 +1,6 @@
 "use client";
 
+import { GuideCover } from "@/components/pages/GuideCover";
 import React from "react";
 import { useRouter } from "@/lib/router";
 import { blogPosts } from "@/data/mock-data";
@@ -74,11 +75,6 @@ export default function BlogDetailPage() {
 
   return (
     <div>
-      <PageHero
-        title=""
-        subtitle=""
-      />
-
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Breadcrumb */}
         <Button
@@ -155,13 +151,7 @@ export default function BlogDetailPage() {
                 onClick={() => navigate("blog-detail", { postId: relPost.id })}
               >
                 <div className="h-40 overflow-hidden">
-                  {relPost.image && (
-                    <img
-                      src={relPost.image}
-                      alt={relPost.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  )}
+                  <GuideCover src={relPost.image} category={relPost.category} className="w-full h-full group-hover:scale-105 transition-transform duration-300" />
                 </div>
                 <CardContent className="pt-4">
                   <Badge variant="secondary" className="mb-2 text-xs">

@@ -1,5 +1,6 @@
 "use client";
 
+import { GuideCover } from "@/components/pages/GuideCover";
 import React, { useState } from "react";
 import { useRouter } from "@/lib/router";
 import { blogPosts } from "@/data/mock-data";
@@ -68,13 +69,7 @@ export default function BlogPage() {
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2">
                   <div className="h-56 sm:h-auto overflow-hidden">
-                    {featuredPost.image && (
-                      <img
-                        src={featuredPost.image}
-                        alt={featuredPost.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
+                    <GuideCover src={featuredPost.image} category={featuredPost.category} className="w-full h-full group-hover:scale-105 transition-transform duration-300" />
                   </div>
                   <CardContent className="flex flex-col justify-center py-6">
                     <Badge className="w-fit mb-3">{featuredPost.category}</Badge>
@@ -130,13 +125,7 @@ export default function BlogPage() {
                   onClick={() => navigate("blog-detail", { postId: post.id })}
                 >
                   <div className="h-48 overflow-hidden">
-                    {post.image && (
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    )}
+                    <GuideCover src={post.image} category={post.category} className="w-full h-full group-hover:scale-105 transition-transform duration-300" />
                   </div>
                   <CardContent className="pt-4">
                     <Badge variant="secondary" className="mb-2">
@@ -225,13 +214,7 @@ export default function BlogPage() {
                     <React.Fragment key={post.id}>
                       <div className="flex gap-3 cursor-pointer group" onClick={() => navigate("blog-detail", { postId: post.id })}>
                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0">
-                          {post.image && (
-                            <img
-                              src={post.image}
-                              alt={post.title}
-                              className="w-full h-full object-cover"
-                            />
-                          )}
+                          <GuideCover src={post.image} category={post.category} className="w-full h-full" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors line-clamp-2">
