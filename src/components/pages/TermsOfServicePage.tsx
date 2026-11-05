@@ -53,7 +53,7 @@ const sections = [
     title: "Vibe Scores & Verification",
     icon: Shield,
     content:
-      "Lagos Hotspot's Vibe Score system is designed to provide an objective assessment of hotspot popularity and quality based on verified data including customer reviews, visit frequency, social media buzz, and listing completeness. Vibe Scores are calculated algorithmically and cannot be purchased or manipulated. Business owners may apply for verified status by submitting required documentation. Verification status is subject to periodic review and may be revoked if the business no longer meets our standards. Lagos Hotspot makes no guarantees regarding the accuracy of Vibe Scores and encourages users to exercise their own judgment.",
+      "A Vibe Score is a number from 0 to 100 that summarises how a hotspot is rated on Lagos Hotspot. It is calculated automatically from the hotspot's approved reviews (its average star rating and number of reviews), together with whether our team has verified the hotspot or marked it as trending. A hotspot with no reviews shows \"New\" instead of a score. Vibe Scores cannot be purchased, and business owners cannot set or change their own score. Business owners may apply for verified status by submitting required documentation. Verification status is subject to periodic review and may be revoked if the business no longer meets our standards. Lagos Hotspot makes no guarantees regarding the accuracy of Vibe Scores and encourages users to exercise their own judgment.",
   },
   {
     id: "dispute-resolution",
@@ -125,7 +125,7 @@ export default function TermsOfServicePage() {
           Terms of Service
         </h1>
         <p className="mt-3 text-muted-foreground">
-          Last updated: January 15, 2025 · NDPR Compliant
+          Last updated: November 5, 2026 · NDPR Compliant
         </p>
       </div>
 
