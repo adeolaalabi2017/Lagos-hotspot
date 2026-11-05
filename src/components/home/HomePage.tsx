@@ -70,6 +70,7 @@ const iconMap: Record<string, React.ElementType> = {
 
 import { useBrandAssets } from "@/lib/use-brand-assets";
 import { SpotPhoto } from "@/components/listings/SpotPhoto";
+import { VibeBadge } from "@/components/listings/VibeBadge";
 import { isOpenNow, openStateLabel } from "@/lib/hours";
 
 const BRAND_FALLBACKS = {
@@ -488,11 +489,7 @@ function HotspotCard({
           loading="lazy"
           className="w-full h-full group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
         />
-        {/* Vibe Score Badge */}
-        <div className="absolute top-3 left-3 bg-black/70 text-white px-2.5 py-1 rounded-full text-[13px] font-medium tabular-nums flex items-center gap-1">
-          <Flame className="h-3 w-3 text-primary" />
-          {spot.vibeScore}
-        </div>
+        <VibeBadge score={spot.vibeScore} reviews={spot.reviews} className="absolute top-3 left-3" />
         {/* Save Button */}
         <button
           onClick={handleSave}
@@ -516,7 +513,7 @@ function HotspotCard({
       </div>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-medium line-clamp-1">{spot.title}</h3>
+          <h3 className="text-lg font-medium leading-snug line-clamp-1">{spot.title}</h3>
           <div className="flex items-center gap-1 shrink-0">
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             <span className="text-sm font-medium">{spot.rating}</span>
@@ -576,7 +573,7 @@ function FeaturedCard({
               {spot.rating}
             </Badge>
           </div>
-          <h3 className="font-display text-2xl font-medium tracking-tight text-white">{spot.title}</h3>
+          <h3 className="text-lg font-medium leading-snug text-white">{spot.title}</h3>
         </div>
       </div>
       <CardContent className="p-4">

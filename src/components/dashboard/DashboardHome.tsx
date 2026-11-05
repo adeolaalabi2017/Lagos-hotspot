@@ -9,6 +9,7 @@ import type { PublicHotspot } from "@/lib/public-listing";
 import { convex } from "@/components/convex-provider";
 import { api } from "@/lib/convex-api";
 import { SpotPhoto } from "@/components/listings/SpotPhoto";
+import { VibeBadge } from "@/components/listings/VibeBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -318,10 +319,7 @@ export default function DashboardHome() {
                       className="w-full h-full"
                       loading="lazy"
                     />
-                    <div className="absolute top-2 left-2 bg-foreground/85 text-background px-2 py-0.5 rounded-full text-xs font-bold flex items-center gap-0.5">
-                      <Flame className="h-3 w-3 text-primary" aria-hidden="true" />
-                      {spot.vibeScore}
-                    </div>
+                    <VibeBadge score={spot.vibeScore} reviews={spot.reviews} className="absolute top-2 left-2" />
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-semibold text-foreground line-clamp-1">
