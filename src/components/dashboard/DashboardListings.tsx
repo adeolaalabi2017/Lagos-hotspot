@@ -1,139 +1,105 @@
 "use client";
 
 import React, { useState } from "react";
+import { useQuery } from "convex/react";
 import { useRouter } from "@/lib/router";
-import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
+import { useAuthStore } from "@/lib/auth-store";
+import { api } from "@/lib/convex-api";
+import { SpotPhoto } from "@/components/listings/SpotPhoto";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, MapPin, Pencil, Trash2, Star, Flame, Lock } from "lucide-react";
-import { getStatusColor } from "@/lib/utils";
-import { toast } from "sonner";
+import { Plus, MapPin, Star } from "lucide-react";
 
-type SpotStatus = "Active" | "Pending";
-
+// Shape returned by convex/bookmarks.ts mySpots.
 interface MySpot {
   id: string;
   title: string;
-  area: string;
   category: string;
-  image: string;
-  status: SpotStatus;
+  area: string | null;
+  image: string | null;
+  status: string;
+  rejectReason: string | null;
   rating: number;
-  vibeScore: number;
+  reviewCount: number;
 }
 
-const mySpots: MySpot[] = [
-  { id: "1", title: "Yellow Chilli", area: "Victoria Island", category: "Food & Dining", image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop", status: "Active", rating: 4.8, vibeScore: 92 },
-  { id: "2", title: "Bogobiri House", area: "Ikoyi", category: "Culture & Arts", image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=400&h=300&fit=crop", status: "Active", rating: 4.6, vibeScore: 85 },
-  { id: "3", title: "Terra Kulture", area: "Victoria Island", category: "Culture & Arts", image: "https://images.unsplash.com/photo-1544967082-d9d25d867d66?w=400&h=300&fit=crop", status: "Pending", rating: 0, vibeScore: 0 },
+// "draft" is where an admin sends a submission back (see AdminHotspotsPage).
+const STATUS: Record<string, { label: string; className: string; help: string }> = {
+  published: {
+    label: "Live",
+    className: "bg-green-100 text-green-800",
+    help: "Visible to everyone on Lagos Hotspot.",
+  },
+  pending: {
+    label: "In review",
+    className: "bg-amber-100 text-amber-800",
+    help: "Our team checks every new spot before it goes live.",
+  },
+  draft: {
+    label: "Not published",
+    className: "bg-muted text-muted-foreground",
+    help: "Our team didn't publish this spot.",
+  },
+  archived: {
+    label: "Archived",
+    className: "bg-muted text-muted-foreground",
+    help: "No longer shown on Lagos Hotspot.",
+  },
+};
+
+const TABS = [
+  { value: "all", label: "All" },
+  { value: "published", label: "Live" },
+  { value: "pending", label: "In review" },
 ];
 
-function SpotCard({ spot, isHotspotOwner, featuredSpots, toggleFeatured }: {
-  spot: MySpot;
-  isHotspotOwner: boolean;
-  featuredSpots: Record<string, boolean>;
-  toggleFeatured: (id: string) => void;
-}) {
+function SpotCard({ spot }: { spot: MySpot }) {
   const { navigate } = useRouter();
-  const isFeatured = featuredSpots[spot.id] || false;
+  const status = STATUS[spot.status] ?? STATUS.draft;
 
   return (
-    <Card className={`overflow-hidden hover:shadow-md transition-shadow group ${isFeatured ? "ring-2 ring-amber-400/50" : ""}`}>
-      <div className="relative h-40 bg-gray-100 overflow-hidden">
-        {spot.image && (
-          <img
-            src={spot.image}
-            alt={spot.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        )}
-        <Badge
-          variant="outline"
-          className={`absolute top-3 right-3 ${getStatusColor(spot.status)}`}
-        >
-          {spot.status}
+    <Card className="overflow-hidden">
+      <div className="relative h-40 overflow-hidden">
+        <SpotPhoto
+          src={spot.image}
+          alt={spot.title}
+          category={spot.category}
+          className="w-full h-full"
+          loading="lazy"
+        />
+        <Badge className={`absolute top-3 right-3 border-0 text-xs ${status.className}`}>
+          {status.label}
         </Badge>
-        {isFeatured && (
-          <Badge className="absolute top-3 left-3 bg-amber-500 text-white border-0 text-[10px] flex items-center gap-0.5">
-            <Star className="h-3 w-3 fill-white" />
-            Featured
-          </Badge>
-        )}
       </div>
       <CardContent className="p-4">
-        <h3 className="font-semibold text-foreground text-sm mb-1 truncate">
-          {spot.title}
-        </h3>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
-          <MapPin className="h-3 w-3" />
-          {spot.area}
-        </div>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
-          <span className="text-primary font-medium">{spot.category}</span>
-          {spot.rating > 0 && (
-            <div className="flex items-center gap-1">
-              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+        <h3 className="font-semibold text-foreground text-sm mb-1 truncate">{spot.title}</h3>
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+          <MapPin className="h-3 w-3" aria-hidden="true" />
+          {[spot.area, spot.category].filter(Boolean).join(" · ")}
+          {spot.reviewCount > 0 && (
+            <>
+              <span className="mx-0.5">·</span>
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" aria-hidden="true" />
               {spot.rating}
-            </div>
-          )}
-          {spot.vibeScore > 0 && (
-            <div className="flex items-center gap-0.5">
-              <Flame className="h-3 w-3 text-primary" />
-              {spot.vibeScore}
-            </div>
+            </>
           )}
         </div>
-        {/* Featured Toggle (Ambassador only) */}
-        {isHotspotOwner && spot.status === "Active" && (
-          <div className="flex items-center justify-between py-2 mb-2 border-t border-b">
-            <div className="flex items-center gap-2">
-              <Star className={`h-4 w-4 ${isFeatured ? "fill-amber-400 text-amber-400" : "text-muted-foreground"}`} />
-              <span className="text-xs font-medium text-foreground">Featured</span>
-            </div>
-            <Switch
-              checked={isFeatured}
-              onCheckedChange={() => toggleFeatured(spot.id)}
-            />
-          </div>
-        )}
-        {isHotspotOwner && !isFeatured && spot.status === "Active" && (
-          <p className="text-[10px] text-muted-foreground mb-2">
-            Featured spots appear at the top of search results
-          </p>
-        )}
-        <div className="flex items-center justify-between pt-3 border-t">
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => navigate("dashboard-add-spot", { editId: spot.id })}
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
-              onClick={(e) => {
-                e.stopPropagation();
-                toast.success(`"${spot.title}" has been deleted`);
-              }}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
+        <p className="text-xs text-muted-foreground">
+          {status.help}
+          {spot.status === "draft" && spot.rejectReason ? ` Reason: ${spot.rejectReason}` : ""}
+        </p>
+        {spot.status === "published" && (
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate("hotspot", { hotspotId: spot.id })}
+            className="mt-3"
+            onClick={() => navigate("hotspot", { id: spot.id })}
           >
-            View
+            View spot
           </Button>
-        </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -141,94 +107,64 @@ function SpotCard({ spot, isHotspotOwner, featuredSpots, toggleFeatured }: {
 
 export default function DashboardListings() {
   const { navigate } = useRouter();
-  const { user } = useAuthStore();
-  const userTier = user?.tier || "explorer";
-  const isHotspotOwner = TIER_FEATURES[userTier].listBusiness;
-
+  const { token } = useAuthStore();
   const [activeTab, setActiveTab] = useState("all");
-  const [featuredSpots, setFeaturedSpots] = useState<Record<string, boolean>>({});
 
-  const toggleFeatured = (id: string) => {
-    setFeaturedSpots((prev) => {
-      const newFeatured = !prev[id];
-      if (newFeatured) {
-        toast.success("Spot is now featured! It will appear at the top of search results.");
-      } else {
-        toast.info("Spot removed from featured placement.");
-      }
-      return { ...prev, [id]: newFeatured };
-    });
-  };
-
+  const spots = useQuery(api.bookmarks.mySpots, token ? { token } : "skip") as
+    | MySpot[]
+    | undefined;
   const filteredSpots =
-    activeTab === "all"
-      ? mySpots
-      : mySpots.filter((s) => s.status.toLowerCase() === activeTab);
+    activeTab === "all" ? spots ?? [] : (spots ?? []).filter((s) => s.status === activeTab);
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My Spots</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">My spots</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Manage the hotspots you&apos;ve submitted to Lagos Hotspot.
+            Spots you&apos;ve submitted to Lagos Hotspot. To change a live spot, contact our
+            team.
           </p>
         </div>
         <Button onClick={() => navigate("dashboard-add-spot")}>
           <Plus className="h-4 w-4 mr-2" />
-          Add New Spot
+          Add a spot
         </Button>
       </div>
 
-      {/* Ambassador Feature Note */}
-      {!isHotspotOwner && (
-        <Card className="border-muted bg-muted/30">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Lock className="h-5 w-5 text-muted-foreground shrink-0" />
-            <div className="flex-1">
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Featured Placement</span> is available for Ambassador tier. Upgrade to feature your spots at the top of search results.
-              </p>
-            </div>
-            <Button variant="outline" size="sm" onClick={() => navigate("home")}>
-              Upgrade
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Filter Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
+          {TABS.map((t) => (
+            <TabsTrigger key={t.value} value={t.value}>
+              {t.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value={activeTab} className="mt-4">
-          {filteredSpots.length > 0 ? (
+          {spots === undefined ? (
+            <p className="text-sm text-muted-foreground py-6">Loading your spots…</p>
+          ) : filteredSpots.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredSpots.map((spot) => (
-                <SpotCard
-                  key={spot.id}
-                  spot={spot}
-                  isHotspotOwner={isHotspotOwner}
-                  featuredSpots={featuredSpots}
-                  toggleFeatured={toggleFeatured}
-                />
+                <SpotCard key={spot.id} spot={spot} />
               ))}
             </div>
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-foreground mb-1">
-                  No spots found
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  You don&apos;t have any {activeTab} spots yet.
+                <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
+                <h2 className="font-semibold text-foreground mb-1">
+                  {spots.length === 0 ? "You haven't added a spot yet" : "Nothing here"}
+                </h2>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {spots.length === 0
+                    ? "Know a place Lagos should hear about? Submit it and our team will take a look."
+                    : "None of your spots are in this list right now."}
                 </p>
+                {spots.length === 0 && (
+                  <Button onClick={() => navigate("dashboard-add-spot")}>Add a spot</Button>
+                )}
               </CardContent>
             </Card>
           )}

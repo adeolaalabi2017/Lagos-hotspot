@@ -121,7 +121,7 @@ export default function TermsOfServicePage() {
           </div>
           <span className="text-lg font-bold text-foreground">Lagos Hotspot</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground">
+        <h1 className="text-3xl sm:text-4xl font-display font-medium tracking-tight text-foreground">
           Terms of Service
         </h1>
         <p className="mt-3 text-muted-foreground">

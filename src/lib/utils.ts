@@ -23,3 +23,10 @@ export function getStatusColor(status: string): string {
       return "bg-gray-100 text-gray-700";
   }
 }
+
+/** Up to two initials for an avatar fallback, e.g. "Ada Obi" -> "AO". */
+export function initials(name: string | null | undefined): string {
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+}

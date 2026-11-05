@@ -88,7 +88,7 @@ export default function LoginPage() {
             </div>
             <span className="text-xl font-bold text-foreground">Lagos Hotspot</span>
           </button>
-          <h1 className="text-2xl font-bold text-foreground">Welcome Back to Lagos Hotspot</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Welcome Back to Lagos Hotspot</h1>
           <p className="text-muted-foreground text-sm">
             Sign in to discover the hottest spots in Lagos.
           </p>

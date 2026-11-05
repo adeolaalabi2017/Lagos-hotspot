@@ -24,6 +24,13 @@ export interface PublicHotspot {
   lng: number | null;
   gallery: string[];
   hours: { day: string; time: string }[];
+  /** Raw opening hours; use with isOpenNow() from src/lib/hours.ts. */
+  openingHours: {
+    dayOfWeek: number;
+    opensAt: string | null;
+    closesAt: string | null;
+    isClosed: boolean;
+  }[];
   createdAt: string;
   updatedAt: string;
 }

@@ -36,6 +36,17 @@ function todayISO(): string {
   return `${y}-${m}-${day}`;
 }
 
+function readableDate(iso: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    timeZone: "UTC",
+  }).format(new Date(Date.UTC(y, m - 1, d)));
+}
+
 export function ReserveButton({
   hotspotId,
   hotspotTitle,
@@ -101,7 +112,7 @@ export function ReserveButton({
           onClick={openDialog}
         >
           <CalendarPlus className="h-4 w-4 mr-2" />
-          Reserve
+          Reserve a spot
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
@@ -123,8 +134,13 @@ export function ReserveButton({
                 value={date}
                 min={minDate}
                 onChange={(e) => setDate(e.target.value)}
+                aria-describedby="rb-date-read"
                 required
               />
+              {/* The picker follows the device locale; spell the day out in day-month order */}
+              <p id="rb-date-read" className="mt-1 text-xs text-muted-foreground" aria-live="polite">
+                {readableDate(date)}
+              </p>
             </div>
             <div>
               <label className="text-xs text-muted-foreground" htmlFor="rb-time">
@@ -199,7 +215,7 @@ export function ReserveButton({
               placeholder="Anything we should know? Window seat, allergies, occasion…"
               maxLength={1000}
             />
-            <div className="text-[11px] text-muted-foreground text-right">
+            <div className="text-xs text-muted-foreground text-right">
               {notes.length}/1000
             </div>
           </div>

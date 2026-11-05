@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { SpotPhoto } from "./SpotPhoto";
+import { isOpenNow, openStateLabel } from "@/lib/hours";
 import {
   Sheet,
   SheetContent,
@@ -55,15 +57,10 @@ const SORT_OPTIONS = [
 // ─── Page Hero ───────────────────────────────────────────
 function PageHero({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <section className="relative bg-gradient-to-br from-primary/90 via-primary/80 to-primary/60 text-white overflow-hidden">
-      <div
-        className="absolute inset-0 bg-[url('/images/lagos-hotspot-Ikoyi-link-bridge.webp')] bg-cover bg-center opacity-25 motion-safe:transition-opacity"
-        role="img"
-        aria-label="Lekki-Ikoyi Link Bridge, Lagos"
-      />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3">{title}</h1>
-        <p className="text-lg sm:text-xl text-white/80 max-w-2xl">{subtitle}</p>
+    <section className="bg-muted/40 border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-balance mb-3">{title}</h1>
+        <p className="text-lg text-muted-foreground max-w-2xl text-pretty">{subtitle}</p>
       </div>
     </section>
   );
@@ -98,7 +95,7 @@ function VibeBadge({ score }: { score: number }) {
           ? "bg-amber-500 text-white"
           : "bg-gray-500 text-white";
   return (
-    <Badge className={`${color} text-[10px] font-bold border-0 gap-0.5 px-1.5 py-0.5`}>
+    <Badge className={`${color} text-xs font-bold border-0 gap-0.5 px-1.5 py-0.5`}>
       <Flame className="h-3 w-3" />
       {score}
     </Badge>
@@ -112,11 +109,12 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
   const maxSaves = TIER_FEATURES[userTier].maxSavedSpots;
   const { canSaveMore, toggleBookmark, isBookmarked: checkBookmarked } = useBookmarkStore();
   const isBookmarked = checkBookmarked(hotspot.id);
+  const openStatus = openStateLabel(isOpenNow(hotspot.openingHours, hotspot.isOpen));
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isBookmarked && !canSaveMore(maxSaves)) {
-      toast.error("You've reached your 10-spot save limit. Upgrade to Scout for unlimited saves!");
+      toast.error("You can save up to 10 spots. Remove one from Saved spots to add another.");
       return;
     }
     toggleBookmark(hotspot.id);
@@ -131,36 +129,31 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
       >
         <div className="flex flex-col sm:flex-row">
           <div className="relative sm:w-72 sm:min-h-[200px] overflow-hidden">
-            {hotspot.image && (
-              <img
-                src={hotspot.image}
-                alt={hotspot.title}
-                className="w-full h-48 sm:h-full object-cover group-hover:scale-105 motion-safe:transition-transform duration-500"
-                loading="lazy"
-              />
-            )}
+            <SpotPhoto
+              src={hotspot.image}
+              alt={hotspot.title}
+              category={hotspot.category}
+              className="w-full h-48 sm:h-full group-hover:scale-105 motion-safe:transition-transform duration-500"
+              loading="lazy"
+            />
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               <VibeBadge score={hotspot.vibeScore} />
-              <Badge
-                className={`text-[10px] font-medium border-0 ${
-                  hotspot.isOpen
-                    ? "bg-emerald-600 text-white"
-                    : "bg-red-600 text-white"
-                }`}
-              >
-                {hotspot.isOpen ? "Open" : "Closed"}
-              </Badge>
+              {openStatus && (
+                <Badge className={`text-xs font-medium border-0 ${openStatus.className}`}>
+                  {openStatus.label}
+                </Badge>
+              )}
             </div>
           </div>
           <CardContent className="flex-1 p-4 sm:p-5">
             <div className="flex flex-col h-full justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary">
+                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                     {hotspot.category}
                   </Badge>
                   {hotspot.isVerified && (
-                    <Badge className="bg-green-50 text-green-700 border-green-200 text-[10px] flex items-center gap-0.5 px-1.5 py-0">
+                    <Badge className="bg-green-50 text-green-700 border-green-200 text-xs flex items-center gap-0.5 px-1.5 py-0">
                       ✓ Verified
                     </Badge>
                   )}
@@ -221,30 +214,25 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
       aria-label={`View ${hotspot.title} in ${hotspot.area}`}
     >
       <div className="relative overflow-hidden">
-        {hotspot.image && (
-          <img
-            src={hotspot.image}
-            alt={hotspot.title}
-            className="w-full h-48 sm:h-52 object-cover group-hover:scale-105 motion-safe:transition-transform duration-500"
-            loading="lazy"
-          />
-        )}
+        <SpotPhoto
+          src={hotspot.image}
+          alt={hotspot.title}
+          category={hotspot.category}
+          className="w-full h-48 sm:h-52 group-hover:scale-105 motion-safe:transition-transform duration-500"
+          loading="lazy"
+        />
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           <VibeBadge score={hotspot.vibeScore} />
-          <Badge
-            className={`text-[10px] font-medium border-0 ${
-              hotspot.isOpen
-                ? "bg-emerald-600 text-white"
-                : "bg-red-600 text-white"
-            }`}
-          >
-            {hotspot.isOpen ? "Open" : "Closed"}
-          </Badge>
+          {openStatus && (
+            <Badge className={`text-xs font-medium border-0 ${openStatus.className}`}>
+              {openStatus.label}
+            </Badge>
+          )}
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 h-9 w-9 rounded-full bg-foreground/70 hover:bg-foreground/90 text-background relative z-10"
+          className="absolute top-2 right-2 z-10 h-9 w-9 rounded-full bg-black/55 hover:bg-black/75 text-white"
           onClick={(e) => {
             e.stopPropagation();
             handleSave(e);
@@ -262,11 +250,11 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
       </div>
       <CardContent className="p-4">
         <div className="flex items-center gap-2 mb-1.5">
-          <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary">
+          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
             {hotspot.category}
           </Badge>
           {hotspot.isTrending && (
-            <Badge className="bg-orange-50 text-orange-600 border-orange-200 text-[10px] flex items-center gap-0.5 px-1.5 py-0">
+            <Badge className="bg-orange-50 text-orange-600 border-orange-200 text-xs flex items-center gap-0.5 px-1.5 py-0">
               <Flame className="h-2.5 w-2.5" />
               Trending
             </Badge>
@@ -293,7 +281,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
             <Badge
               key={tag}
               variant="outline"
-              className="text-[10px] text-muted-foreground border-muted"
+              className="text-xs text-muted-foreground border-muted"
             >
               {tag}
             </Badge>
@@ -553,7 +541,7 @@ export default function GridListingsPage() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const hotspots = useQuery((api as any).hotspots.search, {
-    q: searchQuery || " ",
+    q: searchQuery,
     area: selectedArea !== "all" ? selectedArea : undefined,
     category: selectedCategory !== "all" ? selectedCategory : undefined,
   }) as PublicHotspot[] | undefined;
@@ -650,7 +638,16 @@ export default function GridListingsPage() {
   }
 
   const areaText = selectedArea !== "all" ? selectedArea : "Lagos";
-  const visibleHotspots = hotspots ?? [];
+  const visibleHotspots = (hotspots ?? [])
+    .filter((h) => selectedPrice === "all" || String(h.priceLevel ?? "") === selectedPrice)
+    .filter((h) => !openNowOnly || isOpenNow(h.openingHours, h.isOpen).state === "open-now")
+    .sort((a, b) => {
+      if (selectedSort === "trending") {
+        return Number(b.isTrending) - Number(a.isTrending) || b.rating - a.rating;
+      }
+      if (selectedSort === "newest") return b.createdAt.localeCompare(a.createdAt);
+      return b.rating - a.rating || b.reviews - a.reviews;
+    });
 
   return (
     <div className="min-h-screen bg-background">
@@ -708,7 +705,7 @@ export default function GridListingsPage() {
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   {chips.length > 0 && (
-                    <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
                       {chips.length}
                     </span>
                   )}

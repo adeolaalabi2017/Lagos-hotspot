@@ -101,7 +101,7 @@ export function AdminLayout({
             <p className="font-mono text-xs uppercase tracking-wider text-muted-foreground mb-2">
               Admin
             </p>
-            <h1 className="font-display text-3xl lg:text-4xl font-semibold tracking-tight text-pretty">
+            <h1 className="font-display text-3xl lg:text-4xl font-medium tracking-tight text-pretty">
               {title}
             </h1>
             {description ? (

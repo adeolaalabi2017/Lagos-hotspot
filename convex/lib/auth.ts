@@ -144,5 +144,6 @@ export function publicUser(user: Doc<"users">) {
     avatar: user.avatar ?? null,
     role: user.role,
     suspendedAt: user.suspendedAt ?? null,
+    bio: user.bio ?? null,
   };
 }

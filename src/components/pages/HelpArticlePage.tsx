@@ -64,7 +64,7 @@ export default function HelpArticlePage() {
         <Badge variant="secondary" className="mb-4">
           {article.category}
         </Badge>
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight mb-6">
+        <h1 className="text-2xl sm:text-3xl font-display font-medium tracking-tight text-foreground leading-tight mb-6">
           {article.title}
         </h1>
 

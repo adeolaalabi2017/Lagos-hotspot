@@ -50,7 +50,7 @@ export default function DashboardAnalytics() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Analytics</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Track your spot performance and visitor insights.
           </p>
@@ -77,8 +77,8 @@ export default function DashboardAnalytics() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-bold text-foreground">Analytics</h1>
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
+            <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Analytics</h1>
+            <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">
               Hotspot Owner
             </Badge>
           </div>

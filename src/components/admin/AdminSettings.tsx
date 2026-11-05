@@ -90,7 +90,7 @@ export default function AdminSettingsPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Brand Settings</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Brand Settings</h1>
           <p className="text-muted-foreground text-sm">Manage logo, favicon, and hero image</p>
         </div>
       </div>

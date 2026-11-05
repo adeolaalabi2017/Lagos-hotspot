@@ -1,5 +1,5 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import {
   createSession,
   findSession,
@@ -7,6 +7,7 @@ import {
   hashPassword,
   publicUser,
   requireAdmin,
+  requireUser,
   verifyPassword,
 } from "./lib/auth";
 
@@ -149,5 +150,20 @@ export const listUsers = query({
       ...publicUser(u),
       createdAt: u._creationTime,
     }));
+  },
+});
+
+/** The signed-in user edits their own display name and bio. */
+export const updateProfile = mutation({
+  args: { token: v.string(), name: v.string(), bio: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx, args.token);
+    const name = args.name.trim();
+    const bio = args.bio?.trim() ?? "";
+    if (!name) throw new ConvexError("Add your name");
+    if (name.length > 80) throw new ConvexError("Keep your name under 80 characters");
+    if (bio.length > 500) throw new ConvexError("Keep your bio under 500 characters");
+    await ctx.db.patch(user._id, { name, bio: bio || undefined });
+    return publicUser((await ctx.db.get(user._id))!);
   },
 });

@@ -235,7 +235,7 @@ export function AdminHotspotsPage() {
                     <td className="px-4 py-3 font-medium text-foreground">{row.title}</td>
                     <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{row.area ?? "—"}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         row.status === "published" ? "bg-green-100 text-green-700" :
                         row.status === "draft" ? "bg-yellow-100 text-yellow-700" :
                         row.status === "pending" ? "bg-blue-100 text-blue-700" :
@@ -246,9 +246,9 @@ export function AdminHotspotsPage() {
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       <div className="flex flex-wrap gap-1">
-                        {row.isFeatured ? <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">Featured</span> : null}
-                        {row.isVerified ? <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded">Verified</span> : null}
-                        {row.isTrending ? <span className="text-[10px] px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded">Trending</span> : null}
+                        {row.isFeatured ? <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">Featured</span> : null}
+                        {row.isVerified ? <span className="text-xs px-1.5 py-0.5 bg-green-100 text-green-700 rounded">Verified</span> : null}
+                        {row.isTrending ? <span className="text-xs px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded">Trending</span> : null}
                       </div>
                     </td>
                     <td className="px-4 py-3">

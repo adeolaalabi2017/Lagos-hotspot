@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, initials } from "@/lib/utils";
 
 interface DashboardSidebarProps {
   activeRoute: Route;
@@ -93,7 +93,7 @@ export default function DashboardSidebar({ activeRoute, collapsed = false, onTog
       <div className={cn("p-4 border-b border-border", collapsed && "p-2")}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0">
-            {user?.avatar || "ES"}
+            {user?.avatar || initials(user?.name)}
           </div>
           {!collapsed && (
             <div className="min-w-0">
@@ -101,7 +101,7 @@ export default function DashboardSidebar({ activeRoute, collapsed = false, onTog
               <div className="flex items-center gap-1.5 mt-0.5">
                 <Badge
                   variant="outline"
-                  className={cn("text-[10px] px-1.5 py-0 h-4 font-medium", TIER_BG_COLORS[userTier])}
+                  className={cn("text-xs px-1.5 py-0 h-4 font-medium", TIER_BG_COLORS[userTier])}
                 >
                   <TierIcon className="h-2.5 w-2.5 mr-0.5" />
                   {TIER_LABELS[userTier]}

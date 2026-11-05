@@ -195,18 +195,16 @@ function AppContent() {
   // Dashboard - sidebar layout
   if (isDashboard) {
     return (
-      <ErrorBoundary>
-        <DashboardLayout activeRoute={route}>
-          {renderDashboardPage()}
-        </DashboardLayout>
-      </ErrorBoundary>
+      <DashboardLayout activeRoute={route}>
+        <ErrorBoundary key={route}>{renderDashboardPage()}</ErrorBoundary>
+      </DashboardLayout>
     );
   }
 
   // Admin - own layout, no public chrome
   if (isAdmin) {
     return (
-      <ErrorBoundary>
+      <ErrorBoundary key={route}>
         <main id="main-content">{renderAdminPage()}</main>
       </ErrorBoundary>
     );
@@ -215,24 +213,24 @@ function AppContent() {
   // Auth pages - navbar but no footer, centered layout
   if (isAuth) {
     return (
-      <ErrorBoundary>
-        <div className="min-h-screen flex flex-col">
-          <Navbar variant="solid" />
-          <main id="main-content" className="flex-1">{renderPage()}</main>
-        </div>
-      </ErrorBoundary>
+      <div className="min-h-screen flex flex-col">
+        <Navbar variant="solid" />
+        <main id="main-content" className="flex-1">
+          <ErrorBoundary key={route}>{renderPage()}</ErrorBoundary>
+        </main>
+      </div>
     );
   }
 
   // Standard pages - navbar + footer
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen flex flex-col">
-        <Navbar variant={navbarVariant} />
-        <main id="main-content" className={`flex-1${transparentOffset}`}>{renderPage()}</main>
-        <Footer />
-      </div>
-    </ErrorBoundary>
+    <div className="min-h-screen flex flex-col">
+      <Navbar variant={navbarVariant} />
+      <main id="main-content" className={`flex-1${transparentOffset}`}>
+        <ErrorBoundary key={route}>{renderPage()}</ErrorBoundary>
+      </main>
+      <Footer />
+    </div>
   );
 }
 

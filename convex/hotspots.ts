@@ -55,6 +55,13 @@ function toHotspot(row: any, hours: any[], media: any[]) {
       day: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][h.dayOfWeek] ?? `Day ${h.dayOfWeek}`,
       time: h.isClosed ? "Closed" : h.opensAt && h.closesAt ? `${h.opensAt} – ${h.closesAt}` : "Hours unavailable",
     })),
+    // Raw rows for computing "open now" in the visitor's clock (src/lib/hours.ts).
+    openingHours: hours.map((h) => ({
+      dayOfWeek: h.dayOfWeek,
+      opensAt: h.opensAt ?? null,
+      closesAt: h.closesAt ?? null,
+      isClosed: h.isClosed,
+    })),
     createdAt: formatDate(row._creationTime),
     updatedAt: formatDate(row._creationTime),
   };
@@ -163,7 +170,9 @@ export const similar = query({
   args: { id: v.string(), category: v.string(), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const { listings, hoursByListing, mediaByListing } = await loadCollections(ctx);
-    const filtered = listings.filter((row: any) => row._id !== args.id && row.category === args.category);
+    const filtered = listings.filter(
+      (row: any) => row._id !== args.id && row.category === args.category && row.status === "published"
+    );
     return filtered.slice(0, args.limit ?? 3).map((row: any) => toHotspot(row, hoursByListing.get(row._id) ?? [], mediaByListing.get(row._id) ?? []));
   },
 });
@@ -278,49 +287,22 @@ export const search = query({
     category: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const listings = await ctx.db.query("listings").collect();
-    const q = args.q.toLowerCase();
-    
+    const { listings, hoursByListing, mediaByListing } = await loadCollections(ctx);
+    const q = args.q.trim().toLowerCase();
     return listings
-      .filter((row) => row.status === "published")
-      .filter((row) => {
+      .filter((row: any) => row.status === "published")
+      .filter((row: any) => {
+        if (!q) return true;
         const hay = [row.title, row.description, row.category, row.location, row.city, row.tags, row.amenities]
           .filter(Boolean)
           .join(" ")
           .toLowerCase();
         return hay.includes(q);
       })
-      .filter((row) => {
-        if (!args.area || args.area === "all") return true;
-        return row.location === args.area;
-      })
-      .filter((row) => {
-        if (!args.category || args.category === "all") return true;
-        return row.category === args.category;
-      })
+      .filter((row: any) => !args.area || args.area === "all" || row.location === args.area)
+      .filter((row: any) => !args.category || args.category === "all" || row.category === args.category)
       .slice(0, 50)
-      .map((row: any) => ({
-        id: row._id,
-        title: row.title,
-        description: row.description ?? null,
-        category: row.category,
-        priceLevel: row.price ? Number(row.price) : null,
-        image: row.image ?? null,
-        rating: row.rating ?? 0,
-        reviews: row.reviewCount ?? 0,
-        area: row.location ?? "",
-        city: row.city ?? "Lagos",
-        phone: row.phone ?? "",
-        whatsappNumber: row.whatsappNumber ?? "",
-        instagramHandle: row.instagramHandle ?? "",
-        isFeatured: row.isFeatured,
-        isOpen: row.isOpen,
-        isTrending: row.isTrending,
-        isVerified: row.isVerified,
-        tags: row.tags ? row.tags.split(",").map((t: string) => t.trim()) : [],
-        amenities: row.amenities ? row.amenities.split(",").map((a: string) => a.trim()) : [],
-        vibeScore: Math.min(99, Math.max(0, Math.round(60 + (row.rating ?? 0) * 5 + (row.isTrending ? 5 : 0) + (row.isVerified ? 3 : 0) + Math.min(15, row.reviewCount ?? 0)))),
-      }));
+      .map((row: any) => toHotspot(row, hoursByListing.get(row._id) ?? [], mediaByListing.get(row._id) ?? []));
   },
 });
 

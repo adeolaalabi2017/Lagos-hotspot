@@ -102,7 +102,7 @@ const routeFromHash = (hash: string): { route: Route; params: Record<string, str
 };
 
 const routeTitles: Record<Route, string> = {
-  home: "Lagos Hotspot — Discover the Pulse of Lagos",
+  home: "Lagos Hotspot — Restaurants, clubs and beaches in Lagos",
   explore: "Explore — Lagos Hotspot",
   hotspot: "Hotspot — Lagos Hotspot",
   dashboard: "Dashboard — Lagos Hotspot",

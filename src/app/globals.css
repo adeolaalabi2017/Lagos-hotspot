@@ -61,7 +61,7 @@
   --secondary: oklch(0.96 0.02 60);
   --secondary-foreground: oklch(0.25 0.02 40);
   --muted: oklch(0.96 0.005 60);
-  --muted-foreground: oklch(0.52 0.01 40);
+  --muted-foreground: oklch(0.45 0.012 40);
   /* Accent: warm amber for Lagos golden hour */
   --accent: oklch(0.96 0.03 75);
   --accent-foreground: oklch(0.25 0.02 40);
@@ -94,7 +94,7 @@
   --popover: oklch(0.20 0.01 40);
   --popover-foreground: oklch(0.96 0.005 60);
   --primary: oklch(0.65 0.19 30);
-  --primary-foreground: oklch(0.99 0.005 60);
+  --primary-foreground: oklch(0.16 0.02 40);
   --secondary: oklch(0.27 0.01 40);
   --secondary-foreground: oklch(0.96 0.005 60);
   --muted: oklch(0.27 0.01 40);
@@ -113,13 +113,13 @@
   --sidebar: oklch(0.20 0.01 40);
   --sidebar-foreground: oklch(0.96 0.005 60);
   --sidebar-primary: oklch(0.65 0.19 30);
-  --sidebar-primary-foreground: oklch(0.99 0.005 60);
+  --sidebar-primary-foreground: oklch(0.16 0.02 40);
   --sidebar-accent: oklch(0.27 0.01 40);
   --sidebar-accent-foreground: oklch(0.96 0.005 60);
   --sidebar-border: oklch(0.27 0.01 40);
   --sidebar-ring: oklch(0.65 0.19 30);
   --brand: oklch(0.65 0.19 30);
-  --brand-foreground: oklch(0.99 0.005 60);
+  --brand-foreground: oklch(0.16 0.02 40);
 }
 
 @layer base {
