@@ -101,7 +101,7 @@ export default function DashboardSidebar({ activeRoute, collapsed = false, onTog
               <div className="flex items-center gap-1.5 mt-0.5">
                 <Badge
                   variant="outline"
-                  className={cn("text-[10px] px-1.5 py-0 h-4 font-medium", TIER_BG_COLORS[userTier])}
+                  className={cn("text-xs px-1.5 py-0 h-4 font-medium", TIER_BG_COLORS[userTier])}
                 >
                   <TierIcon className="h-2.5 w-2.5 mr-0.5" />
                   {TIER_LABELS[userTier]}

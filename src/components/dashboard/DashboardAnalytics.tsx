@@ -78,7 +78,7 @@ export default function DashboardAnalytics() {
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Analytics</h1>
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px]">
+            <Badge className="bg-primary/10 text-primary border-primary/20 text-xs">
               Hotspot Owner
             </Badge>
           </div>

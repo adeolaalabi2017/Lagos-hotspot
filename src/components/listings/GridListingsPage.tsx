@@ -95,7 +95,7 @@ function VibeBadge({ score }: { score: number }) {
           ? "bg-amber-500 text-white"
           : "bg-gray-500 text-white";
   return (
-    <Badge className={`${color} text-[10px] font-bold border-0 gap-0.5 px-1.5 py-0.5`}>
+    <Badge className={`${color} text-xs font-bold border-0 gap-0.5 px-1.5 py-0.5`}>
       <Flame className="h-3 w-3" />
       {score}
     </Badge>
@@ -149,11 +149,11 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
             <div className="flex flex-col h-full justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary">
+                  <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
                     {hotspot.category}
                   </Badge>
                   {hotspot.isVerified && (
-                    <Badge className="bg-green-50 text-green-700 border-green-200 text-[10px] flex items-center gap-0.5 px-1.5 py-0">
+                    <Badge className="bg-green-50 text-green-700 border-green-200 text-xs flex items-center gap-0.5 px-1.5 py-0">
                       ✓ Verified
                     </Badge>
                   )}
@@ -232,7 +232,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 z-10 h-9 w-9 rounded-full bg-foreground/70 hover:bg-foreground/90 text-background"
+          className="absolute top-2 right-2 z-10 h-9 w-9 rounded-full bg-black/55 hover:bg-black/75 text-white"
           onClick={(e) => {
             e.stopPropagation();
             handleSave(e);
@@ -250,11 +250,11 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
       </div>
       <CardContent className="p-4">
         <div className="flex items-center gap-2 mb-1.5">
-          <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary">
+          <Badge variant="secondary" className="text-xs bg-primary/10 text-primary">
             {hotspot.category}
           </Badge>
           {hotspot.isTrending && (
-            <Badge className="bg-orange-50 text-orange-600 border-orange-200 text-[10px] flex items-center gap-0.5 px-1.5 py-0">
+            <Badge className="bg-orange-50 text-orange-600 border-orange-200 text-xs flex items-center gap-0.5 px-1.5 py-0">
               <Flame className="h-2.5 w-2.5" />
               Trending
             </Badge>
@@ -281,7 +281,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
             <Badge
               key={tag}
               variant="outline"
-              className="text-[10px] text-muted-foreground border-muted"
+              className="text-xs text-muted-foreground border-muted"
             >
               {tag}
             </Badge>
@@ -705,7 +705,7 @@ export default function GridListingsPage() {
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   {chips.length > 0 && (
-                    <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
                       {chips.length}
                     </span>
                   )}

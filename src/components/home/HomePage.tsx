@@ -502,7 +502,7 @@ function HotspotCard({
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-foreground/70 hover:bg-foreground/90 motion-safe:transition-colors flex items-center justify-center"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/55 hover:bg-black/75 motion-safe:transition-colors flex items-center justify-center"
           aria-label="Save spot"
         >
           <Heart

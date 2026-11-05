@@ -199,7 +199,7 @@ export function ReserveButton({
               placeholder="Anything we should know? Window seat, allergies, occasion…"
               maxLength={1000}
             />
-            <div className="text-[11px] text-muted-foreground text-right">
+            <div className="text-xs text-muted-foreground text-right">
               {notes.length}/1000
             </div>
           </div>

@@ -129,10 +129,10 @@ export default function RegisterPage() {
                     <span className={cn("text-sm font-semibold", isActive ? "text-foreground" : "text-muted-foreground")}>
                       {TIER_LABELS[tier]}
                     </span>
-                    <span className="text-[11px] text-muted-foreground leading-tight">
+                    <span className="text-xs text-muted-foreground leading-tight">
                       {TIER_DESCRIPTIONS[tier]}
                     </span>
-                    <span className="text-[10px] font-medium text-primary">
+                    <span className="text-xs font-medium text-primary">
                       {tier === "explorer" ? "Free" : "Free"}
                     </span>
                     {isActive && (

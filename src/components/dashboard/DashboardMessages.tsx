@@ -333,7 +333,7 @@ export default function DashboardMessages() {
                         <p className="text-sm font-medium text-foreground truncate">
                           {thread.listing.title}
                         </p>
-                        <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
+                        <span className="text-xs text-muted-foreground shrink-0 ml-2">
                           {formatTime(thread.lastMessageAt)}
                         </span>
                       </div>
@@ -342,7 +342,7 @@ export default function DashboardMessages() {
                       </p>
                     </div>
                     {thread.unreadCount > 0 && (
-                      <span className="h-5 min-w-[20px] px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center shrink-0">
+                      <span className="h-5 min-w-[20px] px-1.5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center shrink-0">
                         {thread.unreadCount}
                       </span>
                     )}
@@ -385,7 +385,7 @@ export default function DashboardMessages() {
                       <p className="text-sm font-semibold text-foreground">
                         {selectedThread.listing.title}
                       </p>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {selectedThread.listing.city ?? "Lagos"} ·{" "}
                         {selectedThread.listing.category}
                       </p>
@@ -442,7 +442,7 @@ export default function DashboardMessages() {
                               {msg.body}
                             </p>
                             <p
-                              className={`text-[10px] mt-1 ${
+                              className={`text-xs mt-1 ${
                                 isOwn
                                   ? "text-primary-foreground/70"
                                   : "text-muted-foreground"

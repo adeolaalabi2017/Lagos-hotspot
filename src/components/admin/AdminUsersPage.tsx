@@ -130,7 +130,7 @@ export function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell">
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         u.role === "admin" ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-700"
                       }`}>
                         {u.role}
@@ -141,11 +141,11 @@ export function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3">
                       {u.suspendedAt ? (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-100 text-red-700">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
                           Suspended
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-100 text-green-700">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
                           Active
                         </span>
                       )}

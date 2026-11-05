@@ -109,7 +109,7 @@ function ReviewCard({
                 <h4 className="font-semibold text-sm text-foreground">
                   {review.author.name ?? "Anonymous"}
                 </h4>
-                <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] font-medium px-1.5 py-0">
+                <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-xs font-medium px-1.5 py-0">
                   <Star className="h-3 w-3 mr-0.5 fill-amber-400 text-amber-400" />
                   {review.rating.toFixed(1)}
                 </Badge>
@@ -262,7 +262,7 @@ export default function SingleListingPage() {
           {/* Top badges */}
           <div className="absolute top-4 left-4 flex gap-2">
             {hotspot.isVerified && (
-              <Badge className="bg-green-600 text-white border-0 flex items-center gap-1 text-xs">
+              <Badge className="bg-green-700 text-white border-0 flex items-center gap-1 text-xs">
                 <ShieldCheck className="h-3 w-3" />
                 Verified
               </Badge>
@@ -302,7 +302,7 @@ export default function SingleListingPage() {
                 <Badge
                   key={tag}
                   variant="outline"
-                  className="border-white/30 text-white text-xs bg-foreground/60"
+                  className="border-white/30 text-white text-xs bg-black/50"
                 >
                   {tag}
                 </Badge>
@@ -564,7 +564,7 @@ export default function SingleListingPage() {
                   rel="noopener noreferrer"
                   className="block"
                 >
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                  <Button className="w-full bg-green-700 hover:bg-green-800 text-white">
                     <MessageCircle className="h-4 w-4 mr-2" />
                     Chat on WhatsApp
                   </Button>

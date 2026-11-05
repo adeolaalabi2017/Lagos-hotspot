@@ -150,7 +150,7 @@ export default function BlogPage() {
                     </p>
                     <div className="flex items-center gap-2 mt-3">
                       <Avatar className="h-7 w-7">
-                        <AvatarFallback className="text-[10px]">
+                        <AvatarFallback className="text-xs">
                           {post.author
                             .split(" ")
                             .map((n) => n[0])

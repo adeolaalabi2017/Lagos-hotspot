@@ -526,7 +526,7 @@ function UploadDropzone({
       <div className="flex items-center justify-center gap-2 rounded-md border-2 border-dashed px-3 py-4 text-xs text-muted-foreground hover:bg-muted motion-safe:transition-colors">
         <ImagePlus className="h-4 w-4" />
         Click to upload {kind === "cover" ? "cover image" : "gallery images"}
-        <span className="text-[10px] ml-1">(jpeg / png / webp, ≤5 MB)</span>
+        <span className="text-xs ml-1">(jpeg / png / webp, ≤5 MB)</span>
       </div>
     </label>
   );
