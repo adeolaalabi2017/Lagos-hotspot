@@ -57,15 +57,10 @@ const SORT_OPTIONS = [
 // ─── Page Hero ───────────────────────────────────────────
 function PageHero({ title, subtitle }: { title: string; subtitle: string }) {
   return (
-    <section className="relative bg-gradient-to-br from-primary/90 via-primary/80 to-primary/60 text-white overflow-hidden">
-      <div
-        className="absolute inset-0 bg-[url('/images/lagos-hotspot-Ikoyi-link-bridge.webp')] bg-cover bg-center opacity-25 motion-safe:transition-opacity"
-        role="img"
-        aria-label="Lekki-Ikoyi Link Bridge, Lagos"
-      />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3">{title}</h1>
-        <p className="text-lg sm:text-xl text-white/80 max-w-2xl">{subtitle}</p>
+    <section className="bg-muted/40 border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-balance mb-3">{title}</h1>
+        <p className="text-lg text-muted-foreground max-w-2xl text-pretty">{subtitle}</p>
       </div>
     </section>
   );
@@ -237,7 +232,7 @@ function HotspotCard({ hotspot, viewMode }: { hotspot: PublicHotspot; viewMode: 
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 h-9 w-9 rounded-full bg-foreground/70 hover:bg-foreground/90 text-background relative z-10"
+          className="absolute top-2 right-2 z-10 h-9 w-9 rounded-full bg-foreground/70 hover:bg-foreground/90 text-background"
           onClick={(e) => {
             e.stopPropagation();
             handleSave(e);

@@ -35,7 +35,7 @@ export default function ErrorPage() {
         </div>
 
         {/* Text */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">
+        <h1 className="text-2xl sm:text-3xl font-display font-medium tracking-tight text-foreground mb-3">
           Spot Not Found
         </h1>
         <p className="text-muted-foreground mb-8 max-w-sm mx-auto">

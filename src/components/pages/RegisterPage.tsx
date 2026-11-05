@@ -99,7 +99,7 @@ export default function RegisterPage() {
             </div>
             <span className="text-xl font-bold text-foreground">Lagos Hotspot</span>
           </button>
-          <h1 className="text-2xl font-bold text-foreground">Join Lagos Hotspot</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Join Lagos Hotspot</h1>
           <p className="text-muted-foreground text-sm">
             100% free during launch. No paid tiers yet.
           </p>

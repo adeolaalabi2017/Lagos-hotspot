@@ -91,7 +91,7 @@ export default function DashboardBookmarks() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Saved Spots</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Saved Spots</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Your bookmarked Lagos hotspots.{" "}
             <span className={maxSaves !== -1 && bookmarkedIds.length >= maxSaves ? "text-destructive font-medium" : "text-primary font-medium"}>

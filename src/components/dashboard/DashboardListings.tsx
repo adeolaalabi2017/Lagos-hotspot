@@ -120,7 +120,7 @@ export default function DashboardListings() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">My spots</h1>
+          <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">My spots</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Spots you&apos;ve submitted to Lagos Hotspot. To change a live spot, contact our
             team.

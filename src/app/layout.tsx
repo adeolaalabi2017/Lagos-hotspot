@@ -21,7 +21,7 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Lagos Hotspot — Discover the Pulse of Lagos",
+  title: "Lagos Hotspot — Restaurants, clubs and beaches in Lagos",
   description: "Find the hottest spots in Lagos State — restaurants, nightlife, beaches, culture, and more. Your guide to living your best Lagos life.",
   keywords: ["Lagos Hotspot", "Lagos hotspots", "Lagos restaurants", "Lagos nightlife", "Lagos beaches", "discover Lagos", "Lagos guide"],
   authors: [{ name: "Lagos Hotspot Team" }],
@@ -29,14 +29,14 @@ export const metadata: Metadata = {
     icon: "/images/lagos-hotspot-favicon.png",
   },
   openGraph: {
-    title: "Lagos Hotspot — Discover the Pulse of Lagos",
+    title: "Lagos Hotspot — Restaurants, clubs and beaches in Lagos",
     description: "Find the hottest spots in Lagos State — restaurants, nightlife, beaches, culture, and more.",
     siteName: "Lagos Hotspot",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lagos Hotspot — Discover the Pulse of Lagos",
+    title: "Lagos Hotspot — Restaurants, clubs and beaches in Lagos",
     description: "Find the hottest spots in Lagos State — restaurants, nightlife, beaches, culture, and more.",
   },
 };

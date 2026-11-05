@@ -94,7 +94,7 @@ export default function BlogDetailPage() {
         {/* Article Header */}
         <div className="mb-8">
           <Badge className="mb-4">{post.category}</Badge>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-medium tracking-tight text-foreground leading-tight">
             {post.title}
           </h1>
           <div className="flex items-center gap-4 mt-4">

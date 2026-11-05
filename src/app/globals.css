@@ -61,7 +61,7 @@
   --secondary: oklch(0.96 0.02 60);
   --secondary-foreground: oklch(0.25 0.02 40);
   --muted: oklch(0.96 0.005 60);
-  --muted-foreground: oklch(0.52 0.01 40);
+  --muted-foreground: oklch(0.45 0.012 40);
   /* Accent: warm amber for Lagos golden hour */
   --accent: oklch(0.96 0.03 75);
   --accent-foreground: oklch(0.25 0.02 40);

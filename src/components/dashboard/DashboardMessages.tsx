@@ -261,7 +261,7 @@ export default function DashboardMessages() {
   return (
     <div className="space-y-6">
       <div className={`${showChatMobile ? "hidden sm:block" : ""}`}>
-        <h1 className="text-2xl font-bold text-foreground">Messages</h1>
+        <h1 className="text-2xl font-display font-medium tracking-tight text-foreground">Messages</h1>
         <p className="text-muted-foreground text-sm mt-1">
           Chat with the hosts of Lagos hotspots.
         </p>

@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useQuery } from "convex/react";
 import { useRouter } from "@/lib/router";
 import { toast } from "sonner";
 import { useAuthStore, TIER_FEATURES } from "@/lib/auth-store";
 import { useBookmarkStore } from "@/lib/bookmark-store";
-import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { api } from "@/lib/convex-api";
 import {
   categories,
@@ -17,10 +16,8 @@ import type { PublicHotspot } from "@/lib/public-listing";
 import {
   Search,
   MapPin,
-  ChevronRight,
   Star,
   ArrowRight,
-  Check,
   Flame,
   Heart,
   UtensilsCrossed,
@@ -52,13 +49,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 // Map icon string names to Lucide components (only those referenced in mock-data)
 const iconMap: Record<string, React.ElementType> = {
@@ -76,8 +66,6 @@ const iconMap: Record<string, React.ElementType> = {
   Heart,
 };
 
-const HERO_WORDS = ["Pulse", "Vibe", "Rhythm", "Energy", "Soul", "Beat"] as const;
-const LONGEST_HERO_WORD = HERO_WORDS.reduce((a, b) => (a.length >= b.length ? a : b));
 
 import { useBrandAssets } from "@/lib/use-brand-assets";
 import { SpotPhoto } from "@/components/listings/SpotPhoto";
@@ -86,7 +74,7 @@ import { isOpenNow, openStateLabel } from "@/lib/hours";
 const BRAND_FALLBACKS = {
   logo: "/images/lagos-hotspot-logo.png",
   favicon: "/images/lagos-hotspot-favicon.png",
-  hero: "/images/lagos-hotspot-hero.png",
+  hero: "/images/lagos-hotspot-Ikoyi-link-bridge.webp",
 };
 
 export default function HomePage() {
@@ -95,23 +83,6 @@ export default function HomePage() {
   const { navigate } = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchArea, setSearchArea] = useState("");
-
-  // Animated word cycling for hero heading
-  const [wordIndex, setWordIndex] = useState(0);
-  const [fade, setFade] = useState(true);
-  const reducedMotion = useReducedMotion();
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    const interval = setInterval(() => {
-      setFade(false);
-      setTimeout(() => {
-        setWordIndex((prev) => (prev + 1) % HERO_WORDS.length);
-        setFade(true);
-      }, 400);
-    }, 2500);
-    return () => clearInterval(interval);
-  }, [reducedMotion]);
 
   const trendingSpots = useQuery((api as any).hotspots.feed, {
     trendingOnly: true,
@@ -139,42 +110,26 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative min-h-[600px] lg:min-h-[700px] flex items-center overflow-hidden">
-        {/* Background */}
+      {/* Hero: the Lekki-Ikoyi Link Bridge at night, copy on its dark left side */}
+      <section className="relative min-h-[100svh] flex items-end lg:items-center overflow-hidden bg-[oklch(0.14_0.01_40)]">
         <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('${heroUrl}')`,
-          }}
+          className="absolute inset-0 bg-cover bg-[position:72%_center] lg:bg-right"
+          style={{ backgroundImage: `url('${heroUrl}')` }}
+          role="img"
+          aria-label="The Lekki-Ikoyi Link Bridge in Lagos at night"
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/90 via-black/65 to-black/10" />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold text-white mb-6 leading-[1.05] tracking-tight">
-              Find your next{" "}
-              <span
-                aria-live="polite"
-                aria-label={`Word cycling: ${HERO_WORDS.join(', ')}`}
-                className="inline-block text-amber-400 text-center align-baseline motion-safe:transition-[opacity,transform] motion-safe:duration-400 motion-safe:ease-out"
-                style={{
-                  minWidth: `${LONGEST_HERO_WORD.length}ch`,
-                  opacity: fade ? 1 : 0,
-                  transform: fade ? "translateY(0)" : "translateY(-8px)",
-                }}
-              >
-                {HERO_WORDS[wordIndex]}
-              </span>
-              <span className="block text-white/85 font-display italic font-normal text-3xl sm:text-4xl lg:text-5xl mt-2">
-                in the city that never sleeps.
-              </span>
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-16 lg:py-24 w-full">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-[40px] sm:text-6xl lg:text-7xl font-medium text-white leading-[1.02] tracking-tight text-balance">
+              Restaurants, clubs and beaches in Lagos
             </h1>
-            <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto text-pretty">
-              Search restaurants, clubs, beaches and hidden corners across
-              Lagos. Our team checks every spot before it goes live.
+            <p className="mt-6 text-lg text-white max-w-xl text-pretty">
+              {allSpots && allSpots.length > 0
+                ? `${allSpots.length} ${allSpots.length === 1 ? "spot" : "spots"} across ${spotsByArea.size} ${spotsByArea.size === 1 ? "neighbourhood" : "neighbourhoods"} so far, each one checked by our team before it goes live.`
+                : "Every spot is checked by our team before it goes live."}
             </p>
 
             {/* Search Bar */}
@@ -184,7 +139,7 @@ export default function HomePage() {
                 e.preventDefault();
                 handleSearch();
               }}
-              className="bg-white rounded-xl p-2 shadow-2xl flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto"
+              className="mt-8 bg-white rounded-xl p-2 shadow-2xl flex flex-col sm:flex-row gap-2"
             >
               <div className="flex-1 relative">
                 <label htmlFor="hero-search" className="sr-only">
@@ -194,26 +149,26 @@ export default function HomePage() {
                 <Input
                   id="hero-search"
                   type="search"
-                  placeholder={`Try “${HERO_WORDS[wordIndex].toLowerCase()}” — or anything else`}
+                  placeholder="Try suya, rooftop bar or beach club"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 border-0 h-11 focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-0"
+                  className="pl-9 border-0 h-11 text-foreground focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-0"
                 />
               </div>
-              <div className="w-full sm:w-48">
+              <div className="w-full sm:w-44">
                 <label htmlFor="hero-area" className="sr-only">
                   Filter by area
                 </label>
                 <Select value={searchArea} onValueChange={setSearchArea}>
                   <SelectTrigger
                     id="hero-area"
-                    className="h-11 border-0 bg-muted/50"
+                    className="h-11 w-full border-0 bg-muted text-foreground"
                   >
                     <MapPin className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <SelectValue placeholder="All Areas" />
+                    <SelectValue placeholder="All areas" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Areas</SelectItem>
+                    <SelectItem value="all">All areas</SelectItem>
                     {neighborhoods.map((n) => (
                       <SelectItem key={n.id} value={n.name}>
                         {n.name}
@@ -223,13 +178,13 @@ export default function HomePage() {
                 </Select>
               </div>
               <Button type="submit" className="h-11 px-6">
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="h-4 w-4" />
                 Search
               </Button>
             </form>
 
-            {/* Categories inside Hero — fast-lane pills (top 4) */}
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-10 max-w-3xl mx-auto">
+            {/* Category shortcuts: filters, drawn as chips rather than buttons */}
+            <div className="flex flex-wrap gap-2 mt-6">
               {categories.slice(0, 4).map((cat) => {
                 const Icon = iconMap[cat.icon] || Flame;
                 return (
@@ -238,50 +193,26 @@ export default function HomePage() {
                     onClick={() =>
                       navigate("explore", { category: cat.name })
                     }
-                    className="group flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-white/10 hover:bg-white/20 ring-1 ring-white/15 hover:ring-white/30 backdrop-blur-0 motion-safe:transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-black/55 hover:bg-black/75 ring-1 ring-white/25 hover:ring-white/50 text-white text-sm font-medium backdrop-blur-sm motion-safe:transition-colors"
                   >
-                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
-                    <span className="text-sm sm:text-base font-medium text-white">
-                      {cat.name}
-                    </span>
+                    <Icon className="h-4 w-4" aria-hidden="true" />
+                    {cat.name}
                   </button>
                 );
               })}
-              <button
-                onClick={() => navigate("explore")}
-                className="flex items-center gap-1.5 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 motion-safe:transition-colors"
-              >
-                <span className="text-sm sm:text-base font-semibold">
-                  Explore all
-                </span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Trending / Hot Right Now */}
-      <section className="py-20 lg:py-28 bg-muted/30">
+      {/* Trending */}
+      <section className="py-20 lg:py-28 bg-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12 gap-6">
-            <div className="max-w-xl">
-              <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-                Hot Right Now
-              </h2>
-              <p className="text-muted-foreground mt-3 text-pretty">
-                The spots getting attention across Lagos right now.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("explore", { sort: "trending" })}
-              className="hidden sm:flex shrink-0"
-            >
-              View All
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
+          <SectionHeader
+            title="Trending spots in Lagos"
+            lead="The places people are saving and reviewing most this week."
+            action={{ label: "See trending spots", onClick: () => navigate("explore", { sort: "trending" }) }}
+          />
 
           {trendingSpots === undefined ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -290,9 +221,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : trendingSpots.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No trending spots yet. Be the first to add one!</p>
-            </div>
+            <p className="text-muted-foreground py-12">No trending spots yet.</p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {trendingSpots.map((spot) => (
@@ -300,126 +229,72 @@ export default function HomePage() {
               ))}
             </div>
           )}
-
-          <div className="mt-8 text-center sm:hidden">
-            <Button variant="outline" onClick={() => navigate("explore", { sort: "trending" })}>
-              View All Trending
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
         </div>
       </section>
 
-      {/* Featured Spots */}
+      {/* Featured */}
       <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12 gap-6">
-            <div className="max-w-xl">
-              <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-                Editor&apos;s Picks
-              </h2>
-              <p className="text-muted-foreground mt-3 text-pretty">
-                Places we keep coming back to, no matter the season.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("explore")}
-              className="hidden sm:flex shrink-0"
-            >
-              Explore All
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
+          <SectionHeader
+            title="Spots our editors recommend"
+            lead="Places we keep going back to, chosen by the Lagos Hotspot team."
+            action={{ label: "See all spots", onClick: () => navigate("explore") }}
+          />
 
           {featuredSpots === undefined ? (
-            <Carousel className="w-full">
-              <CarouselContent className="gap-6">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <CarouselItem key={i} className="basis-full sm:basis-1/2 lg:basis-1/3">
-                    <FeaturedSkeleton />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
-          ) : featuredSpots.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No featured spots yet.</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <FeaturedSkeleton key={i} />
+              ))}
             </div>
+          ) : featuredSpots.length === 0 ? (
+            <p className="text-muted-foreground py-12">No featured spots yet.</p>
           ) : (
-            <Carousel className="w-full">
-              <CarouselContent className="gap-6">
-                {featuredSpots.map((spot) => (
-                  <CarouselItem key={spot.id} className="basis-full sm:basis-1/2 lg:basis-1/3">
-                    <FeaturedCard spot={spot} navigate={navigate} />
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden lg:flex -left-6" />
-              <CarouselNext className="hidden lg:flex -right-6" />
-            </Carousel>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredSpots.map((spot) => (
+                <FeaturedCard key={spot.id} spot={spot} navigate={navigate} />
+              ))}
+            </div>
           )}
         </div>
       </section>
 
-      {/* Neighborhoods */}
-      <section className="py-20 lg:py-28 bg-muted/30">
+      {/* Neighbourhoods: type-led tiles, no stock photos */}
+      <section className="py-20 lg:py-28 bg-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12 items-end">
-            <div className="lg:col-span-7">
-              <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-                Pick a neighborhood.
-              </h2>
-              <h3 className="font-display text-3xl lg:text-5xl italic font-normal text-primary text-pretty">
-                We&apos;ll do the rest.
-              </h3>
-            </div>
-            <p className="text-muted-foreground lg:col-span-5 text-pretty">
-              Each Lagos postcode tells its own story. Browse by area to find
-              the vibe that matches yours — from the buzz of VI to the calm of
-              Ikoyi.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {neighborhoods.map((nhood) => (
-              <button
-                key={nhood.id}
-                onClick={() => navigate("explore", { area: nhood.name })}
-                className="group relative overflow-hidden rounded-xl aspect-[4/3] text-left"
-              >
-                {nhood.image && (
-                  <img
-                    src={nhood.image}
-                    alt={`${nhood.name} neighborhood in Lagos`}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.05] motion-safe:transition-transform motion-safe:duration-700"
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="text-xl font-bold text-white mb-1">
-                    {nhood.name}
-                  </h3>
-                  <p className="text-white/70 text-sm line-clamp-2 mb-2">
-                    {nhood.description}
-                  </p>
-                  <div className="flex items-center gap-3">
-                    {allSpots !== undefined && (
-                      <Badge variant="secondary" className="bg-white/20 text-white border-0 text-xs">
-                        <MapPin className="h-3 w-3 mr-1" />
-                        {(() => {
-                          const n = spotsByArea.get(nhood.name) ?? 0;
-                          return n === 0 ? "No spots yet" : `${n} ${n === 1 ? "spot" : "spots"}`;
-                        })()}
-                      </Badge>
-                    )}
-                    <span className="text-primary text-sm font-medium group-hover:underline">
-                      Explore →
-                    </span>
+          <SectionHeader
+            title="Spots by neighbourhood"
+            lead="From the clubs of Victoria Island to the street food of Yaba. Pick an area to see what is there."
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {neighborhoods.map((nhood) => {
+              const n = spotsByArea.get(nhood.name) ?? 0;
+              return (
+                <button
+                  key={nhood.id}
+                  onClick={() => navigate("explore", { area: nhood.name })}
+                  className="group flex flex-col justify-between min-h-44 rounded-xl border bg-card p-6 text-left hover:-translate-y-0.5 hover:border-foreground/25 motion-safe:transition-[transform,border-color] motion-safe:duration-200"
+                >
+                  <div>
+                    <h3 className="font-display text-2xl lg:text-[28px] font-medium tracking-tight">
+                      {nhood.name}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2 text-pretty">
+                      {nhood.description}
+                    </p>
                   </div>
-                </div>
-              </button>
-            ))}
+                  <div className="mt-6 flex items-center justify-between text-sm">
+                    <span className={n > 0 ? "font-medium text-foreground tabular-nums" : "text-muted-foreground"}>
+                      {allSpots === undefined ? "\u00a0" : n === 0 ? "No spots yet" : `${n} ${n === 1 ? "spot" : "spots"}`}
+                    </span>
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 motion-safe:transition-[color,transform]"
+                    />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -427,136 +302,76 @@ export default function HomePage() {
       {/* How It Works */}
       <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mb-14">
-            <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-              How Lagos Hotspot Works
-            </h2>
-            <p className="text-muted-foreground mt-3 text-pretty">
-              Three honest steps. No &quot;AI concierge&quot;, no upsell — just
-              real Lagosians&apos; reviews.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <SectionHeader
+            title="How Lagos Hotspot works"
+            lead="Every spot and every review is read by our team before it goes live."
+          />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               {
                 icon: Search,
-                title: "Search & Discover",
+                title: "Search by area, category or price",
                 description:
-                  "Browse hotspots by category, area, or vibe score. Filter by price, ratings, and what's open now.",
-                color: "bg-primary/10 text-primary",
+                  "Filter by what is open now, price level and rating to narrow the list down fast.",
               },
               {
                 icon: Star,
-                title: "Read Reviews",
+                title: "Read reviews from Lagosians",
                 description:
-                  "See what other Lagosians are saying. Our team checks every review before it appears.",
-                color: "bg-accent text-accent-foreground",
+                  "Reviews come from people who went. We check each one before it appears.",
               },
               {
                 icon: MessageCircle,
-                title: "Connect & Visit",
+                title: "Book a table on WhatsApp",
                 description:
-                  "WhatsApp spots directly for reservations. Save your favorites and share with friends.",
-                color: "bg-secondary text-secondary-foreground",
+                  "Message a spot directly to reserve, and save the places you want to try.",
               },
-            ].map(({ icon: Icon, title, description, color }) => (
-              <div
-                key={title}
-                className="text-center p-6 rounded-xl border bg-card hover:shadow-lg motion-safe:transition-shadow"
-              >
-                <div
-                  className={`w-14 h-14 rounded-xl ${color} flex items-center justify-center mx-auto mb-4`}
-                >
-                  <Icon className="h-6 w-6" />
+            ].map(({ icon: Icon, title, description }) => (
+              <div key={title} className="p-6 rounded-xl border bg-card">
+                <div className="w-11 h-11 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-5">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </div>
-                <h3 className="font-semibold text-lg mb-2">{title}</h3>
-                <p className="text-muted-foreground text-sm">{description}</p>
+                <h3 className="font-medium text-lg mb-2">{title}</h3>
+                <p className="text-muted-foreground">{description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* List Your Business CTA */}
-      <section className="py-20 lg:py-28">
+      {/* Guides */}
+      <section className="py-20 lg:py-28 bg-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-              Own a hotspot in Lagos?
-            </h2>
-            <p className="text-muted-foreground mt-3 text-pretty text-lg">
-              List your business for free and reach thousands of Lagosians
-              looking for the next great spot.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-              <Button size="lg" onClick={() => navigate("register")}>
-                List Your Business — Free
-              </Button>
-              <Button variant="outline" size="lg" onClick={() => navigate("explore")}>
-                Explore Hotspots
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground mt-4">
-              100% free during launch. No paid tiers yet.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Blog Preview */}
-      <section className="py-20 lg:py-28 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12 gap-6">
-            <div className="max-w-xl">
-              <h2 className="font-display text-3xl lg:text-5xl font-semibold tracking-tight text-pretty">
-                Lagos Stories & Guides
-              </h2>
-              <p className="text-muted-foreground mt-3 text-pretty">
-                Long reads, neighbourhood guides, and dispatches from the
-                city.
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => navigate("blog")}
-              className="hidden sm:flex shrink-0"
-            >
-              All Articles
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
+          <SectionHeader
+            title="Guides to Lagos"
+            lead="Neighbourhood guides and long reads from the city."
+            action={{ label: "Read all guides", onClick: () => navigate("blog") }}
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {blogPosts.slice(0, 3).map((post) => (
               <Card
                 key={post.id}
-                className="overflow-hidden hover:shadow-lg motion-safe:transition-shadow cursor-pointer group"
+                className="overflow-hidden hover:-translate-y-0.5 hover:shadow-md motion-safe:transition-[transform,box-shadow] cursor-pointer group"
                 onClick={() => navigate("blog-detail", { id: post.id })}
               >
                 <div className="aspect-video bg-muted overflow-hidden">
                   {post.image && (
                     <img
                       src={post.image}
-                      alt={post.title}
+                      alt=""
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
+                      className="w-full h-full object-cover group-hover:scale-[1.03] motion-safe:transition-transform motion-safe:duration-500"
                     />
                   )}
                 </div>
-                <CardContent className="p-4">
-                  <Badge variant="secondary" className="mb-2 text-xs">
-                    {post.category}
-                  </Badge>
-                  <h3 className="font-semibold mb-1 line-clamp-2">
+                <CardContent className="p-5">
+                  <p className="text-[13px] font-medium text-muted-foreground mb-2">{post.category}</p>
+                  <h3 className="font-medium text-lg leading-snug mb-2 line-clamp-2 text-pretty">
                     {post.title}
                   </h3>
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {post.excerpt}
                   </p>
-                  <div className="flex items-center gap-2 mt-3 text-xs text-muted-foreground">
-                    <span>{post.author}</span>
-                    <span>·</span>
-                    <span>{post.readTime}</span>
-                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -564,43 +379,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 lg:py-20">
+      {/* Closing call to action: one, for owners and locals alike */}
+      <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-orange-700 p-8 lg:p-16 text-center">
-            <div className="relative z-10">
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-                Know a Hot Spot in Lagos?
+          <div className="rounded-2xl bg-foreground text-background p-8 sm:p-12 lg:p-16 grid gap-8 lg:grid-cols-12 lg:items-end">
+            <div className="lg:col-span-8">
+              <h2 className="font-display text-4xl lg:text-5xl font-medium tracking-tight text-pretty">
+                Add a spot to Lagos Hotspot
               </h2>
-              <p className="text-white/80 max-w-lg mx-auto mb-8">
-                Help the community discover amazing places. Submit your favorite
-                spots for free.
+              <p className="mt-4 text-lg text-background/80 max-w-xl text-pretty">
+                Own a place, or know one we have missed? Listing is free during launch, and our team reviews every spot within a few days.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
-                  size="lg"
-                  variant="secondary"
-                  onClick={() => navigate("register")}
-                >
-                  Get Started Free
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white/60 bg-white/10 text-white font-semibold hover:bg-white/20 hover:text-white hover:border-white"
-                  onClick={() => navigate("explore")}
-                >
-                  Explore Spots
-                </Button>
-              </div>
             </div>
-            {/* Decorative circles */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/5 rounded-full" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-white/5 rounded-full" />
+            <div className="lg:col-span-4 lg:justify-self-end">
+              <Button size="lg" onClick={() => navigate("register")}>
+                Add a spot
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+// ─── Section header: one heading, one line under it, one optional action ───
+function SectionHeader({
+  title,
+  lead,
+  action,
+}: {
+  title: string;
+  lead: string;
+  action?: { label: string; onClick: () => void };
+}) {
+  return (
+    <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between mb-10 lg:mb-12">
+      <div className="max-w-2xl">
+        <h2 className="font-display text-4xl lg:text-5xl font-medium tracking-tight text-pretty">
+          {title}
+        </h2>
+        <p className="text-muted-foreground mt-3 text-lg text-pretty">{lead}</p>
+      </div>
+      {action && (
+        <Button variant="outline" size="lg" onClick={action.onClick} className="self-start sm:self-auto shrink-0">
+          {action.label}
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   );
 }
@@ -668,7 +495,7 @@ function HotspotCard({
           className="w-full h-full group-hover:scale-[1.04] motion-safe:transition-transform motion-safe:duration-500"
         />
         {/* Vibe Score Badge */}
-        <div className="absolute top-3 left-3 bg-black/70 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+        <div className="absolute top-3 left-3 bg-black/70 text-white px-2.5 py-1 rounded-full text-[13px] font-medium tabular-nums flex items-center gap-1">
           <Flame className="h-3 w-3 text-primary" />
           {spot.vibeScore}
         </div>
@@ -695,7 +522,7 @@ function HotspotCard({
       </div>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-semibold text-sm line-clamp-1">{spot.title}</h3>
+          <h3 className="font-medium line-clamp-1">{spot.title}</h3>
           <div className="flex items-center gap-1 shrink-0">
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
             <span className="text-sm font-medium">{spot.rating}</span>
@@ -755,21 +582,18 @@ function FeaturedCard({
               {spot.rating}
             </Badge>
           </div>
-          <h3 className="text-lg font-bold text-white">{spot.title}</h3>
+          <h3 className="font-display text-2xl font-medium tracking-tight text-white">{spot.title}</h3>
         </div>
       </div>
       <CardContent className="p-4">
         <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
           {spot.description}
         </p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center">
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 text-primary" />
+            <MapPin className="h-4 w-4" />
             {spot.area}
           </div>
-          <span className="text-sm font-medium text-primary">
-            View Details →
-          </span>
         </div>
       </CardContent>
     </Card>
